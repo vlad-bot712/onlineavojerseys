@@ -66,6 +66,7 @@ class OrderItem(BaseModel):
     size: str
     quantity: int
     price_ron: float
+    customization: Optional[Dict] = None  # {name: str, number: str, patches: [str]}
 
 
 class CreateOrderRequest(BaseModel):
