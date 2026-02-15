@@ -162,6 +162,38 @@ export default function ProductDetail() {
             <p className="text-xl text-neutral-600 mb-6">{product.team} • {product.year}</p>
             <p className="text-4xl font-bold mb-8">{formatPrice(product.price_ron)}</p>
 
+            {/* Variant Selector (Kit Type) */}
+            {product.variants && product.variants.length > 0 && (
+              <div className="mb-8">
+                <h3 className="font-bold mb-3">SELECTEAZĂ KIT-UL</h3>
+                <div className="grid grid-cols-1 gap-3">
+                  {product.variants.map((variant, idx) => (
+                    <button
+                      key={idx}
+                      data-testid={`variant-${variant.kit}`}
+                      onClick={() => handleVariantChange(idx)}
+                      className={`flex items-center justify-between p-4 border-2 font-bold transition-all ${
+                        selectedVariant === idx
+                          ? 'border-black bg-[#CCFF00]'
+                          : 'border-neutral-200 hover:border-black'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <Shirt className="w-6 h-6" />
+                        <div className="text-left">
+                          <div className="font-bold">{variant.name}</div>
+                          <div className="text-sm text-neutral-600">Culoare: {variant.color}</div>
+                        </div>
+                      </div>
+                      {selectedVariant === idx && (
+                        <Check className="w-6 h-6 text-black" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Size Selector */}
             <div className="mb-8">
               <h3 className="font-bold mb-3">SELECTEAZĂ MĂRIMEA</h3>
