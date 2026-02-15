@@ -1,0 +1,160 @@
+import React, { useState } from 'react';
+import { Search, Package, Truck, CheckCircle } from 'lucide-react';
+import axios from 'axios';
+import { toast } from 'sonner';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+export default function OrderTracking() {
+  const [orderNumber, setOrderNumber] = useState('');
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!orderNumber.trim()) {
+      toast.error('Introdu numărul comenzii');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API_URL}/api/orders/number/${orderNumber.trim()}`);
+      setOrder(res.data);
+    } catch (err) {
+      console.error(err);
+      toast.error('Comanda nu a fost găsită');
+      setOrder(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'pending':
+      case 'processing':
+        return <Package className="w-8 h-8" />;
+      case 'shipped':
+        return <Truck className="w-8 h-8" />;
+      case 'delivered':
+        return <CheckCircle className="w-8 h-8" />;
+      default:
+        return <Package className="w-8 h-8" />;
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'În Așteptare';
+      case 'processing':
+        return 'În Procesare';
+      case 'shipped':
+        return 'Expediată';
+      case 'delivered':
+        return 'Livrată';
+      default:
+        return status;
+    }
+  };
+
+  return (
+    <div data-testid="tracking-page" className="pt-24 pb-16 min-h-screen">
+      <div className="max-w-4xl mx-auto px-4 md:px-8">
+        <h1 className="text-4xl sm:text-5xl font-bold text-center mb-8">URMĂREȘTE COMANDA</h1>
+
+        {/* Search Form */}
+        <div className="bg-white border border-neutral-200 p-8 mb-8">
+          <form onSubmit={handleSearch} className="flex gap-4">
+            <input
+              type="text"
+              data-testid="order-number-input"
+              value={orderNumber}
+              onChange={(e) => setOrderNumber(e.target.value)}
+              placeholder="Introdu numărul comenzii (ex: AVO00001)"
+              className="flex-1 border border-neutral-200 px-4 py-3 focus:outline-none focus:border-black"
+            />
+            <button
+              type="submit"
+              data-testid="search-order-btn"
+              disabled={loading}
+              className="bg-black text-white px-8 py-3 font-bold uppercase hover:bg-neutral-800 transition-colors disabled:opacity-50 flex items-center space-x-2"
+            >
+              <Search className="w-5 h-5" />
+              <span>Caută</span>
+            </button>
+          </form>
+        </div>
+
+        {/* Order Details */}
+        {order && (
+          <div data-testid="order-details" className="bg-white border border-neutral-200 p-8">
+            {/* Status */}
+            <div className="text-center mb-8 pb-8 border-b border-neutral-200">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-black text-white mb-4">
+                {getStatusIcon(order.status)}
+              </div>
+              <h2 className="text-3xl font-bold mb-2">{getStatusText(order.status)}</h2>
+              <p className="text-neutral-600">Comandă #{order.order_number}</p>
+            </div>
+
+            {/* AWB */}
+            {order.awb && (
+              <div className="bg-[#CCFF00]/20 border-2 border-[#CCFF00] p-6 mb-8">
+                <h3 className="font-bold text-xl mb-2">AWB EXPEDIERE</h3>
+                <p className="text-2xl font-bold">{order.awb}</p>
+                <p className="text-sm text-neutral-600 mt-2">
+                  Folosește acest număr pentru a urmări coletul pe site-ul curierului
+                </p>
+              </div>
+            )}
+
+            {/* Customer Details */}
+            <div className="mb-8">
+              <h3 className="font-bold text-xl mb-4">DETALII LIVRARE</h3>
+              <div className="space-y-2 text-neutral-600">
+                <p><span className="font-bold text-black">Nume:</span> {order.customer_name}</p>
+                <p><span className="font-bold text-black">Email:</span> {order.customer_email}</p>
+                <p><span className="font-bold text-black">Telefon:</span> {order.customer_phone}</p>
+                <p><span className="font-bold text-black">Adresă:</span> {order.customer_address}</p>
+              </div>
+            </div>
+
+            {/* Items */}
+            <div>
+              <h3 className="font-bold text-xl mb-4">PRODUSE</h3>
+              <div className="space-y-4">
+                {order.items.map((item, idx) => (
+                  <div key={idx} className="flex gap-4 border-b border-neutral-100 pb-4">
+                    <img 
+                      src={item.product_image || 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=200'} 
+                      alt={item.product_name}
+                      className="w-20 h-20 object-cover"
+                    />
+                    <div className="flex-1">
+                      <p className="font-bold">{item.product_name}</p>
+                      <p className="text-sm text-neutral-600">Mărime: {item.size} • Cantitate: {item.quantity}</p>
+                      <p className="font-bold mt-1">{item.price_ron} RON</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 pt-6 border-t border-neutral-200 flex justify-between text-xl">
+                <span className="font-bold">TOTAL</span>
+                <span className="font-bold">{order.total_ron} {order.currency}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!order && (
+          <div className="text-center text-neutral-500">
+            <Package className="w-16 h-16 mx-auto mb-4 opacity-30" />
+            <p>Introdu numărul comenzii pentru a vedea detaliile</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
