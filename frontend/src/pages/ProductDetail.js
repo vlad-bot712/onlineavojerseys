@@ -181,8 +181,7 @@ export default function ProductDetail() {
                       <div className="flex items-center space-x-3">
                         <Shirt className="w-6 h-6" />
                         <div className="text-left">
-                          <div className="font-bold">{variant.name}</div>
-                          <div className="text-sm text-neutral-600">Culoare: {variant.color}</div>
+                          <div className="font-bold text-lg">{variant.name}</div>
                         </div>
                       </div>
                       {selectedVariant === idx && (
