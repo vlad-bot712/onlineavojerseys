@@ -93,12 +93,17 @@ class Order(BaseModel):
     customer_email: str
     customer_phone: str
     customer_address: str
+    customer_street: str
+    customer_city: str
+    customer_county: str
+    customer_zip: str
+    customer_country: str
     shipping_method: str
+    payment_method: str
     total_ron: float
     currency: str
     status: str = "pending"
     payment_status: str = "pending"
-    payment_method: str = ""
     awb: str = ""
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
