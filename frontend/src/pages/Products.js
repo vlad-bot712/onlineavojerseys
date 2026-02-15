@@ -10,6 +10,7 @@ const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function Products() {
   const { formatPrice } = useCurrency();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [searchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
