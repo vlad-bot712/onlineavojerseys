@@ -41,7 +41,25 @@ export default function Products() {
     }
   };
 
-  const years = [1998, 2002, 2006, 2010, 2014, 2018, 2022, 2024];
+  // Generate year options based on category
+  const getYearOptions = () => {
+    if (filters.category === 'nationale') {
+      // Naționale: 2023 onwards
+      return [2023, 2024, 2025, 2026];
+    } else if (filters.category === 'echipe-club') {
+      // Cluburi: seasons 15/16 to 26/27
+      const seasons = [];
+      for (let year = 2015; year <= 2026; year++) {
+        seasons.push(year);
+      }
+      return seasons;
+    } else {
+      // All years for retro or no filter
+      return [1998, 2002, 2006, 2010, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
+    }
+  };
+
+  const years = getYearOptions();
 
   return (
     <div data-testid="products-page" className="pt-24 pb-16 min-h-screen">
