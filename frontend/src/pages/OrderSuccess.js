@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { CheckCircle, Package } from 'lucide-react';
+import { CheckCircle, Package, Banknote, Building2 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 
@@ -9,14 +9,32 @@ const API_URL = process.env.REACT_APP_BACKEND_URL;
 export default function OrderSuccess() {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('session_id');
+  const orderId = searchParams.get('order_id');
+  const paymentMethod = searchParams.get('payment_method');
   const [order, setOrder] = useState(null);
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     if (sessionId) {
+      // Stripe payment
       checkPaymentStatus();
+    } else if (orderId) {
+      // Direct payment (ramburs, transfer, etc.)
+      loadOrder();
     }
-  }, [sessionId]);
+  }, [sessionId, orderId]);
+
+  const loadOrder = async () => {
+    try {
+      const orderRes = await axios.get(`${API_URL}/api/orders/${orderId}`);
+      setOrder(orderRes.data);
+      setChecking(false);
+    } catch (err) {
+      console.error(err);
+      setChecking(false);
+      toast.error('Nu am putut încărca comanda');
+    }
+  };
 
   const checkPaymentStatus = async () => {
     let attempts = 0;
@@ -28,7 +46,6 @@ export default function OrderSuccess() {
         const res = await axios.get(`${API_URL}/api/payments/stripe/status/${sessionId}`);
         
         if (res.data.payment_status === 'paid') {
-          // Get order details
           const orderRes = await axios.get(`${API_URL}/api/orders/${res.data.order_id}`);
           setOrder(orderRes.data);
           setChecking(false);
@@ -52,12 +69,24 @@ export default function OrderSuccess() {
     poll();
   };
 
+  const getPaymentMethodInfo = (method) => {
+    const methods = {
+      'ramburs': { name: 'Ramburs (Plată la Livrare)', icon: Banknote, color: 'bg-green-500' },
+      'card': { name: 'Card Bancar', icon: Package, color: 'bg-blue-500' },
+      'stripe': { name: 'Card Bancar (Stripe)', icon: Package, color: 'bg-blue-500' },
+      'transfer': { name: 'Transfer Bancar', icon: Building2, color: 'bg-purple-500' },
+      'skrill': { name: 'Skrill', icon: Package, color: 'bg-orange-500' },
+      'paysafe': { name: 'Paysafecard', icon: Package, color: 'bg-pink-500' }
+    };
+    return methods[method] || methods.ramburs;
+  };
+
   if (checking) {
     return (
       <div className="pt-24 pb-16 min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-black mx-auto mb-4"></div>
-          <p className="text-xl">Se verifică plata...</p>
+          <p className="text-xl">Se verifică comanda...</p>
         </div>
       </div>
     );
@@ -76,6 +105,9 @@ export default function OrderSuccess() {
     );
   }
 
+  const paymentInfo = getPaymentMethodInfo(order.payment_method);
+  const PaymentIcon = paymentInfo.icon;
+
   return (
     <div data-testid="order-success-page" className="pt-24 pb-16 min-h-screen">
       <div className="max-w-3xl mx-auto px-4 md:px-8 text-center">
@@ -85,7 +117,7 @@ export default function OrderSuccess() {
           Mulțumim pentru comandă! Vei primi un email de confirmare în scurt timp.
         </p>
 
-        <div className="bg-white border border-neutral-200 p-8 mb-8">
+        <div className="bg-white border-2 border-neutral-200 p-8 mb-8">
           <div className="flex items-center justify-center space-x-3 mb-6">
             <Package className="w-6 h-6" />
             <h2 className="text-2xl font-bold">DETALII COMANDĂ</h2>
@@ -98,7 +130,16 @@ export default function OrderSuccess() {
             </div>
             <div className="flex justify-between border-b border-neutral-200 pb-2">
               <span className="text-neutral-600">Status:</span>
-              <span className="font-bold text-green-600">Plătită</span>
+              <span className="font-bold text-green-600">
+                {order.payment_method === 'ramburs' ? 'Confirmată' : order.payment_status === 'paid' ? 'Plătită' : 'În Procesare'}
+              </span>
+            </div>
+            <div className="flex justify-between border-b border-neutral-200 pb-2">
+              <span className="text-neutral-600">Metodă Plată:</span>
+              <div className="flex items-center space-x-2">
+                <PaymentIcon className="w-4 h-4" />
+                <span className="font-bold">{paymentInfo.name}</span>
+              </div>
             </div>
             <div className="flex justify-between border-b border-neutral-200 pb-2">
               <span className="text-neutral-600">Total:</span>
@@ -110,6 +151,30 @@ export default function OrderSuccess() {
             </div>
           </div>
         </div>
+
+        {/* Payment Instructions */}
+        {order.payment_method === 'transfer' && (
+          <div className="bg-[#CCFF00] border-2 border-black p-6 mb-8">
+            <h3 className="text-xl font-bold mb-3">INSTRUCȚIUNI TRANSFER BANCAR</h3>
+            <div className="text-left space-y-2">
+              <p className="font-bold">IBAN: RO40BTRLRONCRT0CU0290301</p>
+              <p>Suma: <span className="font-bold">{order.total_ron} RON</span></p>
+              <p>Detalii plată: <span className="font-bold">Comandă {order.order_number}</span></p>
+              <p className="text-sm text-neutral-700 mt-3">
+                * După efectuarea transferului, comanda ta va fi procesată în 24-48h
+              </p>
+            </div>
+          </div>
+        )}
+
+        {order.payment_method === 'ramburs' && (
+          <div className="bg-green-50 border-2 border-green-500 p-6 mb-8">
+            <h3 className="text-xl font-bold mb-3 text-green-700">PLATĂ LA LIVRARE</h3>
+            <p className="text-neutral-700">
+              Vei plăti suma de <span className="font-bold">{order.total_ron} RON</span> curierului la primirea coletului.
+            </p>
+          </div>
+        )}
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
@@ -136,3 +201,4 @@ export default function OrderSuccess() {
     </div>
   );
 }
+
