@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { ShoppingCart, Check } from 'lucide-react';
+import { ShoppingCart, Check, Heart } from 'lucide-react';
 import axios from 'axios';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useCart } from '../contexts/CartContext';
+import { useFavorites } from '../contexts/FavoritesContext';
 import { toast } from 'sonner';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -12,6 +13,7 @@ export default function ProductDetail() {
   const { id } = useParams();
   const { formatPrice } = useCurrency();
   const { addToCart } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState('');
