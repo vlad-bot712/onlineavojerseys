@@ -61,10 +61,16 @@ export default function ProductDetail() {
       return;
     }
     
-    // Create product with customization and version
+    // Get selected kit name
+    const selectedKit = product.variants && product.variants[selectedVariant] 
+      ? product.variants[selectedVariant].kit 
+      : null;
+    
+    // Create product with ALL customization details
     const productWithCustomization = {
       ...product,
-      selectedVersion: selectedVersion, // Player or Fan version
+      selectedKit: selectedKit, // first, second, or third
+      selectedVersion: selectedVersion, // player or fan
       customization: customization.enabled ? {
         name: customization.name,
         number: customization.number,
