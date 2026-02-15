@@ -241,6 +241,27 @@ export default function AdminOrderDetail() {
                       <p className="text-sm text-neutral-600">
                         Mărime: {item.size} • Cantitate: {item.quantity}
                       </p>
+                      {(item.customization || item.version) && (
+                        <div className="mt-2 text-xs text-neutral-600 space-y-1">
+                          {item.version && (
+                            <p className="font-bold text-[#CCFF00] bg-black px-2 py-1 inline-block">
+                              {item.version === 'player' ? 'PLAYER VERSION' : 'FAN VERSION'}
+                            </p>
+                          )}
+                          {item.customization && (
+                            <div className="space-y-0.5">
+                              {item.customization.name && <p>• Nume: {item.customization.name}</p>}
+                              {item.customization.number && <p>• Număr: {item.customization.number}</p>}
+                              {item.customization.patches && item.customization.patches.length > 0 && (
+                                <p>• Patch-uri: {item.customization.patches.map(p => 
+                                  p === 'league' ? '🏆 Liga' : 
+                                  p === 'ucl' ? '⭐ UCL' : p
+                                ).join(', ')}</p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
                       <p className="font-bold mt-1">{item.price_ron} RON x {item.quantity}</p>
                     </div>
                     <div className="text-right">
