@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Truck, CreditCard, Shield } from 'lucide-react';
+import { ArrowRight, Truck, CreditCard, Shield, Heart } from 'lucide-react';
 import axios from 'axios';
 import { useCurrency } from '../contexts/CurrencyContext';
+import { useFavorites } from '../contexts/FavoritesContext';
+import { toast } from 'sonner';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function Home() {
   const { formatPrice } = useCurrency();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [categories, setCategories] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
 
