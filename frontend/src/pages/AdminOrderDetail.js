@@ -97,14 +97,35 @@ export default function AdminOrderDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Order Management */}
           <div className="lg:col-span-1 space-y-6">
+            {/* Quick Actions */}
+            <div className="bg-white border-2 border-neutral-200 p-6">
+              <h2 className="font-bold text-xl mb-4">ACȚIUNI RAPIDE</h2>
+              <div className="space-y-3">
+                <a
+                  href={`tel:${order.customer_phone}`}
+                  className="w-full bg-green-500 text-white py-3 px-4 font-bold uppercase text-sm hover:bg-green-600 transition-colors flex items-center justify-center space-x-2"
+                >
+                  <Phone className="w-5 h-5" />
+                  <span>Sună Clientul</span>
+                </a>
+                <a
+                  href={`mailto:${order.customer_email}?subject=Comandă ${order.order_number}`}
+                  className="w-full bg-blue-500 text-white py-3 px-4 font-bold uppercase text-sm hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2"
+                >
+                  <Mail className="w-5 h-5" />
+                  <span>Trimite Email</span>
+                </a>
+              </div>
+            </div>
+
             {/* Status */}
-            <div className="bg-white border border-neutral-200 p-6">
+            <div className="bg-white border-2 border-neutral-200 p-6">
               <h2 className="font-bold text-xl mb-4">STATUS COMANDĂ</h2>
               <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 data-testid="status-select"
-                className="w-full border border-neutral-200 px-4 py-3 focus:outline-none focus:border-black font-bold"
+                className="w-full border-2 border-neutral-200 px-4 py-3 focus:outline-none focus:border-black font-bold"
               >
                 <option value="pending">În Așteptare</option>
                 <option value="processing">În Procesare</option>
@@ -115,7 +136,7 @@ export default function AdminOrderDetail() {
             </div>
 
             {/* AWB */}
-            <div className="bg-white border border-neutral-200 p-6">
+            <div className="bg-white border-2 border-neutral-200 p-6">
               <h2 className="font-bold text-xl mb-4">AWB EXPEDIERE</h2>
               <input
                 type="text"
@@ -123,22 +144,26 @@ export default function AdminOrderDetail() {
                 onChange={(e) => setFormData({ ...formData, awb: e.target.value })}
                 data-testid="awb-input"
                 placeholder="Introdu AWB..."
-                className="w-full border border-neutral-200 px-4 py-3 focus:outline-none focus:border-black"
+                className="w-full border-2 border-neutral-200 px-4 py-3 focus:outline-none focus:border-black"
               />
               <p className="text-sm text-neutral-500 mt-2">
-                Clientul va vedea acest număr în tracking
+                * Clientul va vedea acest număr în tracking
               </p>
             </div>
 
             {/* Payment Status */}
-            <div className="bg-white border border-neutral-200 p-6">
+            <div className="bg-white border-2 border-neutral-200 p-6">
               <h2 className="font-bold text-xl mb-4">STATUS PLATĂ</h2>
               <div className={`px-4 py-3 font-bold text-center ${
                 order.payment_status === 'paid' 
-                  ? 'bg-green-100 text-green-700 border border-green-300' 
-                  : 'bg-yellow-100 text-yellow-700 border border-yellow-300'
+                  ? 'bg-green-100 text-green-700 border-2 border-green-300' 
+                  : order.payment_status === 'cod'
+                  ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
+                  : 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300'
               }`}>
-                {order.payment_status === 'paid' ? 'PLĂTITĂ' : 'ÎN AȘTEPTARE'}
+                {order.payment_status === 'paid' ? 'PLĂTITĂ' : 
+                 order.payment_status === 'cod' ? 'RAMBURS' : 
+                 'ÎN AȘTEPTARE'}
               </div>
               <p className="text-sm text-neutral-500 mt-2">
                 Metodă: {order.payment_method || 'Nespecificată'}
