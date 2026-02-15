@@ -18,6 +18,7 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedVariant, setSelectedVariant] = useState(0); // Index of selected kit
   
   // Customization state
   const [customization, setCustomization] = useState({
