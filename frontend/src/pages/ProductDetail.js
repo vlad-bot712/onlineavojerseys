@@ -134,6 +134,22 @@ export default function ProductDetail() {
                 <ShoppingCart className="w-5 h-5" />
                 <span>Adaugă în Coș</span>
               </button>
+
+              <button
+                onClick={() => {
+                  toggleFavorite(product);
+                  toast.success(isFavorite(product.id) ? 'Șters din favorite' : 'Adăugat la favorite');
+                }}
+                data-testid="add-to-favorites-btn"
+                className={`w-full py-4 px-8 font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-2 border-2 ${
+                  isFavorite(product.id)
+                    ? 'bg-red-500 text-white border-red-500 hover:bg-red-600'
+                    : 'bg-white text-black border-black hover:bg-[#CCFF00] hover:border-[#CCFF00]'
+                }`}
+              >
+                <Heart className={`w-5 h-5 ${isFavorite(product.id) ? 'fill-white' : ''}`} />
+                <span>{isFavorite(product.id) ? 'Șters din Favorite' : 'Adaugă la Favorite'}</span>
+              </button>
             </div>
 
             {/* Description */}
