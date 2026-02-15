@@ -1,0 +1,118 @@
+{
+  "identity": {
+    "name": "AVO JERSEYS",
+    "mission": "Premium football jerseys for true fans.",
+    "vibe": "Modern, Athletic, Premium, Minimalist",
+    "logo_url": "https://customer-assets.emergentagent.com/job_jersey-hub-31/artifacts/momr6z3s_IMG_9227.png"
+  },
+  "colors": {
+    "palette": {
+      "primary": "#0A0A0A",
+      "secondary": "#FFFFFF",
+      "accent": "#CCFF00",
+      "neutral": "#F3F4F6",
+      "dark_bg": "#111111",
+      "light_bg": "#FFFFFF",
+      "success": "#10B981",
+      "error": "#EF4444",
+      "warning": "#F59E0B"
+    },
+    "usage": {
+      "background": "bg-white dark:bg-neutral-950",
+      "text_primary": "text-neutral-900 dark:text-white",
+      "text_secondary": "text-neutral-500 dark:text-neutral-400",
+      "accent": "text-[#CCFF00] or bg-[#CCFF00]",
+      "border": "border-neutral-200 dark:border-neutral-800"
+    }
+  },
+  "typography": {
+    "headings": {
+      "font_family": "Barlow Condensed, sans-serif",
+      "weights": ["700", "800", "900"],
+      "usage": "uppercase tracking-tighter"
+    },
+    "body": {
+      "font_family": "Inter, sans-serif",
+      "weights": ["400", "500", "600"],
+      "usage": "tracking-normal leading-relaxed"
+    }
+  },
+  "layout": {
+    "spacing": {
+      "container_padding": "px-4 md:px-8 lg:px-12",
+      "section_gap": "py-16 md:py-24",
+      "grid_gap": "gap-6 md:gap-8"
+    },
+    "grid_system": {
+      "product_grid": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+      "bento_grid": "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 auto-rows-[300px]"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-black text-white hover:bg-neutral-800 rounded-none px-8 py-3 font-bold uppercase tracking-wider transition-all duration-300 hover:-translate-y-1",
+      "secondary": "bg-white text-black border-2 border-black hover:bg-neutral-100 rounded-none px-8 py-3 font-bold uppercase tracking-wider transition-all duration-300",
+      "accent": "bg-[#CCFF00] text-black hover:bg-[#B3E600] rounded-none px-8 py-3 font-bold uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+    },
+    "cards": {
+      "product": "group relative bg-white dark:bg-neutral-900 overflow-hidden border border-neutral-100 dark:border-neutral-800 hover:shadow-xl transition-all duration-300",
+      "category": "relative overflow-hidden h-full w-full group cursor-pointer"
+    },
+    "inputs": {
+      "default": "bg-neutral-50 border border-neutral-200 focus:border-black focus:ring-1 focus:ring-black rounded-none px-4 py-3 outline-none transition-all"
+    },
+    "navbar": {
+      "style": "fixed top-0 w-full z-50 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-neutral-200/50 dark:border-neutral-800/50"
+    }
+  },
+  "visual_enhancers": {
+    "shadows": "shadow-lg hover:shadow-xl transition-shadow duration-300",
+    "borders": "border border-neutral-200 dark:border-neutral-800",
+    "glassmorphism": "backdrop-blur-md bg-white/70 dark:bg-black/70",
+    "animations": {
+      "hover_lift": "hover:-translate-y-1 transition-transform duration-300",
+      "fade_in": "animate-in fade-in duration-500",
+      "slide_up": "animate-in slide-in-from-bottom-4 duration-500"
+    }
+  },
+  "images": {
+    "hero": {
+      "url": "https://images.unsplash.com/photo-1657957746418-6a38df9e1ea7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTV8MHwxfHNlYXJjaHwxfHxmb290YmFsbCUyMHBsYXllciUyMGFjdGlvbiUyMHN0YWRpdW18ZW58MHx8fHwxNzcxMTg2MTQxfDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Football players in action",
+      "category": "hero"
+    },
+    "textures": {
+      "black_fabric": "https://images.unsplash.com/photo-1632621525252-26ed288b4352?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTN8MHwxfHNlYXJjaHwzfHxzb2NjZXIlMjBqZXJzZXklMjB0ZXh0dXJlJTIwY2xvc2UlMjB1cCUyMGZhYnJpY3xlbnwwfHx8fDE3NzExODYxNTl8MA&ixlib=rb-4.1.0&q=85",
+      "category": "background"
+    },
+    "placeholders": {
+      "jersey_1": "https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHw0fHxzb2NjZXIlMjBqZXJzZXklMjBoYW5naW5nJTIwbWluaW1hbGlzdHxlbnwwfHx8fDE3NzExODYxNDV8MA&ixlib=rb-4.1.0&q=85",
+      "stadium": "https://images.unsplash.com/photo-1735587804724-5d9511bce0cd?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTN8MHwxfHNlYXJjaHwzfHxtb2Rlcm4lMjBmb290YmFsbCUyMHN0YWRpdW0lMjBuaWdodCUyMGxpZ2h0c3xlbnwwfHx8fDE3NzExODYxNjN8MA&ixlib=rb-4.1.0&q=85"
+    }
+  },
+  "instructions_to_main_agent": {
+    "general": "Build a premium, minimalist e-commerce site. Focus on high contrast, bold typography, and smooth interactions. Use the 'Barlow Condensed' font for all headings to give it that sports brand feel.",
+    "pages": {
+      "home": "Hero section with full-width image and bold CTA. Bento grid for categories (Club, National, Retro). Featured products carousel.",
+      "catalog": "Sidebar filters (Year, Team, League). Clean product grid. Hover on product card shows secondary image or 'Quick Add'.",
+      "product_detail": "Large gallery on left (sticky). Details on right. Size selector as pill buttons. 'Add to Cart' button must be prominent.",
+      "cart": "Minimalist table layout. Clear total. Checkout button prominent.",
+      "admin": "Dashboard with key metrics. Order list as cards or table. Status toggle.",
+      "tracking": "Simple input field for AWB. Timeline view for status."
+    },
+    "functionality": {
+      "currency": "Implement a context provider for Currency (RON/EUR). 1 EUR = 5 RON. Toggle in Navbar.",
+      "filters": "Client-side filtering for demo purposes if backend API is limited, otherwise pass params to API.",
+      "cart": "Use local storage or context for cart state."
+    }
+  },
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Do not use generic centered layouts. Use asymmetry and grid systems.",
+    "Use 'Barlow Condensed' for headings and 'Inter' for body.",
+    "Primary CTA buttons should be sharp (rounded-none) or pill-shaped, high contrast.",
+    "Use 'sonner' for toasts.",
+    "Ensure all interactive elements have 'data-testid'.",
+    "Use 'lucide-react' for icons.",
+    "Implement dark mode support using Tailwind's 'dark:' prefix."
+  ]
+}
