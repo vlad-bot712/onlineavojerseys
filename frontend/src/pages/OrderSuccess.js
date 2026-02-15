@@ -27,12 +27,43 @@ export default function OrderSuccess() {
   const loadOrder = async () => {
     try {
       const orderRes = await axios.get(`${API_URL}/api/orders/${orderId}`);
-      setOrder(orderRes.data);
+      const orderData = orderRes.data;
+      setOrder(orderData);
+      
+      // Save order to localStorage for quick access
+      saveOrderToHistory(orderData);
+      
       setChecking(false);
     } catch (err) {
       console.error(err);
       setChecking(false);
       toast.error('Nu am putut încărca comanda');
+    }
+  };
+
+  const saveOrderToHistory = (orderData) => {
+    try {
+      // Get existing orders from localStorage
+      const existingOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
+      
+      // Add new order if not already exists
+      const orderExists = existingOrders.some(o => o.order_number === orderData.order_number);
+      if (!orderExists) {
+        existingOrders.unshift({
+          order_number: orderData.order_number,
+          order_id: orderData.id,
+          date: orderData.created_at,
+          total: orderData.total_ron,
+          currency: orderData.currency,
+          status: orderData.status
+        });
+        
+        // Keep only last 10 orders
+        const recentOrders = existingOrders.slice(0, 10);
+        localStorage.setItem('myOrders', JSON.stringify(recentOrders));
+      }
+    } catch (err) {
+      console.error('Failed to save order to history', err);
     }
   };
 
@@ -47,7 +78,12 @@ export default function OrderSuccess() {
         
         if (res.data.payment_status === 'paid') {
           const orderRes = await axios.get(`${API_URL}/api/orders/${res.data.order_id}`);
-          setOrder(orderRes.data);
+          const orderData = orderRes.data;
+          setOrder(orderData);
+          
+          // Save order to localStorage
+          saveOrderToHistory(orderData);
+          
           setChecking(false);
           return;
         }
