@@ -1,13 +1,27 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Euro, DollarSign } from 'lucide-react';
+import { ShoppingCart, Euro, User, Heart, Package } from 'lucide-react';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useCart } from '../contexts/CartContext';
+import { useFavorites } from '../contexts/FavoritesContext';
 
 export default function Navbar() {
   const { currency, toggleCurrency } = useCurrency();
   const { getCartCount } = useCart();
+  const { favorites } = useFavorites();
   const cartCount = getCartCount();
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const profileRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setShowProfileMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <nav data-testid="main-navbar" className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-neutral-200">
@@ -29,9 +43,6 @@ export default function Navbar() {
             </Link>
             <Link to="/products" data-testid="nav-products" className="text-sm font-medium hover:text-[#CCFF00] transition-colors">
               PRODUSE
-            </Link>
-            <Link to="/track-order" data-testid="nav-track" className="text-sm font-medium hover:text-[#CCFF00] transition-colors">
-              URMĂREȘTE COMANDĂ
             </Link>
             <Link to="/contact" data-testid="nav-contact" className="text-sm font-medium hover:text-[#CCFF00] transition-colors">
               CONTACT
@@ -57,6 +68,47 @@ export default function Navbar() {
                 </>
               )}
             </button>
+
+            {/* Profile Dropdown */}
+            <div ref={profileRef} className="relative">
+              <button
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                data-testid="profile-button"
+                className="flex items-center justify-center w-10 h-10 bg-black text-white hover:bg-[#CCFF00] hover:text-black transition-all"
+              >
+                <User className="w-5 h-5" />
+              </button>
+
+              {showProfileMenu && (
+                <div className="absolute right-0 mt-2 w-56 bg-white border-2 border-black shadow-lg">
+                  <Link
+                    to="/track-order"
+                    data-testid="menu-track-order"
+                    onClick={() => setShowProfileMenu(false)}
+                    className="flex items-center space-x-3 px-4 py-3 hover:bg-[#CCFF00] transition-colors border-b border-neutral-200"
+                  >
+                    <Package className="w-5 h-5" />
+                    <span className="font-bold text-sm">Urmărește Comandă</span>
+                  </Link>
+                  <Link
+                    to="/favorites"
+                    data-testid="menu-favorites"
+                    onClick={() => setShowProfileMenu(false)}
+                    className="flex items-center space-x-3 px-4 py-3 hover:bg-[#CCFF00] transition-colors"
+                  >
+                    <Heart className="w-5 h-5" />
+                    <div className="flex-1 flex items-center justify-between">
+                      <span className="font-bold text-sm">Produse Favorite</span>
+                      {favorites.length > 0 && (
+                        <span className="bg-black text-white text-xs font-bold px-2 py-1 rounded-full">
+                          {favorites.length}
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
 
             {/* Cart */}
             <Link 
