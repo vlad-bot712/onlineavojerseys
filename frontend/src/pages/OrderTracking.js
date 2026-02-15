@@ -1,25 +1,48 @@
-import React, { useState } from 'react';
-import { Search, Package, Truck, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Package, Truck, CheckCircle, Clock } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'sonner';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function OrderTracking() {
-  const [orderNumber, setOrderNumber] = useState('');
+  const [searchParams] = useSearchParams();
+  const orderParam = searchParams.get('order');
+  const [orderNumber, setOrderNumber] = useState(orderParam || '');
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [myOrders, setMyOrders] = useState([]);
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!orderNumber.trim()) {
+  useEffect(() => {
+    // Load saved orders from localStorage
+    try {
+      const saved = localStorage.getItem('myOrders');
+      if (saved) {
+        setMyOrders(JSON.parse(saved));
+      }
+    } catch (err) {
+      console.error('Failed to load orders', err);
+    }
+
+    // Auto-search if order number in URL
+    if (orderParam) {
+      handleSearch(null, orderParam);
+    }
+  }, [orderParam]);
+
+  const handleSearch = async (e, orderNum = null) => {
+    if (e) e.preventDefault();
+    
+    const searchOrder = orderNum || orderNumber;
+    if (!searchOrder.trim()) {
       toast.error('Introdu numărul comenzii');
       return;
     }
 
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL}/api/orders/number/${orderNumber.trim()}`);
+      const res = await axios.get(`${API_URL}/api/orders/number/${searchOrder.trim()}`);
       setOrder(res.data);
     } catch (err) {
       console.error(err);
