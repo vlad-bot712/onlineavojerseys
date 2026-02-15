@@ -19,6 +19,7 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(0); // Index of selected kit
+  const [selectedVersion, setSelectedVersion] = useState('fan'); // 'player' or 'fan'
   
   // Customization state
   const [customization, setCustomization] = useState({
