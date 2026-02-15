@@ -66,6 +66,29 @@ export default function Products() {
       <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
         <h1 className="text-4xl sm:text-5xl font-bold mb-8">PRODUSE</h1>
 
+        {/* Preorder Banner */}
+        <div className="bg-[#CCFF00] border-2 border-black p-6 mb-8 shadow-lg">
+          <div className="flex items-start space-x-4">
+            <div className="flex-shrink-0">
+              <Shirt className="w-8 h-8" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-xl mb-2">🌟 PRECOMANDĂ SPECIAL - ORICE TRICOU!</h3>
+              <p className="text-sm mb-3">
+                Nu găsești echipa sau sezonul dorit? Poți comanda <span className="font-bold">ORICE TRICOU</span> inclusiv ediții limitate (Limited Edition)!
+              </p>
+              <div className="bg-black text-white px-4 py-2 inline-block">
+                <p className="text-sm font-bold">
+                  📧 Trimite o poză la: <a href="mailto:contact@avojerseys.ro" className="underline hover:text-[#CCFF00]">contact@avojerseys.ro</a>
+                </p>
+              </div>
+              <p className="text-xs mt-2 text-neutral-700">
+                ⚡ Vei primi răspuns rapid cu disponibilitate și preț!
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Filters Sidebar */}
           <aside className="lg:col-span-1">
