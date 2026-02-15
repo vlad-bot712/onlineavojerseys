@@ -226,7 +226,7 @@ export default function AdminOrderDetail() {
             </div>
 
             {/* Products */}
-            <div className="bg-white border border-neutral-200 p-6">
+            <div className="bg-white border-2 border-neutral-200 p-6">
               <h2 className="font-bold text-xl mb-4">PRODUSE COMANDATE</h2>
               <div className="space-y-4">
                 {order.items.map((item, idx) => (
@@ -237,32 +237,48 @@ export default function AdminOrderDetail() {
                       className="w-20 h-20 object-cover"
                     />
                     <div className="flex-1">
-                      <p className="font-bold">{item.product_name}</p>
+                      <p className="font-bold text-lg">{item.product_name}</p>
                       <p className="text-sm text-neutral-600">
                         Mărime: {item.size} • Cantitate: {item.quantity}
                       </p>
-                      {(item.customization || item.version) && (
-                        <div className="mt-2 text-xs text-neutral-600 space-y-1">
-                          {item.version && (
-                            <p className="font-bold text-[#CCFF00] bg-black px-2 py-1 inline-block">
-                              {item.version === 'player' ? 'PLAYER VERSION' : 'FAN VERSION'}
-                            </p>
+                      
+                      {/* Version Badge */}
+                      {item.version && (
+                        <div className="mt-2">
+                          <span className={`inline-block px-3 py-1 text-xs font-bold ${
+                            item.version === 'player' 
+                              ? 'bg-purple-500 text-white' 
+                              : 'bg-blue-500 text-white'
+                          }`}>
+                            {item.version === 'player' ? '⭐ PLAYER VERSION' : '👕 FAN VERSION'}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Customization Details */}
+                      {item.customization && (
+                        <div className="mt-2 bg-[#CCFF00]/20 border border-[#CCFF00] p-3 space-y-1">
+                          <p className="font-bold text-sm">🎨 CUSTOMIZARE:</p>
+                          {item.customization.name && (
+                            <p className="text-sm">• Nume: <span className="font-bold">{item.customization.name}</span></p>
                           )}
-                          {item.customization && (
-                            <div className="space-y-0.5">
-                              {item.customization.name && <p>• Nume: {item.customization.name}</p>}
-                              {item.customization.number && <p>• Număr: {item.customization.number}</p>}
-                              {item.customization.patches && item.customization.patches.length > 0 && (
-                                <p>• Patch-uri: {item.customization.patches.map(p => 
+                          {item.customization.number && (
+                            <p className="text-sm">• Număr: <span className="font-bold">{item.customization.number}</span></p>
+                          )}
+                          {item.customization.patches && item.customization.patches.length > 0 && (
+                            <p className="text-sm">
+                              • Patch-uri: <span className="font-bold">
+                                {item.customization.patches.map(p => 
                                   p === 'league' ? '🏆 Liga' : 
                                   p === 'ucl' ? '⭐ UCL' : p
-                                ).join(', ')}</p>
-                              )}
-                            </div>
+                                ).join(', ')}
+                              </span>
+                            </p>
                           )}
                         </div>
                       )}
-                      <p className="font-bold mt-1">{item.price_ron} RON x {item.quantity}</p>
+                      
+                      <p className="font-bold mt-2">{item.price_ron} RON x {item.quantity}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-lg">{item.price_ron * item.quantity} RON</p>
