@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { ShoppingCart, Check, Heart } from 'lucide-react';
+import { ShoppingCart, Check, Heart, Shirt, Award } from 'lucide-react';
 import axios from 'axios';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useCart } from '../contexts/CartContext';
@@ -18,6 +18,14 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedImage, setSelectedImage] = useState(0);
+  
+  // Customization state
+  const [customization, setCustomization] = useState({
+    enabled: false,
+    name: '',
+    number: '',
+    patches: []
+  });
 
   useEffect(() => {
     loadProduct();
@@ -43,8 +51,46 @@ export default function ProductDetail() {
       toast.error('Selectează o mărime');
       return;
     }
-    addToCart(product, selectedSize);
+    
+    // Create product with customization
+    const productWithCustomization = {
+      ...product,
+      customization: customization.enabled ? {
+        name: customization.name,
+        number: customization.number,
+        patches: customization.patches
+      } : null
+    };
+    
+    addToCart(productWithCustomization, selectedSize);
     toast.success('Produs adăugat în coș!');
+  };
+
+  const getAvailablePatches = () => {
+    if (!product) return [];
+    
+    const patches = [];
+    
+    // League patch based on country
+    if (product.league) {
+      patches.push({ id: 'league', name: `Patch ${product.league}`, icon: '🏆' });
+    }
+    
+    // UCL patch if team plays in Champions League
+    if (product.plays_ucl) {
+      patches.push({ id: 'ucl', name: 'Patch UEFA Champions League', icon: '⭐' });
+    }
+    
+    return patches;
+  };
+
+  const togglePatch = (patchId) => {
+    setCustomization(prev => ({
+      ...prev,
+      patches: prev.patches.includes(patchId)
+        ? prev.patches.filter(p => p !== patchId)
+        : [...prev.patches, patchId]
+    }));
   };
 
   if (loading) {
@@ -67,13 +113,15 @@ export default function ProductDetail() {
     ? product.images 
     : ['https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=800'];
 
+  const availablePatches = getAvailablePatches();
+
   return (
     <div data-testid="product-detail-page" className="pt-24 pb-16 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Gallery */}
           <div className="space-y-4">
-            <div className="aspect-square bg-neutral-100 overflow-hidden border border-neutral-200">
+            <div className="aspect-square bg-neutral-100 overflow-hidden border-2 border-neutral-200">
               <img 
                 src={images[selectedImage]} 
                 alt={product.name}
@@ -124,6 +172,88 @@ export default function ProductDetail() {
               </div>
             </div>
 
+            {/* Customization Section */}
+            <div className="mb-8 border-2 border-neutral-200 p-6 bg-neutral-50">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-2">
+                  <Shirt className="w-6 h-6" />
+                  <h3 className="font-bold text-xl">CUSTOMIZARE</h3>
+                </div>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={customization.enabled}
+                    onChange={(e) => setCustomization({...customization, enabled: e.target.checked})}
+                    className="w-5 h-5"
+                  />
+                  <span className="font-bold text-sm">Activează</span>
+                </label>
+              </div>
+
+              {customization.enabled && (
+                <div className="space-y-4 pt-4 border-t-2 border-neutral-200">
+                  {/* Name */}
+                  <div>
+                    <label className="block font-bold mb-2 text-sm">NUME PE TRICOU</label>
+                    <input
+                      type="text"
+                      value={customization.name}
+                      onChange={(e) => setCustomization({...customization, name: e.target.value.toUpperCase()})}
+                      placeholder="Ex: POPESCU"
+                      maxLength={12}
+                      className="w-full border-2 border-neutral-200 px-4 py-2 focus:outline-none focus:border-black uppercase"
+                    />
+                  </div>
+
+                  {/* Number */}
+                  <div>
+                    <label className="block font-bold mb-2 text-sm">NUMĂR</label>
+                    <input
+                      type="number"
+                      value={customization.number}
+                      onChange={(e) => setCustomization({...customization, number: e.target.value})}
+                      placeholder="Ex: 10"
+                      min="0"
+                      max="99"
+                      className="w-full border-2 border-neutral-200 px-4 py-2 focus:outline-none focus:border-black"
+                    />
+                  </div>
+
+                  {/* Patches */}
+                  {availablePatches.length > 0 && (
+                    <div>
+                      <label className="block font-bold mb-3 text-sm">PATCH-URI DISPONIBILE</label>
+                      <div className="space-y-2">
+                        {availablePatches.map(patch => (
+                          <label
+                            key={patch.id}
+                            className={`flex items-center space-x-3 p-3 border-2 cursor-pointer transition-all ${
+                              customization.patches.includes(patch.id)
+                                ? 'border-black bg-[#CCFF00]'
+                                : 'border-neutral-200 hover:border-black'
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={customization.patches.includes(patch.id)}
+                              onChange={() => togglePatch(patch.id)}
+                              className="w-5 h-5"
+                            />
+                            <span className="text-2xl">{patch.icon}</span>
+                            <span className="font-bold text-sm">{patch.name}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="bg-white border-2 border-black p-3">
+                    <p className="text-xs font-bold">ℹ️ NOTĂ: Prețul rămâne {formatPrice(product.price_ron)} indiferent de customizare</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Actions */}
             <div className="space-y-4">
               <button
@@ -154,14 +284,14 @@ export default function ProductDetail() {
 
             {/* Description */}
             {product.description && (
-              <div className="mt-8 border-t border-neutral-200 pt-8">
+              <div className="mt-8 border-t-2 border-neutral-200 pt-8">
                 <h3 className="font-bold mb-3">DESCRIERE</h3>
                 <p className="text-neutral-600">{product.description}</p>
               </div>
             )}
 
             {/* Features */}
-            <div className="mt-8 border-t border-neutral-200 pt-8">
+            <div className="mt-8 border-t-2 border-neutral-200 pt-8">
               <h3 className="font-bold mb-3">CARACTERISTICI</h3>
               <ul className="space-y-2">
                 <li className="flex items-center space-x-2">
@@ -176,6 +306,18 @@ export default function ProductDetail() {
                   <Check className="w-5 h-5 text-[#CCFF00]" />
                   <span className="text-neutral-600">Confort garantat</span>
                 </li>
+                {product.league && (
+                  <li className="flex items-center space-x-2">
+                    <Award className="w-5 h-5 text-[#CCFF00]" />
+                    <span className="text-neutral-600">Ligă: {product.league}</span>
+                  </li>
+                )}
+                {product.plays_ucl && (
+                  <li className="flex items-center space-x-2">
+                    <Award className="w-5 h-5 text-[#CCFF00]" />
+                    <span className="text-neutral-600">Echipă UEFA Champions League</span>
+                  </li>
+                )}
               </ul>
             </div>
           </div>
