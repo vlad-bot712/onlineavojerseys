@@ -214,11 +214,12 @@ export default function OrderSuccess() {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            to="/track-order"
+            to={`/track-order?order=${order.order_number}`}
             data-testid="track-order-btn"
-            className="bg-black text-white px-8 py-3 font-bold uppercase hover:bg-neutral-800 transition-colors"
+            className="bg-black text-white px-8 py-3 font-bold uppercase hover:bg-neutral-800 transition-colors inline-flex items-center justify-center space-x-2"
           >
-            Urmărește Comanda
+            <Package className="w-5 h-5" />
+            <span>Urmărește Comanda Acum</span>
           </Link>
           <Link
             to="/products"
@@ -228,11 +229,13 @@ export default function OrderSuccess() {
           </Link>
         </div>
 
-        <p className="mt-8 text-sm text-neutral-500">
-          Numărul comenzii: <span className="font-bold">{order.order_number}</span>
-          <br />
-          Salvează acest număr pentru a urmări comanda ta.
-        </p>
+        <div className="mt-8 p-6 bg-neutral-50 border-2 border-neutral-200">
+          <p className="text-sm font-bold mb-2">📋 SALVAT AUTOMAT ÎN COMENZILE TALE</p>
+          <p className="text-sm text-neutral-600">
+            Numărul comenzii <span className="font-bold text-black">{order.order_number}</span> a fost salvat automat. 
+            Poți accesa oricând din meniul profil → Urmărește Comandă.
+          </p>
+        </div>
       </div>
     </div>
   );
