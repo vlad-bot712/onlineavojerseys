@@ -39,12 +39,19 @@ export default function ProductDetail() {
       if (res.data.sizes && res.data.sizes.length > 0) {
         setSelectedSize(res.data.sizes[0]);
       }
+      // Reset selected image when variant changes
+      setSelectedImage(0);
     } catch (err) {
       console.error(err);
       toast.error('Produsul nu a putut fi încărcat');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleVariantChange = (variantIndex) => {
+    setSelectedVariant(variantIndex);
+    setSelectedImage(0); // Reset to first image of new variant
   };
 
   const handleAddToCart = () => {
