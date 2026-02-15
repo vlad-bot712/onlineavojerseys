@@ -236,6 +236,37 @@ export default function ProductDetail() {
 
               {customization.enabled && (
                 <div className="space-y-4 pt-4 border-t-2 border-neutral-200">
+                  {/* Version Selector */}
+                  <div>
+                    <label className="block font-bold mb-3 text-sm">VERSIUNE TRICOU</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedVersion('fan')}
+                        className={`p-3 border-2 font-bold transition-all ${
+                          selectedVersion === 'fan'
+                            ? 'border-black bg-[#CCFF00]'
+                            : 'border-neutral-200 hover:border-black'
+                        }`}
+                      >
+                        <div className="text-sm">FAN VERSION</div>
+                        <div className="text-xs text-neutral-600">Standard</div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedVersion('player')}
+                        className={`p-3 border-2 font-bold transition-all ${
+                          selectedVersion === 'player'
+                            ? 'border-black bg-[#CCFF00]'
+                            : 'border-neutral-200 hover:border-black'
+                        }`}
+                      >
+                        <div className="text-sm">PLAYER VERSION</div>
+                        <div className="text-xs text-neutral-600">Premium</div>
+                      </button>
+                    </div>
+                  </div>
+
                   {/* Name */}
                   <div>
                     <label className="block font-bold mb-2 text-sm">NUME PE TRICOU</label>
