@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Phone, Mail } from 'lucide-react';
+import { ArrowLeft, Save, Phone, Mail, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 
