@@ -270,8 +270,14 @@ export default function AdminOrders() {
                                     )}
                                     {item.customization && (
                                       <>
-                                        {item.customization.name && <p>• {item.customization.name}</p>}
-                                        {item.customization.number && <p>• #{item.customization.number}</p>}
+                                        {item.customization.name && <p>• Nume: {item.customization.name}</p>}
+                                        {item.customization.number && <p>• Număr: #{item.customization.number}</p>}
+                                        {item.customization.patches && item.customization.patches.length > 0 && (
+                                          <p>• Patch-uri: {item.customization.patches.map(p => 
+                                            p === 'league' ? '🏆 Liga' : 
+                                            p === 'ucl' ? '⭐ UCL' : p
+                                          ).join(', ')}</p>
+                                        )}
                                       </>
                                     )}
                                   </div>
