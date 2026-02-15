@@ -47,15 +47,26 @@ export default function Checkout() {
       // Create full address
       const fullAddress = `${formData.customer_street}, ${formData.customer_city}, Județul ${formData.customer_county}, ${formData.customer_zip}, ${formData.customer_country}`;
 
-      // Create order
-      const orderItems = cart.map(item => ({
-        product_id: item.product.id,
-        product_name: item.product.name,
-        product_image: item.product.images[0] || '',
-        size: item.size,
-        quantity: item.quantity,
-        price_ron: item.product.price_ron
-      }));
+      // Create order items with safe image access
+      const orderItems = cart.map(item => {
+        // Get product image safely from variants or fallback
+        const productImage = item.product.variants && item.product.variants.length > 0 && item.product.variants[0].images && item.product.variants[0].images.length > 0
+          ? item.product.variants[0].images[0]
+          : (item.product.images && item.product.images.length > 0 
+            ? item.product.images[0] 
+            : 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=200');
+        
+        return {
+          product_id: item.product.id,
+          product_name: item.product.name,
+          product_image: productImage,
+          size: item.size,
+          quantity: item.quantity,
+          price_ron: item.product.price_ron,
+          customization: item.product.customization || null,
+          version: item.product.selectedVersion || 'fan'
+        };
+      });
 
       const shippingCost = formData.shipping_method === 'express' ? 30 : 15;
       const finalTotal = getCartTotal() + shippingCost;
