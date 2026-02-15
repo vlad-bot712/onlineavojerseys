@@ -242,6 +242,17 @@ export default function AdminOrderDetail() {
                         Mărime: {item.size} • Cantitate: {item.quantity}
                       </p>
                       
+                      {/* Kit Type */}
+                      {item.kit && (
+                        <p className="text-xs text-neutral-700 mb-1">
+                          <span className="font-bold">Kit:</span> {
+                            item.kit === 'first' ? 'First Kit' :
+                            item.kit === 'second' ? 'Second Kit' :
+                            item.kit === 'third' ? 'Third Kit' : item.kit
+                          }
+                        </p>
+                      )}
+                      
                       {/* Version Badge */}
                       {item.version && (
                         <div className="mt-2">
