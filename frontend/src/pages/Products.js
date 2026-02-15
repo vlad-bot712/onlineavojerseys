@@ -125,25 +125,41 @@ export default function Products() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {products.map(product => (
-                  <Link
+                  <div
                     key={product.id}
-                    to={`/products/${product.id}`}
                     data-testid={`product-card-${product.id}`}
-                    className="group bg-white border border-neutral-100 hover:border-black hover:shadow-xl transition-all"
+                    className="group bg-white border border-neutral-100 hover:border-black hover:shadow-xl transition-all relative"
                   >
-                    <div className="aspect-square overflow-hidden">
-                      <img 
-                        src={product.images[0] || 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=400'} 
-                        alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    {/* Favorite Heart */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        toggleFavorite(product);
+                        toast.success(isFavorite(product.id) ? 'Șters din favorite' : 'Adăugat la favorite');
+                      }}
+                      data-testid={`favorite-btn-${product.id}`}
+                      className="absolute top-3 right-3 z-10 w-10 h-10 bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-[#CCFF00] transition-all"
+                    >
+                      <Heart 
+                        className={`w-5 h-5 ${isFavorite(product.id) ? 'fill-red-500 text-red-500' : 'text-neutral-400'}`}
                       />
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-bold text-lg mb-2 line-clamp-1">{product.name}</h3>
-                      <p className="text-sm text-neutral-500 mb-2">{product.team} • {product.year}</p>
-                      <p className="text-xl font-bold">{formatPrice(product.price_ron)}</p>
-                    </div>
-                  </Link>
+                    </button>
+
+                    <Link to={`/products/${product.id}`}>
+                      <div className="aspect-square overflow-hidden">
+                        <img 
+                          src={product.images[0] || 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=400'} 
+                          alt={product.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-bold text-lg mb-2 line-clamp-1">{product.name}</h3>
+                        <p className="text-sm text-neutral-500 mb-2">{product.team} • {product.year}</p>
+                        <p className="text-xl font-bold">{formatPrice(product.price_ron)}</p>
+                      </div>
+                    </Link>
+                  </div>
                 ))}
               </div>
             )}
