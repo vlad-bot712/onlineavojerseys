@@ -98,15 +98,25 @@ export default function AdminOrderDetail() {
             </button>
             <h1 className="text-4xl font-bold">COMANDĂ #{order.order_number}</h1>
           </div>
-          <button
-            onClick={handleSave}
-            data-testid="save-order-btn"
-            disabled={saving}
-            className="bg-[#CCFF00] text-black px-6 py-3 font-bold uppercase flex items-center space-x-2 hover:bg-[#B3E600] transition-colors disabled:opacity-50"
-          >
-            <Save className="w-5 h-5" />
-            <span>{saving ? 'Se salvează...' : 'Salvează'}</span>
-          </button>
+          <div className="flex space-x-3">
+            <button
+              onClick={handleDelete}
+              data-testid="delete-order-btn"
+              className="bg-red-500 text-white px-6 py-3 font-bold uppercase flex items-center space-x-2 hover:bg-red-600 transition-colors"
+            >
+              <Trash2 className="w-5 h-5" />
+              <span>Șterge</span>
+            </button>
+            <button
+              onClick={handleSave}
+              data-testid="save-order-btn"
+              disabled={saving}
+              className="bg-[#CCFF00] text-black px-6 py-3 font-bold uppercase flex items-center space-x-2 hover:bg-[#B3E600] transition-colors disabled:opacity-50"
+            >
+              <Save className="w-5 h-5" />
+              <span>{saving ? 'Se salvează...' : 'Salvează'}</span>
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
