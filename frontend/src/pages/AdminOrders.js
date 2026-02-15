@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, Package, Clock, Truck, CheckCircle } from 'lucide-react';
+import { Eye, Package, Clock, Truck, CheckCircle, XCircle, Calendar, User, Phone, Mail, MapPin, CreditCard } from 'lucide-react';
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -9,6 +9,13 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [stats, setStats] = useState({
+    total: 0,
+    pending: 0,
+    processing: 0,
+    shipped: 0,
+    delivered: 0
+  });
 
   useEffect(() => {
     loadOrders();
@@ -20,6 +27,16 @@ export default function AdminOrders() {
       const params = filter !== 'all' ? { status: filter } : {};
       const res = await axios.get(`${API_URL}/api/orders`, { params });
       setOrders(res.data);
+      
+      // Calculate stats
+      const allOrders = filter === 'all' ? res.data : await axios.get(`${API_URL}/api/orders`).then(r => r.data);
+      setStats({
+        total: allOrders.length,
+        pending: allOrders.filter(o => o.status === 'pending').length,
+        processing: allOrders.filter(o => o.status === 'processing').length,
+        shipped: allOrders.filter(o => o.status === 'shipped').length,
+        delivered: allOrders.filter(o => o.status === 'delivered').length
+      });
     } catch (err) {
       console.error(err);
     } finally {
@@ -27,151 +44,242 @@ export default function AdminOrders() {
     }
   };
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'pending':
-        return <Clock className="w-5 h-5 text-yellow-500" />;
-      case 'processing':
-        return <Package className="w-5 h-5 text-blue-500" />;
-      case 'shipped':
-        return <Truck className="w-5 h-5 text-purple-500" />;
-      case 'delivered':
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
-      default:
-        return <Package className="w-5 h-5" />;
-    }
+  const getStatusConfig = (status) => {
+    const configs = {
+      pending: {
+        icon: Clock,
+        text: 'În Așteptare',
+        color: 'bg-yellow-500',
+        textColor: 'text-yellow-700',
+        bgLight: 'bg-yellow-50',
+        border: 'border-yellow-200'
+      },
+      processing: {
+        icon: Package,
+        text: 'În Procesare',
+        color: 'bg-blue-500',
+        textColor: 'text-blue-700',
+        bgLight: 'bg-blue-50',
+        border: 'border-blue-200'
+      },
+      shipped: {
+        icon: Truck,
+        text: 'Expediată',
+        color: 'bg-purple-500',
+        textColor: 'text-purple-700',
+        bgLight: 'bg-purple-50',
+        border: 'border-purple-200'
+      },
+      delivered: {
+        icon: CheckCircle,
+        text: 'Livrată',
+        color: 'bg-green-500',
+        textColor: 'text-green-700',
+        bgLight: 'bg-green-50',
+        border: 'border-green-200'
+      },
+      cancelled: {
+        icon: XCircle,
+        text: 'Anulată',
+        color: 'bg-red-500',
+        textColor: 'text-red-700',
+        bgLight: 'bg-red-50',
+        border: 'border-red-200'
+      }
+    };
+    return configs[status] || configs.pending;
   };
 
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'pending':
-        return 'În Așteptare';
-      case 'processing':
-        return 'În Procesare';
-      case 'shipped':
-        return 'Expediată';
-      case 'delivered':
-        return 'Livrată';
-      default:
-        return status;
-    }
-  };
+  const StatCard = ({ label, value, active, onClick }) => (
+    <button
+      onClick={onClick}
+      className={`p-6 border-2 transition-all ${
+        active 
+          ? 'bg-black text-white border-black shadow-lg' 
+          : 'bg-white border-neutral-200 hover:border-black hover:shadow-md'
+      }`}
+    >
+      <div className="text-3xl font-bold mb-1">{value}</div>
+      <div className={`text-sm font-bold uppercase tracking-wider ${active ? 'text-white' : 'text-neutral-600'}`}>
+        {label}
+      </div>
+    </button>
+  );
 
   return (
     <div data-testid="admin-orders-page" className="pt-24 pb-16 min-h-screen bg-neutral-50">
       <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl sm:text-5xl font-bold">COMENZI ADMIN</h1>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setFilter('all')}
-              className={`px-4 py-2 font-bold text-sm ${filter === 'all' ? 'bg-black text-white' : 'bg-white border border-neutral-200'}`}
-            >
-              Toate
-            </button>
-            <button
-              onClick={() => setFilter('pending')}
-              className={`px-4 py-2 font-bold text-sm ${filter === 'pending' ? 'bg-black text-white' : 'bg-white border border-neutral-200'}`}
-            >
-              În Așteptare
-            </button>
-            <button
-              onClick={() => setFilter('processing')}
-              className={`px-4 py-2 font-bold text-sm ${filter === 'processing' ? 'bg-black text-white' : 'bg-white border border-neutral-200'}`}
-            >
-              Procesare
-            </button>
-            <button
-              onClick={() => setFilter('shipped')}
-              className={`px-4 py-2 font-bold text-sm ${filter === 'shipped' ? 'bg-black text-white' : 'bg-white border border-neutral-200'}`}
-            >
-              Expediate
-            </button>
-          </div>
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl sm:text-5xl font-bold mb-2">COMENZI ADMIN</h1>
+          <p className="text-neutral-600">Gestionează și monitorizează toate comenzile</p>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+          <StatCard label="Total" value={stats.total} active={filter === 'all'} onClick={() => setFilter('all')} />
+          <StatCard label="În Așteptare" value={stats.pending} active={filter === 'pending'} onClick={() => setFilter('pending')} />
+          <StatCard label="Procesare" value={stats.processing} active={filter === 'processing'} onClick={() => setFilter('processing')} />
+          <StatCard label="Expediate" value={stats.shipped} active={filter === 'shipped'} onClick={() => setFilter('shipped')} />
+          <StatCard label="Livrate" value={stats.delivered} active={filter === 'delivered'} onClick={() => setFilter('delivered')} />
         </div>
 
         {loading ? (
-          <div className="text-center py-12">Se încarcă...</div>
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+            <p className="mt-4 text-neutral-600">Se încarcă comenzile...</p>
+          </div>
         ) : orders.length === 0 ? (
-          <div className="text-center py-12 bg-white border border-neutral-200">
-            <Package className="w-16 h-16 mx-auto mb-4 opacity-30" />
-            <p className="text-xl text-neutral-500">Nu există comenzi</p>
+          <div className="text-center py-12 bg-white border-2 border-neutral-200">
+            <Package className="w-16 h-16 mx-auto mb-4 text-neutral-300" />
+            <p className="text-xl text-neutral-500">Nu există comenzi pentru filtrul selectat</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6">
-            {orders.map(order => (
-              <div
-                key={order.id}
-                data-testid={`order-card-${order.id}`}
-                className="bg-white border border-neutral-200 hover:border-black hover:shadow-lg transition-all"
-              >
-                <div className="p-6">
-                  <div className="flex items-start gap-6">
-                    {/* First Product Image */}
-                    <img 
-                      src={order.items[0]?.product_image || 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=200'} 
-                      alt="Product"
-                      className="w-24 h-24 object-cover"
-                    />
-
-                    {/* Order Info */}
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <h3 className="text-2xl font-bold mb-1">#{order.order_number}</h3>
-                          <p className="text-sm text-neutral-500">{order.customer_name}</p>
+            {orders.map(order => {
+              const statusConfig = getStatusConfig(order.status);
+              const StatusIcon = statusConfig.icon;
+              
+              return (
+                <div
+                  key={order.id}
+                  data-testid={`order-card-${order.id}`}
+                  className="bg-white border-2 border-neutral-200 hover:border-black hover:shadow-2xl transition-all overflow-hidden"
+                >
+                  {/* Header */}
+                  <div className={`${statusConfig.bgLight} border-b-2 ${statusConfig.border} p-6`}>
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                      <div className="flex items-center space-x-4">
+                        <div className={`${statusConfig.color} text-white p-3 rounded-lg`}>
+                          <StatusIcon className="w-6 h-6" />
                         </div>
-                        <div className="flex items-center space-x-2">
-                          {getStatusIcon(order.status)}
-                          <span className="font-bold">{getStatusText(order.status)}</span>
+                        <div>
+                          <h3 className="text-2xl font-bold">#{order.order_number}</h3>
+                          <div className="flex items-center space-x-2 text-sm text-neutral-600 mt-1">
+                            <Calendar className="w-4 h-4" />
+                            <span>{new Date(order.created_at).toLocaleDateString('ro-RO', { 
+                              day: 'numeric', 
+                              month: 'long', 
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-3">
+                        <div className={`px-4 py-2 ${statusConfig.color} text-white font-bold uppercase text-sm tracking-wider`}>
+                          {statusConfig.text}
+                        </div>
+                        <Link
+                          to={`/admin/orders/${order.id}`}
+                          data-testid={`view-order-${order.id}`}
+                          className="bg-black text-white px-6 py-2 font-bold uppercase text-sm hover:bg-[#CCFF00] hover:text-black transition-all flex items-center space-x-2"
+                        >
+                          <Eye className="w-4 h-4" />
+                          <span>Vezi Detalii</span>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Body */}
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                      {/* Customer Info */}
+                      <div className="space-y-3">
+                        <h4 className="font-bold text-sm text-neutral-500 uppercase tracking-wider mb-3">Client</h4>
+                        <div className="flex items-start space-x-2">
+                          <User className="w-4 h-4 text-neutral-400 mt-1 flex-shrink-0" />
+                          <div>
+                            <p className="font-bold">{order.customer_name}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start space-x-2">
+                          <Mail className="w-4 h-4 text-neutral-400 mt-1 flex-shrink-0" />
+                          <p className="text-sm text-neutral-600 break-all">{order.customer_email}</p>
+                        </div>
+                        <div className="flex items-start space-x-2">
+                          <Phone className="w-4 h-4 text-neutral-400 mt-1 flex-shrink-0" />
+                          <p className="text-sm text-neutral-600">{order.customer_phone}</p>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
-                        <div>
-                          <span className="text-neutral-500">Email:</span>
-                          <p className="font-bold">{order.customer_email}</p>
+                      {/* Shipping Address */}
+                      <div>
+                        <h4 className="font-bold text-sm text-neutral-500 uppercase tracking-wider mb-3">Adresă Livrare</h4>
+                        <div className="flex items-start space-x-2">
+                          <MapPin className="w-4 h-4 text-neutral-400 mt-1 flex-shrink-0" />
+                          <p className="text-sm text-neutral-600">{order.customer_address}</p>
                         </div>
-                        <div>
-                          <span className="text-neutral-500">Telefon:</span>
-                          <p className="font-bold">{order.customer_phone}</p>
-                        </div>
-                        <div>
-                          <span className="text-neutral-500">Total:</span>
-                          <p className="font-bold">{order.total_ron} {order.currency}</p>
-                        </div>
-                        <div>
-                          <span className="text-neutral-500">Plată:</span>
-                          <p className="font-bold">{order.payment_status === 'paid' ? 'Plătită' : 'În Așteptare'}</p>
-                        </div>
-                      </div>
-
-                      <div className="mb-4">
-                        <span className="text-sm text-neutral-500">Produse:</span>
-                        <p className="font-bold">
-                          {order.items.map(item => `${item.product_name} (${item.size}) x${item.quantity}`).join(', ')}
+                        <p className="text-xs text-neutral-500 mt-2">
+                          Metodă: {order.shipping_method === 'express' ? 'Expresă (24h)' : 'Standard (2-3 zile)'}
                         </p>
                       </div>
 
-                      {order.awb && (
-                        <div className="bg-[#CCFF00]/20 border border-[#CCFF00] px-3 py-2 inline-block mb-4">
-                          <span className="text-sm font-bold">AWB: {order.awb}</span>
+                      {/* Products Preview */}
+                      <div>
+                        <h4 className="font-bold text-sm text-neutral-500 uppercase tracking-wider mb-3">Produse</h4>
+                        <div className="space-y-2">
+                          {order.items.slice(0, 2).map((item, idx) => (
+                            <div key={idx} className="flex items-center space-x-2">
+                              <img 
+                                src={item.product_image || 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=100'} 
+                                alt={item.product_name}
+                                className="w-10 h-10 object-cover"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-bold truncate">{item.product_name}</p>
+                                <p className="text-xs text-neutral-500">Mărime: {item.size} • x{item.quantity}</p>
+                              </div>
+                            </div>
+                          ))}
+                          {order.items.length > 2 && (
+                            <p className="text-xs text-neutral-500 pl-12">+{order.items.length - 2} produse</p>
+                          )}
                         </div>
-                      )}
+                      </div>
 
-                      <Link
-                        to={`/admin/orders/${order.id}`}
-                        data-testid={`view-order-${order.id}`}
-                        className="inline-flex items-center space-x-2 bg-black text-white px-6 py-2 font-bold uppercase hover:bg-neutral-800 transition-colors"
-                      >
-                        <Eye className="w-4 h-4" />
-                        <span>Vezi Comandă</span>
-                      </Link>
+                      {/* Payment Info */}
+                      <div>
+                        <h4 className="font-bold text-sm text-neutral-500 uppercase tracking-wider mb-3">Plată</h4>
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <CreditCard className="w-4 h-4 text-neutral-400" />
+                            <span className="text-sm text-neutral-600">
+                              {order.payment_method === 'stripe' ? 'Card (Stripe)' : 'Nespecificat'}
+                            </span>
+                          </div>
+                          <div className={`inline-block px-3 py-1 text-xs font-bold ${
+                            order.payment_status === 'paid' 
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-yellow-100 text-yellow-700'
+                          }`}>
+                            {order.payment_status === 'paid' ? 'PLĂTITĂ' : 'ÎN AȘTEPTARE'}
+                          </div>
+                          <p className="text-2xl font-bold mt-2">{order.total_ron} {order.currency}</p>
+                        </div>
+                      </div>
                     </div>
+
+                    {/* AWB Section */}
+                    {order.awb && (
+                      <div className="bg-[#CCFF00] border-2 border-black p-4 flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <Truck className="w-6 h-6" />
+                          <div>
+                            <p className="text-xs font-bold uppercase text-neutral-600">AWB Expediere</p>
+                            <p className="text-xl font-bold">{order.awb}</p>
+                          </div>
+                        </div>
+                        <Package className="w-8 h-8 text-neutral-600" />
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
