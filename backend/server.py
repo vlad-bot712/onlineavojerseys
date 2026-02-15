@@ -290,6 +290,19 @@ async def update_order_status(order_id: str, update_req: UpdateOrderStatusReques
     return serialize_doc(order)
 
 
+@app.delete("/api/orders/{order_id}")
+async def delete_order(order_id: str):
+    try:
+        result = await db.orders.delete_one({"_id": ObjectId(order_id)})
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Order not found")
+        
+        return {"message": "Order deleted successfully", "order_id": order_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting order: {str(e)}")
+
+
 # Routes - Payments (Stripe)
 @app.post("/api/payments/stripe/create-session")
 async def create_stripe_session(request: Request):
