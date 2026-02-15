@@ -32,49 +32,64 @@ export default function Cart() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {cart.map((item) => (
-              <div
-                key={`${item.product.id}-${item.size}`}
-                data-testid={`cart-item-${item.product.id}`}
-                className="bg-white border border-neutral-200 p-4 flex gap-4"
-              >
-                <img 
-                  src={item.product.images[0] || 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=200'} 
-                  alt={item.product.name}
-                  className="w-24 h-24 object-cover"
-                />
-                <div className="flex-1">
-                  <h3 className="font-bold text-lg">{item.product.name}</h3>
-                  <p className="text-sm text-neutral-500">{item.product.team} • {item.product.year}</p>
-                  <p className="text-sm text-neutral-500">Mărime: {item.size}</p>
-                  <p className="font-bold mt-2">{formatPrice(item.product.price_ron)}</p>
-                </div>
-                <div className="flex flex-col items-end justify-between">
-                  <button
-                    onClick={() => removeFromCart(item.product.id, item.size)}
-                    data-testid={`remove-item-${item.product.id}`}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                  <div className="flex items-center space-x-2">
+            {cart.map((item) => {
+              // Get product image safely
+              const productImage = item.product.variants && item.product.variants.length > 0 && item.product.variants[0].images && item.product.variants[0].images.length > 0
+                ? item.product.variants[0].images[0]
+                : (item.product.images && item.product.images.length > 0 
+                  ? item.product.images[0] 
+                  : 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=200');
+              
+              return (
+                <div
+                  key={`${item.product.id}-${item.size}`}
+                  data-testid={`cart-item-${item.product.id}`}
+                  className="bg-white border border-neutral-200 p-4 flex gap-4"
+                >
+                  <img 
+                    src={productImage} 
+                    alt={item.product.name}
+                    className="w-24 h-24 object-cover"
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg">{item.product.name}</h3>
+                    <p className="text-sm text-neutral-500">{item.product.team} • {item.product.year}</p>
+                    <p className="text-sm text-neutral-500">Mărime: {item.size}</p>
+                    {item.product.customization && (
+                      <div className="text-xs text-neutral-600 mt-1">
+                        {item.product.customization.name && <p>Nume: {item.product.customization.name}</p>}
+                        {item.product.customization.number && <p>Număr: {item.product.customization.number}</p>}
+                      </div>
+                    )}
+                    <p className="font-bold mt-2">{formatPrice(item.product.price_ron)}</p>
+                  </div>
+                  <div className="flex flex-col items-end justify-between">
                     <button
-                      onClick={() => updateQuantity(item.product.id, item.size, item.quantity - 1)}
-                      className="w-8 h-8 border border-neutral-300 flex items-center justify-center hover:bg-neutral-100"
+                      onClick={() => removeFromCart(item.product.id, item.size)}
+                      data-testid={`remove-item-${item.product.id}`}
+                      className="text-red-500 hover:text-red-700"
                     >
-                      <Minus className="w-4 h-4" />
+                      <Trash2 className="w-5 h-5" />
                     </button>
-                    <span className="w-8 text-center font-bold">{item.quantity}</span>
-                    <button
-                      onClick={() => updateQuantity(item.product.id, item.size, item.quantity + 1)}
-                      className="w-8 h-8 border border-neutral-300 flex items-center justify-center hover:bg-neutral-100"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => updateQuantity(item.product.id, item.size, item.quantity - 1)}
+                        className="w-8 h-8 border border-neutral-300 flex items-center justify-center hover:bg-neutral-100"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="w-8 text-center font-bold">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.product.id, item.size, item.quantity + 1)}
+                        className="w-8 h-8 border border-neutral-300 flex items-center justify-center hover:bg-neutral-100"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Summary */}
