@@ -113,8 +113,9 @@ export default function Checkout() {
     }
   };
 
-  if (cart.length === 0) {
-    navigate('/cart');
+  if (cart.length === 0 && !loading) {
+    // Only redirect to cart if not currently processing an order
+    setTimeout(() => navigate('/cart'), 100);
     return null;
   }
 
