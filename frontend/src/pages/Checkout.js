@@ -80,8 +80,7 @@ export default function Checkout() {
       const orderRes = await axios.post(`${API_URL}/api/orders`, orderData);
       const order = orderRes.data;
 
-      // Clear cart
-      clearCart();
+      console.log('Order created:', order);
 
       // Redirect based on payment method
       if (formData.payment_method === 'card') {
@@ -94,10 +93,17 @@ export default function Checkout() {
           origin_url: origin_url
         };
         const paymentRes = await axios.post(`${API_URL}/api/payments/stripe/create-session`, paymentData);
+        
+        // Clear cart AFTER we have the payment URL
+        clearCart();
         window.location.href = paymentRes.data.url;
       } else {
         // For other payment methods (ramburs, transfer, skrill, paysafe), go to success page
-        navigate(`/order-success?order_id=${order.id}&payment_method=${formData.payment_method}`);
+        // Clear cart AFTER successful order creation
+        clearCart();
+        
+        // Use window.location instead of navigate to force full page reload
+        window.location.href = `/order-success?order_id=${order.id}&payment_method=${formData.payment_method}`;
       }
       
     } catch (err) {
