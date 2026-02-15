@@ -51,6 +51,21 @@ export default function AdminOrderDetail() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm(`Sigur vrei să ștergi comanda ${order.order_number}? Această acțiune este PERMANENTĂ și nu poate fi anulată!`)) {
+      return;
+    }
+
+    try {
+      await axios.delete(`${API_URL}/api/orders/${id}`);
+      toast.success('Comandă ștearsă cu succes!');
+      navigate('/admin/orders');
+    } catch (err) {
+      console.error(err);
+      toast.error('Eroare la ștergerea comenzii');
+    }
+  };
+
   if (loading) {
     return (
       <div className="pt-24 pb-16 min-h-screen flex items-center justify-center">
