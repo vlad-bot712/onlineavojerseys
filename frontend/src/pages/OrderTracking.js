@@ -194,6 +194,54 @@ export default function OrderTracking() {
                     <div className="flex-1">
                       <p className="font-bold">{item.product_name}</p>
                       <p className="text-sm text-neutral-600">Mărime: {item.size} • Cantitate: {item.quantity}</p>
+                      
+                      {/* Kit Type */}
+                      {item.kit && (
+                        <p className="text-xs text-neutral-700">
+                          <span className="font-bold">Kit:</span> {
+                            item.kit === 'first' ? 'First Kit' :
+                            item.kit === 'second' ? 'Second Kit' :
+                            item.kit === 'third' ? 'Third Kit' : item.kit
+                          }
+                        </p>
+                      )}
+                      
+                      {/* Version Badge */}
+                      {item.version && (
+                        <div className="mt-1">
+                          <span className={`inline-block px-2 py-1 text-xs font-bold ${
+                            item.version === 'player' 
+                              ? 'bg-purple-500 text-white' 
+                              : 'bg-blue-500 text-white'
+                          }`}>
+                            {item.version === 'player' ? '⭐ PLAYER VERSION' : '👕 FAN VERSION'}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Customization */}
+                      {item.customization && (
+                        <div className="bg-[#CCFF00]/30 border border-[#CCFF00] p-2 mt-2 space-y-0.5">
+                          <p className="text-xs font-bold">🎨 CUSTOMIZARE:</p>
+                          {item.customization.name && (
+                            <p className="text-xs">• Nume: <span className="font-bold">{item.customization.name}</span></p>
+                          )}
+                          {item.customization.number && (
+                            <p className="text-xs">• Număr: <span className="font-bold">{item.customization.number}</span></p>
+                          )}
+                          {item.customization.patches && item.customization.patches.length > 0 && (
+                            <p className="text-xs">
+                              • Patch-uri: <span className="font-bold">
+                                {item.customization.patches.map(p => 
+                                  p === 'league' ? '🏆 Liga' : 
+                                  p === 'ucl' ? '⭐ UCL' : p
+                                ).join(', ')}
+                              </span>
+                            </p>
+                          )}
+                        </div>
+                      )}
+                      
                       <p className="font-bold mt-1">{item.price_ron} RON</p>
                     </div>
                   </div>
