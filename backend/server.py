@@ -42,6 +42,9 @@ class Product(BaseModel):
     category: str
     team: str
     year: int
+    league: Optional[str] = None  # Ex: "La Liga", "Premier League"
+    plays_ucl: bool = False
+    country: Optional[str] = None  # Ex: "Spania", "Anglia"
     price_ron: float = 170.0
     images: List[str] = []
     description: str = ""
