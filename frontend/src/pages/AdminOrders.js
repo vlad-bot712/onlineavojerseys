@@ -45,6 +45,21 @@ export default function AdminOrders() {
     }
   };
 
+  const handleDeleteOrder = async (orderId, orderNumber) => {
+    if (!window.confirm(`Sigur vrei să ștergi comanda ${orderNumber}? Această acțiune este PERMANENTĂ!`)) {
+      return;
+    }
+
+    try {
+      await axios.delete(`${API_URL}/api/orders/${orderId}`);
+      toast.success('Comandă ștearsă cu succes!');
+      loadOrders(); // Reload orders
+    } catch (err) {
+      console.error(err);
+      toast.error('Eroare la ștergerea comenzii');
+    }
+  };
+
   const getStatusConfig = (status) => {
     const configs = {
       pending: {
