@@ -46,7 +46,7 @@ class Product(BaseModel):
     plays_ucl: bool = False
     country: Optional[str] = None  # Ex: "Spania", "Anglia"
     price_ron: float = 170.0
-    images: List[str] = []
+    variants: List[Dict] = []  # [{"kit": "first", "name": "Acasă", "images": [...], "color": "Alb"}]
     description: str = ""
     sizes: List[str] = ["S", "M", "L", "XL", "XXL"]
     in_stock: bool = True
