@@ -196,6 +196,14 @@ export default function AdminOrders() {
                           <Eye className="w-4 h-4" />
                           <span>Vezi Detalii</span>
                         </Link>
+                        <button
+                          onClick={() => handleDeleteOrder(order.id, order.order_number)}
+                          data-testid={`delete-order-${order.id}`}
+                          className="bg-red-500 text-white px-4 py-2 font-bold uppercase text-sm hover:bg-red-600 transition-all flex items-center space-x-2"
+                          title="Șterge comandă"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
                   </div>
