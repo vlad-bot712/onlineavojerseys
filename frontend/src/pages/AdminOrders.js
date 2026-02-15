@@ -256,6 +256,11 @@ export default function AdminOrders() {
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-bold truncate">{item.product_name}</p>
                                 <p className="text-xs text-neutral-500">Mărime: {item.size} • x{item.quantity}</p>
+                                {item.kit && (
+                                  <p className="text-xs text-neutral-600">
+                                    Kit: {item.kit === 'first' ? 'First Kit' : item.kit === 'second' ? 'Second Kit' : item.kit === 'third' ? 'Third Kit' : item.kit}
+                                  </p>
+                                )}
                                 {(item.customization || item.version) && (
                                   <div className="mt-1 text-xs text-neutral-600 space-y-0.5">
                                     {item.version && (
