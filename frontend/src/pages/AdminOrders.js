@@ -256,6 +256,21 @@ export default function AdminOrders() {
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-bold truncate">{item.product_name}</p>
                                 <p className="text-xs text-neutral-500">Mărime: {item.size} • x{item.quantity}</p>
+                                {(item.customization || item.version) && (
+                                  <div className="mt-1 text-xs text-neutral-600 space-y-0.5">
+                                    {item.version && (
+                                      <p className="font-bold text-[#CCFF00] bg-black px-1 py-0.5 inline-block text-xs">
+                                        {item.version === 'player' ? 'PLAYER' : 'FAN'}
+                                      </p>
+                                    )}
+                                    {item.customization && (
+                                      <>
+                                        {item.customization.name && <p>• {item.customization.name}</p>}
+                                        {item.customization.number && <p>• #{item.customization.number}</p>}
+                                      </>
+                                    )}
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ))}
