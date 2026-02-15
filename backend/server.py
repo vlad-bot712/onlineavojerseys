@@ -74,7 +74,13 @@ class CreateOrderRequest(BaseModel):
     customer_email: str
     customer_phone: str
     customer_address: str
+    customer_street: str
+    customer_city: str
+    customer_county: str
+    customer_zip: str
+    customer_country: str = "România"
     shipping_method: str
+    payment_method: str
     total_ron: float
     currency: str = "RON"
 
