@@ -40,6 +40,11 @@ export default function Home() {
       >
         <div className="absolute inset-0 bg-black/50"></div>
         <div className="relative z-10 text-center text-white px-4">
+          {/* Price Banner */}
+          <div className="bg-[#CCFF00] text-black px-8 py-3 inline-block mb-6 font-bold text-lg tracking-wider shadow-lg">
+            ⚡ NICIUN PRODUS NU DEPĂȘEȘTE 170 RON ⚡
+          </div>
+          
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 tracking-tighter">
             TRICOURI DE FOTBAL<br />
             PENTRU ADEVĂRAȚII FANI
