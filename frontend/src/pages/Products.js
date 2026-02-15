@@ -1,0 +1,152 @@
+import React, { useEffect, useState } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { Filter } from 'lucide-react';
+import axios from 'axios';
+import { useCurrency } from '../contexts/CurrencyContext';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+export default function Products() {
+  const { formatPrice } = useCurrency();
+  const [searchParams] = useSearchParams();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    category: searchParams.get('category') || '',
+    team: '',
+    year: ''
+  });
+
+  useEffect(() => {
+    loadProducts();
+  }, [filters]);
+
+  const loadProducts = async () => {
+    setLoading(true);
+    try {
+      const params = {};
+      if (filters.category) params.category = filters.category;
+      if (filters.team) params.team = filters.team;
+      if (filters.year) params.year = filters.year;
+
+      const res = await axios.get(`${API_URL}/api/products`, { params });
+      setProducts(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const years = [1998, 2002, 2006, 2010, 2014, 2018, 2022, 2024];
+
+  return (
+    <div data-testid="products-page" className="pt-24 pb-16 min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
+        <h1 className="text-4xl sm:text-5xl font-bold mb-8">PRODUSE</h1>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Filters Sidebar */}
+          <aside className="lg:col-span-1">
+            <div className="bg-white border border-neutral-200 p-6 sticky top-24">
+              <div className="flex items-center space-x-2 mb-6">
+                <Filter className="w-5 h-5" />
+                <h2 className="text-xl font-bold">FILTRE</h2>
+              </div>
+
+              {/* Category Filter */}
+              <div className="mb-6">
+                <h3 className="font-bold mb-3">CATEGORIE</h3>
+                <div className="space-y-2">
+                  {['', 'echipe-club', 'nationale', 'retro'].map(cat => (
+                    <label key={cat} className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="category"
+                        checked={filters.category === cat}
+                        onChange={() => setFilters({ ...filters, category: cat })}
+                        className="w-4 h-4"
+                      />
+                      <span className="text-sm">
+                        {cat === '' ? 'Toate' : cat === 'echipe-club' ? 'Echipe de Club' : cat === 'nationale' ? 'Naționale' : 'Retro'}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Year Filter */}
+              <div className="mb-6">
+                <h3 className="font-bold mb-3">AN</h3>
+                <select
+                  value={filters.year}
+                  onChange={(e) => setFilters({ ...filters, year: e.target.value })}
+                  className="w-full border border-neutral-200 px-3 py-2 focus:outline-none focus:border-black"
+                >
+                  <option value="">Toate</option>
+                  {years.map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Team Filter */}
+              <div>
+                <h3 className="font-bold mb-3">ECHIPĂ</h3>
+                <input
+                  type="text"
+                  placeholder="Caută echipă..."
+                  value={filters.team}
+                  onChange={(e) => setFilters({ ...filters, team: e.target.value })}
+                  className="w-full border border-neutral-200 px-3 py-2 focus:outline-none focus:border-black"
+                />
+              </div>
+
+              <button
+                onClick={() => setFilters({ category: '', team: '', year: '' })}
+                className="w-full mt-6 bg-black text-white py-2 font-bold hover:bg-neutral-800 transition-colors"
+              >
+                RESETEAZĂ FILTRE
+              </button>
+            </div>
+          </aside>
+
+          {/* Products Grid */}
+          <div className="lg:col-span-3">
+            {loading ? (
+              <div className="text-center py-12">Se încarcă...</div>
+            ) : products.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-xl text-neutral-500">Nu au fost găsite produse.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {products.map(product => (
+                  <Link
+                    key={product.id}
+                    to={`/products/${product.id}`}
+                    data-testid={`product-card-${product.id}`}
+                    className="group bg-white border border-neutral-100 hover:border-black hover:shadow-xl transition-all"
+                  >
+                    <div className="aspect-square overflow-hidden">
+                      <img 
+                        src={product.images[0] || 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=400'} 
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-bold text-lg mb-2 line-clamp-1">{product.name}</h3>
+                      <p className="text-sm text-neutral-500 mb-2">{product.team} • {product.year}</p>
+                      <p className="text-xl font-bold">{formatPrice(product.price_ron)}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
