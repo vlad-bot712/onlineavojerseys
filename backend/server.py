@@ -216,7 +216,16 @@ async def create_order(order_req: CreateOrderRequest):
     order_dict = order_req.model_dump()
     order_dict["order_number"] = order_number
     order_dict["status"] = "pending"
-    order_dict["payment_status"] = "pending"
+    
+    # Set payment status based on payment method
+    if order_req.payment_method == "ramburs":
+        order_dict["payment_status"] = "cod"  # Cash on delivery
+        order_dict["status"] = "processing"
+    elif order_req.payment_method == "transfer":
+        order_dict["payment_status"] = "awaiting_transfer"
+    else:
+        order_dict["payment_status"] = "pending"
+    
     order_dict["awb"] = ""
     order_dict["created_at"] = datetime.utcnow()
     order_dict["updated_at"] = datetime.utcnow()
