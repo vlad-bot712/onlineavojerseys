@@ -84,8 +84,8 @@ export default function Checkout() {
       clearCart();
 
       // Redirect based on payment method
-      if (formData.payment_method === 'stripe') {
-        // Create Stripe session
+      if (formData.payment_method === 'card') {
+        // Create Stripe session for card payment
         const origin_url = window.location.origin;
         const paymentData = {
           order_id: order.id,
@@ -96,7 +96,7 @@ export default function Checkout() {
         const paymentRes = await axios.post(`${API_URL}/api/payments/stripe/create-session`, paymentData);
         window.location.href = paymentRes.data.url;
       } else {
-        // For other payment methods, go to success page
+        // For other payment methods (ramburs, transfer, skrill, paysafe), go to success page
         navigate(`/order-success?order_id=${order.id}&payment_method=${formData.payment_method}`);
       }
       
