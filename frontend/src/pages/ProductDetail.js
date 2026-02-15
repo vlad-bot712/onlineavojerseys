@@ -61,9 +61,10 @@ export default function ProductDetail() {
       return;
     }
     
-    // Create product with customization
+    // Create product with customization and version
     const productWithCustomization = {
       ...product,
+      selectedVersion: selectedVersion, // Player or Fan version
       customization: customization.enabled ? {
         name: customization.name,
         number: customization.number,
