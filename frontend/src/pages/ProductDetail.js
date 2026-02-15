@@ -117,11 +117,14 @@ export default function ProductDetail() {
     );
   }
 
-  const images = product.images && product.images.length > 0 
-    ? product.images 
-    : ['https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=800'];
+  const images = product.variants && product.variants.length > 0
+    ? product.variants[selectedVariant].images || ['https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=800']
+    : (product.images && product.images.length > 0 
+      ? product.images 
+      : ['https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=800']);
 
   const availablePatches = getAvailablePatches();
+  const currentVariant = product.variants && product.variants[selectedVariant];
 
   return (
     <div data-testid="product-detail-page" className="pt-24 pb-16 min-h-screen">
