@@ -88,15 +88,15 @@ export default function OrderTracking() {
         <h1 className="text-4xl sm:text-5xl font-bold text-center mb-8">URMĂREȘTE COMANDA</h1>
 
         {/* Search Form */}
-        <div className="bg-white border border-neutral-200 p-8 mb-8">
-          <form onSubmit={handleSearch} className="flex gap-4">
+        <div className="bg-white border-2 border-neutral-200 p-8 mb-8">
+          <form onSubmit={handleSearch} className="flex gap-4 mb-6">
             <input
               type="text"
               data-testid="order-number-input"
               value={orderNumber}
               onChange={(e) => setOrderNumber(e.target.value)}
               placeholder="Introdu numărul comenzii (ex: AVO00001)"
-              className="flex-1 border border-neutral-200 px-4 py-3 focus:outline-none focus:border-black"
+              className="flex-1 border-2 border-neutral-200 px-4 py-3 focus:outline-none focus:border-black"
             />
             <button
               type="submit"
@@ -108,6 +108,42 @@ export default function OrderTracking() {
               <span>Caută</span>
             </button>
           </form>
+
+          {/* My Recent Orders */}
+          {myOrders.length > 0 && !order && (
+            <div>
+              <h3 className="font-bold text-lg mb-3">COMENZILE MELE RECENTE</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {myOrders.map((savedOrder, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setOrderNumber(savedOrder.order_number);
+                      handleSearch(null, savedOrder.order_number);
+                    }}
+                    className="text-left p-4 border-2 border-neutral-200 hover:border-black hover:bg-neutral-50 transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-bold">{savedOrder.order_number}</span>
+                      <span className={`text-xs px-2 py-1 font-bold ${
+                        savedOrder.status === 'delivered' ? 'bg-green-100 text-green-700' :
+                        savedOrder.status === 'shipped' ? 'bg-purple-100 text-purple-700' :
+                        'bg-yellow-100 text-yellow-700'
+                      }`}>
+                        {savedOrder.status === 'delivered' ? 'Livrată' :
+                         savedOrder.status === 'shipped' ? 'Expediată' :
+                         savedOrder.status === 'processing' ? 'Procesare' : 'Așteptare'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm text-neutral-600">
+                      <span>{new Date(savedOrder.date).toLocaleDateString('ro-RO')}</span>
+                      <span className="font-bold">{savedOrder.total} {savedOrder.currency}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Order Details */}
