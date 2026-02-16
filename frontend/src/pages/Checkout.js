@@ -73,14 +73,15 @@ export default function Checkout() {
       // Create full address
       const fullAddress = `${formData.customer_street}, ${formData.customer_city}, Județul ${formData.customer_county}, ${formData.customer_zip}, ${formData.customer_country}`;
 
-      // Create order items with safe image access
+      // Create order items with CORRECT variant image
       const orderItems = cart.map(item => {
-        // Get product image safely from variants or fallback
-        const productImage = item.product.variants && item.product.variants.length > 0 && item.product.variants[0].images && item.product.variants[0].images.length > 0
-          ? item.product.variants[0].images[0]
-          : (item.product.images && item.product.images.length > 0 
-            ? item.product.images[0] 
-            : 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=200');
+        // Use the selectedVariantImage from cart item - this is the CORRECT image for the selected kit
+        const productImage = item.product.selectedVariantImage 
+          || (item.product.variants && item.product.variants.length > 0 && item.product.variants[0].images && item.product.variants[0].images.length > 0
+            ? item.product.variants[0].images[0]
+            : (item.product.images && item.product.images.length > 0 
+              ? item.product.images[0] 
+              : 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=200'));
         
         return {
           product_id: item.product.id,
@@ -90,12 +91,15 @@ export default function Checkout() {
           quantity: item.quantity,
           price_ron: item.product.price_ron,
           customization: item.product.customization || null,
-          version: item.product.selectedVersion || 'fan'
+          version: item.product.selectedVersion || 'fan',
+          kit: item.product.selectedKit || 'first',
+          kit_name: item.product.selectedKitName || null
         };
       });
 
       const shippingCost = formData.shipping_method === 'express' ? 30 : 15;
-      const finalTotal = getCartTotal() + shippingCost;
+      const subtotal = getCartTotal();
+      const finalTotal = subtotal + shippingCost - couponDiscount;
 
       const orderData = {
         items: orderItems,
@@ -111,7 +115,9 @@ export default function Checkout() {
         shipping_method: formData.shipping_method,
         payment_method: formData.payment_method,
         total_ron: finalTotal,
-        currency: currency
+        currency: currency,
+        coupon_code: couponApplied ? 'AVO10LEI' : null,
+        coupon_discount: couponDiscount
       };
 
       const orderRes = await axios.post(`${API_URL}/api/orders`, orderData);
