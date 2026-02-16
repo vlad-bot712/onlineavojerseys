@@ -30,9 +30,9 @@ export default function Navbar() {
           {/* Logo */}
           <Link to="/" data-testid="logo-link" className="flex items-center">
             <img 
-              src="https://customer-assets.emergentagent.com/job_jersey-hub-31/artifacts/momr6z3s_IMG_9227.png" 
+              src="https://customer-assets.emergentagent.com/job_jersey-hub-31/artifacts/w7ymfuev_IMG_9227-removebg-preview.png" 
               alt="AVO JERSEYS" 
-              className="h-12 w-auto"
+              className="h-16 w-auto"
             />
           </Link>
 
