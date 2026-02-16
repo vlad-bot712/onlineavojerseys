@@ -209,7 +209,7 @@ async def get_categories():
             "id": "retro",
             "name": "Retro",
             "slug": "retro",
-            "image_url": "https://images.unsplash.com/photo-1551563983-7f51a18f2d01?w=800"
+            "image_url": "https://images.unsplash.com/photo-1770155590942-49d858bc5401?w=800"
         }
     ]
     return categories
