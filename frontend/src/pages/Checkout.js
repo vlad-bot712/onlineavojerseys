@@ -385,6 +385,48 @@ export default function Checkout() {
                   ))}
                 </div>
 
+                {/* Coupon Code Section */}
+                <div className="mb-6 pb-4 border-b border-neutral-200">
+                  <label className="block font-bold mb-2 text-sm">COD DE REDUCERE</label>
+                  {!couponApplied ? (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                        placeholder="Ex: AVO10LEI"
+                        data-testid="coupon-input"
+                        className="flex-1 border-2 border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:border-black uppercase"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleApplyCoupon}
+                        data-testid="apply-coupon-btn"
+                        className="bg-black text-white px-4 py-2 font-bold text-sm hover:bg-neutral-800 transition-all"
+                      >
+                        APLICĂ
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between bg-green-50 border-2 border-green-200 p-3">
+                      <div>
+                        <span className="font-bold text-green-700">AVO10LEI</span>
+                        <span className="text-green-600 ml-2">-10 RON</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRemoveCoupon}
+                        className="text-red-500 font-bold text-sm hover:text-red-700"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                  {couponError && (
+                    <p className="text-red-500 text-xs mt-1">{couponError}</p>
+                  )}
+                </div>
+
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-neutral-600">Subtotal</span>
@@ -394,6 +436,12 @@ export default function Checkout() {
                     <span className="text-neutral-600">Livrare</span>
                     <span className="font-bold">{formatPrice(shippingCost)}</span>
                   </div>
+                  {couponDiscount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Reducere (AVO10LEI)</span>
+                      <span className="font-bold">-{formatPrice(couponDiscount)}</span>
+                    </div>
+                  )}
                   <div className="border-t-2 border-neutral-200 pt-3 flex justify-between text-xl">
                     <span className="font-bold">TOTAL</span>
                     <span className="font-bold">{formatPrice(finalTotal)}</span>
