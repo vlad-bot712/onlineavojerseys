@@ -29,9 +29,9 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" data-testid="logo-link" className="flex items-center">
-            <div className="text-3xl font-bold tracking-tight">
-              <span className="text-black">AVO</span>
-              <span className="text-[#CCFF00] bg-black px-1">JERSEYS</span>
+            <div className="flex items-center" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+              <span className="text-3xl font-black text-black tracking-tighter">AVO</span>
+              <span className="text-3xl font-black text-[#CCFF00] bg-black px-2 ml-0.5 tracking-tighter">JERSEYS</span>
             </div>
           </Link>
 
