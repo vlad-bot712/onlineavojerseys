@@ -34,6 +34,28 @@ export default function Checkout() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Apply coupon code
+  const handleApplyCoupon = () => {
+    setCouponError('');
+    if (couponCode.trim().toUpperCase() === 'AVO10LEI') {
+      setCouponDiscount(10);
+      setCouponApplied(true);
+      toast.success('Cod de reducere aplicat: -10 RON!');
+    } else {
+      setCouponError('Cod de reducere invalid');
+      setCouponDiscount(0);
+      setCouponApplied(false);
+    }
+  };
+
+  // Remove coupon
+  const handleRemoveCoupon = () => {
+    setCouponCode('');
+    setCouponDiscount(0);
+    setCouponApplied(false);
+    setCouponError('');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
