@@ -189,6 +189,17 @@ async def create_product(product: Product):
     return product_dict
 
 
+@app.delete("/api/products/{product_id}")
+async def delete_product(product_id: str):
+    try:
+        result = await db.products.delete_one({"_id": ObjectId(product_id)})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Product not found")
+        return {"message": "Product deleted successfully", "product_id": product_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting product: {str(e)}")
+
+
 # Routes - Categories
 @app.get("/api/categories")
 async def get_categories():
