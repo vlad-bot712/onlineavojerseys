@@ -245,48 +245,47 @@ export default function AdminOrders() {
                       {/* Products Preview */}
                       <div>
                         <h4 className="font-bold text-sm text-neutral-500 uppercase tracking-wider mb-3">Produse</h4>
-                        <div className="space-y-2">
-                          {order.items.slice(0, 2).map((item, idx) => (
-                            <div key={idx} className="flex items-center space-x-2">
+                        <div className="space-y-3">
+                          {order.items.slice(0, 3).map((item, idx) => (
+                            <div key={idx} className="flex items-start space-x-3 bg-neutral-50 p-2 rounded">
                               <img 
                                 src={item.product_image || 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=100'} 
                                 alt={item.product_name}
-                                className="w-10 h-10 object-cover"
+                                className="w-14 h-14 object-cover border border-neutral-200"
                               />
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-bold truncate">{item.product_name}</p>
-                                <p className="text-xs text-neutral-500">Mărime: {item.size} • x{item.quantity}</p>
+                                <p className="text-xs text-neutral-500">Mărime: {item.size} • Cantitate: {item.quantity}</p>
+                                {/* Kit Info */}
                                 {item.kit && (
-                                  <p className="text-xs text-neutral-600">
-                                    Kit: {item.kit === 'first' ? 'First Kit' : item.kit === 'second' ? 'Second Kit' : item.kit === 'third' ? 'Third Kit' : item.kit}
+                                  <p className="text-xs font-bold text-blue-600 mt-1">
+                                    🎽 {item.kit_name || (item.kit === 'first' ? 'First Kit' : item.kit === 'second' ? 'Second Kit' : 'Third Kit')}
                                   </p>
                                 )}
-                                {(item.customization || item.version) && (
+                                {/* Version Badge */}
+                                {item.version && (
+                                  <span className={`inline-block text-xs font-bold px-2 py-0.5 mt-1 ${item.version === 'player' ? 'bg-black text-[#CCFF00]' : 'bg-neutral-200 text-neutral-700'}`}>
+                                    {item.version === 'player' ? 'PLAYER' : 'FAN'}
+                                  </span>
+                                )}
+                                {/* Customization Details */}
+                                {item.customization && (
                                   <div className="mt-1 text-xs text-neutral-600 space-y-0.5">
-                                    {item.version && (
-                                      <p className="font-bold text-[#CCFF00] bg-black px-1 py-0.5 inline-block text-xs">
-                                        {item.version === 'player' ? 'PLAYER' : 'FAN'}
-                                      </p>
-                                    )}
-                                    {item.customization && (
-                                      <>
-                                        {item.customization.name && <p>• Nume: {item.customization.name}</p>}
-                                        {item.customization.number && <p>• Număr: #{item.customization.number}</p>}
-                                        {item.customization.patches && item.customization.patches.length > 0 && (
-                                          <p>• Patch-uri: {item.customization.patches.map(p => 
-                                            p === 'league' ? '🏆 Liga' : 
-                                            p === 'ucl' ? '⭐ UCL' : p
-                                          ).join(', ')}</p>
-                                        )}
-                                      </>
+                                    {item.customization.name && <p>📝 Nume: <span className="font-bold">{item.customization.name}</span></p>}
+                                    {item.customization.number && <p>🔢 Număr: <span className="font-bold">#{item.customization.number}</span></p>}
+                                    {item.customization.patches && item.customization.patches.length > 0 && (
+                                      <p>🏷️ Patch-uri: {item.customization.patches.map(p => 
+                                        p === 'league' ? 'Liga' : 
+                                        p === 'ucl' ? 'UCL' : p
+                                      ).join(', ')}</p>
                                     )}
                                   </div>
                                 )}
                               </div>
                             </div>
                           ))}
-                          {order.items.length > 2 && (
-                            <p className="text-xs text-neutral-500 pl-12">+{order.items.length - 2} produse</p>
+                          {order.items.length > 3 && (
+                            <p className="text-xs text-neutral-500 text-center">+{order.items.length - 3} alte produse</p>
                           )}
                         </div>
                       </div>
