@@ -308,6 +308,29 @@ async def delete_order(order_id: str):
         raise HTTPException(status_code=500, detail=f"Error deleting order: {str(e)}")
 
 
+# Route - Save Invoice to Order
+@app.post("/api/orders/{order_id}/invoice")
+async def save_invoice(order_id: str, request: Request):
+    try:
+        body = await request.json()
+        invoice_image = body.get("invoice_image")
+        
+        if not invoice_image:
+            raise HTTPException(status_code=400, detail="Invoice image is required")
+        
+        result = await db.orders.update_one(
+            {"_id": ObjectId(order_id)},
+            {"$set": {"invoice_image": invoice_image, "updated_at": datetime.utcnow()}}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Order not found")
+        
+        return {"message": "Invoice saved successfully", "order_id": order_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error saving invoice: {str(e)}")
+
+
 # Routes - Payments (Stripe)
 @app.post("/api/payments/stripe/create-session")
 async def create_stripe_session(request: Request):
