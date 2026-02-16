@@ -75,7 +75,7 @@ export default function Products() {
               </p>
               <div className="bg-black text-white px-4 py-2 inline-block">
                 <p className="text-sm font-bold">
-                  📧 Trimite o poză la: <a href="mailto:contact@avojerseys.ro" className="underline hover:text-[#CCFF00]">contact@avojerseys.ro</a>
+                  📧 Trimite o poză la: <a href="mailto:avojerseys@gmail.com" className="underline hover:text-[#CCFF00]">avojerseys@gmail.com</a>
                 </p>
               </div>
               <p className="text-xs mt-2 text-neutral-700">

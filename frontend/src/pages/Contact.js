@@ -43,7 +43,7 @@ export default function Contact() {
                 <Mail className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-xl mb-2">EMAIL</h3>
-              <p className="text-neutral-600">contact@avojerseys.ro</p>
+              <p className="text-neutral-600">avojerseys@gmail.com</p>
               <p className="text-sm text-neutral-500 mt-2">Răspundem în 24h</p>
             </div>
 
@@ -61,7 +61,7 @@ export default function Contact() {
                 <MapPin className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-xl mb-2">LOCAȚIE</h3>
-              <p className="text-neutral-600">București, România</p>
+              <p className="text-neutral-600">Salaj, România</p>
               <p className="text-sm text-neutral-500 mt-2">Livrăm în toată țara</p>
             </div>
           </div>

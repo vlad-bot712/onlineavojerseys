@@ -48,7 +48,7 @@ export default function Footer() {
             <ul className="space-y-2">
               <li className="flex items-center space-x-2 text-sm text-neutral-400">
                 <Mail className="w-4 h-4" />
-                <span>contact@avojerseys.ro</span>
+                <span>avojerseys@gmail.com</span>
               </li>
               <li className="flex items-center space-x-2 text-sm text-neutral-400">
                 <Phone className="w-4 h-4" />
@@ -56,7 +56,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center space-x-2 text-sm text-neutral-400">
                 <MapPin className="w-4 h-4" />
-                <span>București, România</span>
+                <span>Salaj, România</span>
               </li>
             </ul>
           </div>
@@ -71,7 +71,7 @@ export default function Footer() {
               <a href="#" className="w-10 h-10 bg-white/10 hover:bg-[#CCFF00] hover:text-black flex items-center justify-center transition-all">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 bg-white/10 hover:bg-[#CCFF00] hover:text-black flex items-center justify-center transition-all">
+              <a href="https://www.tiktok.com/@avo.jerseys?_r=1&_t=ZN-93y4BUuYKow" className="w-10 h-10 bg-white/10 hover:bg-[#CCFF00] hover:text-black flex items-center justify-center transition-all">
                 <Twitter className="w-5 h-5" />
               </a>
             </div>
@@ -80,7 +80,7 @@ export default function Footer() {
 
         <div className="border-t border-white/10 mt-12 pt-8 text-center">
           <p className="text-sm text-neutral-400">
-            © 2025 AVO JERSEYS. Toate drepturile rezervate.
+            © 2026 AVO JERSEYS. Toate drepturile rezervate.
           </p>
         </div>
       </div>
