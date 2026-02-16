@@ -29,11 +29,10 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" data-testid="logo-link" className="flex items-center">
-            <img 
-              src="https://customer-assets.emergentagent.com/job_jersey-hub-31/artifacts/momr6z3s_IMG_9227.png" 
-              alt="AVO JERSEYS" 
-              className="h-12 w-auto"
-            />
+            <div className="text-3xl font-bold tracking-tight">
+              <span className="text-black">AVO</span>
+              <span className="text-[#CCFF00] bg-black px-1">JERSEYS</span>
+            </div>
           </Link>
 
           {/* Navigation */}
