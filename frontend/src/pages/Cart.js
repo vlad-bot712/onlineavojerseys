@@ -33,12 +33,13 @@ export default function Cart() {
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {cart.map((item) => {
-              // Get product image safely
-              const productImage = item.product.variants && item.product.variants.length > 0 && item.product.variants[0].images && item.product.variants[0].images.length > 0
-                ? item.product.variants[0].images[0]
-                : (item.product.images && item.product.images.length > 0 
-                  ? item.product.images[0] 
-                  : 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=200');
+              // Get the CORRECT variant image - use selectedVariantImage if available
+              const productImage = item.product.selectedVariantImage 
+                || (item.product.variants && item.product.variants.length > 0 && item.product.variants[0].images && item.product.variants[0].images.length > 0
+                  ? item.product.variants[0].images[0]
+                  : (item.product.images && item.product.images.length > 0 
+                    ? item.product.images[0] 
+                    : 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=200'));
               
               return (
                 <div
@@ -55,10 +56,25 @@ export default function Cart() {
                     <h3 className="font-bold text-lg">{item.product.name}</h3>
                     <p className="text-sm text-neutral-500">{item.product.team} • {item.product.year}</p>
                     <p className="text-sm text-neutral-500">Mărime: {item.size}</p>
+                    {/* Show selected kit */}
+                    {item.product.selectedKit && (
+                      <p className="text-sm text-neutral-600">
+                        Kit: <span className="font-bold">{item.product.selectedKitName || (item.product.selectedKit === 'first' ? 'First Kit' : item.product.selectedKit === 'second' ? 'Second Kit' : 'Third Kit')}</span>
+                      </p>
+                    )}
+                    {/* Show selected version */}
+                    {item.product.selectedVersion && (
+                      <span className={`inline-block text-xs font-bold px-2 py-0.5 mt-1 ${item.product.selectedVersion === 'player' ? 'bg-black text-[#CCFF00]' : 'bg-neutral-200 text-neutral-700'}`}>
+                        {item.product.selectedVersion === 'player' ? 'PLAYER VERSION' : 'FAN VERSION'}
+                      </span>
+                    )}
                     {item.product.customization && (
                       <div className="text-xs text-neutral-600 mt-1">
                         {item.product.customization.name && <p>Nume: {item.product.customization.name}</p>}
                         {item.product.customization.number && <p>Număr: {item.product.customization.number}</p>}
+                        {item.product.customization.patches && item.product.customization.patches.length > 0 && (
+                          <p>Patch-uri: {item.product.customization.patches.map(p => p === 'league' ? 'Liga' : p === 'ucl' ? 'UCL' : p).join(', ')}</p>
+                        )}
                       </div>
                     )}
                     <p className="font-bold mt-2">{formatPrice(item.product.price_ron)}</p>

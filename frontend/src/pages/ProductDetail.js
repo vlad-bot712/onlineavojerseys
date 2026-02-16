@@ -61,15 +61,22 @@ export default function ProductDetail() {
       return;
     }
     
-    // Get selected kit name
-    const selectedKit = product.variants && product.variants[selectedVariant] 
-      ? product.variants[selectedVariant].kit 
+    // Get selected variant (kit)
+    const currentVariant = product.variants && product.variants[selectedVariant] 
+      ? product.variants[selectedVariant] 
       : null;
     
-    // Create product with ALL customization details
+    // Get the CORRECT image for the selected variant
+    const variantImage = currentVariant && currentVariant.images && currentVariant.images.length > 0
+      ? currentVariant.images[0]
+      : (product.images && product.images.length > 0 ? product.images[0] : null);
+    
+    // Create product with ALL customization details AND the correct variant image
     const productWithCustomization = {
       ...product,
-      selectedKit: selectedKit, // first, second, or third
+      selectedKit: currentVariant ? currentVariant.kit : null, // first, second, or third
+      selectedKitName: currentVariant ? currentVariant.name : null, // "Acasă", "Deplasare", etc.
+      selectedVariantImage: variantImage, // The CORRECT image for this variant
       selectedVersion: selectedVersion, // player or fan
       customization: customization.enabled ? {
         name: customization.name,

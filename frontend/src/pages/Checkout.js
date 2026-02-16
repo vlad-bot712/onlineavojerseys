@@ -13,6 +13,10 @@ export default function Checkout() {
   const { cart, getCartTotal, clearCart } = useCart();
   const { formatPrice, currency } = useCurrency();
   const [loading, setLoading] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [couponError, setCouponError] = useState('');
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_email: '',
