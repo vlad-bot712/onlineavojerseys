@@ -70,6 +70,8 @@ class OrderItem(BaseModel):
     quantity: int
     price_ron: float
     customization: Optional[Dict] = None  # {name: str, number: str, patches: [str]}
+    version: Optional[str] = "fan"  # player or fan
+    kit: Optional[str] = "first"  # first, second, third
 
 
 class CreateOrderRequest(BaseModel):
