@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Package, Truck, CheckCircle, Clock } from 'lucide-react';
+import { Search, Package, Truck, CheckCircle, Clock, FileText } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'sonner';
