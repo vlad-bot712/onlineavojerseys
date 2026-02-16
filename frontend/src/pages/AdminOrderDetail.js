@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Phone, Mail, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
+import InvoiceGenerator from '../components/InvoiceGenerator';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
