@@ -90,6 +90,8 @@ class CreateOrderRequest(BaseModel):
     payment_method: str
     total_ron: float
     currency: str = "RON"
+    coupon_code: Optional[str] = None
+    coupon_discount: Optional[float] = 0
 
 
 class Order(BaseModel):
