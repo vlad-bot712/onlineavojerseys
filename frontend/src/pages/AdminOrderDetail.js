@@ -195,6 +195,9 @@ export default function AdminOrderDetail() {
                 Metodă: {order.payment_method || 'Nespecificată'}
               </p>
             </div>
+
+            {/* Invoice Generator */}
+            <InvoiceGenerator order={order} onInvoiceSaved={loadOrder} />
           </div>
 
           {/* Order Details */}
