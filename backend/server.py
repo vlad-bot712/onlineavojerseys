@@ -72,6 +72,7 @@ class OrderItem(BaseModel):
     customization: Optional[Dict] = None  # {name: str, number: str, patches: [str]}
     version: Optional[str] = "fan"  # player or fan
     kit: Optional[str] = "first"  # first, second, third
+    kit_name: Optional[str] = None  # "Acasă", "Deplasare", etc.
 
 
 class CreateOrderRequest(BaseModel):
