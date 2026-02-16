@@ -200,6 +200,22 @@ async def delete_product(product_id: str):
         raise HTTPException(status_code=500, detail=f"Error deleting product: {str(e)}")
 
 
+@app.patch("/api/products/{product_id}")
+async def update_product(product_id: str, request: Request):
+    try:
+        body = await request.json()
+        result = await db.products.update_one(
+            {"_id": ObjectId(product_id)},
+            {"$set": body}
+        )
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Product not found")
+        product = await db.products.find_one({"_id": ObjectId(product_id)})
+        return serialize_doc(product)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating product: {str(e)}")
+
+
 # Routes - Categories
 @app.get("/api/categories")
 async def get_categories():
