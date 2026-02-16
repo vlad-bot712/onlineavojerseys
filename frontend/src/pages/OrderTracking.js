@@ -180,6 +180,25 @@ export default function OrderTracking() {
               </div>
             </div>
 
+            {/* Invoice Section */}
+            {order.invoice_image && (
+              <div className="mb-8 bg-green-50 border-2 border-green-200 p-6">
+                <h3 className="font-bold text-xl mb-4 flex items-center space-x-2">
+                  <FileText className="w-6 h-6 text-green-600" />
+                  <span>FACTURĂ</span>
+                </h3>
+                <p className="text-sm text-neutral-600 mb-4">Factura ta este disponibilă pentru descărcare.</p>
+                <a 
+                  href={order.invoice_image} 
+                  download={`factura-${order.order_number}.png`}
+                  className="inline-flex items-center space-x-2 bg-green-600 text-white px-6 py-3 font-bold uppercase text-sm hover:bg-green-700 transition-colors"
+                >
+                  <FileText className="w-5 h-5" />
+                  <span>Descarcă Factura</span>
+                </a>
+              </div>
+            )}
+
             {/* Items */}
             <div>
               <h3 className="font-bold text-xl mb-4">PRODUSE</h3>
