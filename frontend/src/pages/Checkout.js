@@ -164,7 +164,7 @@ export default function Checkout() {
 
   const total = getCartTotal();
   const shippingCost = formData.shipping_method === 'express' ? 30 : 15;
-  const finalTotal = total + shippingCost;
+  const finalTotal = total + shippingCost - couponDiscount;
 
   const paymentMethods = [
     { id: 'ramburs', name: 'Ramburs (Plată la Livrare)', icon: Truck, description: 'Plătești când primești coletul' },
