@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Phone, Mail, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Phone, Mail, Trash2, Send } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import InvoiceGenerator from '../components/InvoiceGenerator';
@@ -13,6 +13,7 @@ export default function AdminOrderDetail() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
   const [formData, setFormData] = useState({
     status: '',
     awb: ''
