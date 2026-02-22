@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Users, Eye, TrendingUp, Activity } from 'lucide-react';
+import { X, Users, Eye, TrendingUp, Activity, Trash2 } from 'lucide-react';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -23,6 +24,19 @@ export default function AnalyticsModal({ isOpen, onClose }) {
       console.error('Error loading analytics:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleReset = async () => {
+    if (!window.confirm('Sigur vrei să ștergi TOATE datele de trafic? Această acțiune nu poate fi anulată!')) {
+      return;
+    }
+    try {
+      await axios.delete(`${API_URL}/api/analytics/reset`);
+      toast.success('Datele de trafic au fost resetate!');
+      loadStats();
+    } catch (err) {
+      toast.error('Eroare la resetare');
     }
   };
 
