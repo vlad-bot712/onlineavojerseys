@@ -232,7 +232,7 @@ export default function InvoiceGenerator({ order, onInvoiceSaved }) {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #eee' }}>
                 <span style={{ fontSize: '13px', color: '#666' }}>Livrare:</span>
-                <span style={{ fontSize: '13px' }}>{order.shipping_method === 'express' ? '30' : '15'} RON</span>
+                <span style={{ fontSize: '13px' }}>{order.shipping_method === 'express' ? '40' : '20'} RON</span>
               </div>
               {order.coupon_discount > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #eee', color: '#22c55e' }}>
