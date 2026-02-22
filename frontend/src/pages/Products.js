@@ -100,7 +100,7 @@ export default function Products() {
               <div className="mb-6">
                 <h3 className="font-bold mb-3">CATEGORIE</h3>
                 <div className="space-y-2">
-                  {['', 'echipe-club', 'nationale', 'retro'].map(cat => (
+                  {['', 'echipe-club', 'nationale', 'retro', 'limited-edition'].map(cat => (
                     <label key={cat} className="flex items-center space-x-2 cursor-pointer">
                       <input
                         type="radio"
@@ -109,8 +109,12 @@ export default function Products() {
                         onChange={() => setFilters({ ...filters, category: cat })}
                         className="w-4 h-4"
                       />
-                      <span className="text-sm">
-                        {cat === '' ? 'Toate' : cat === 'echipe-club' ? 'Echipe de Club' : cat === 'nationale' ? 'Naționale' : 'Retro'}
+                      <span className={`text-sm ${cat === 'limited-edition' ? 'font-bold text-orange-600' : ''}`}>
+                        {cat === '' ? 'Toate' : 
+                         cat === 'echipe-club' ? 'Echipe de Club' : 
+                         cat === 'nationale' ? 'Naționale' : 
+                         cat === 'retro' ? 'Retro' : 
+                         '⭐ Limited Edition'}
                       </span>
                     </label>
                   ))}
