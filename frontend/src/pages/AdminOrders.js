@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, Package, Clock, Truck, CheckCircle, XCircle, Calendar, User, Phone, Mail, MapPin, CreditCard, Trash2 } from 'lucide-react';
+import { Eye, Package, Clock, Truck, CheckCircle, XCircle, Calendar, User, Phone, Mail, MapPin, CreditCard, Trash2, Activity } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
+import AnalyticsModal from '../components/AnalyticsModal';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -10,6 +11,7 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [showAnalytics, setShowAnalytics] = useState(false);
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
