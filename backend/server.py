@@ -632,6 +632,16 @@ async def get_analytics_stats():
         raise HTTPException(status_code=500, detail=f"Error getting analytics: {str(e)}")
 
 
+@app.delete("/api/analytics/reset")
+async def reset_analytics():
+    """Reset all analytics data"""
+    try:
+        result = await db.analytics_visits.delete_many({})
+        return {"status": "success", "deleted_count": result.deleted_count}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error resetting analytics: {str(e)}")
+
+
 # ===== EMAIL SYSTEM =====
 
 import smtplib
