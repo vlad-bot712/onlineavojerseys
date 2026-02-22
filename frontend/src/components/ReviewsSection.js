@@ -202,7 +202,7 @@ export default function ReviewsSection() {
                   </div>
                   
                   {/* Text */}
-                  <p className="text-neutral-700 mb-4 line-clamp-4">{review.text}</p>
+                  <p className="text-neutral-700 mb-4 whitespace-pre-wrap">{review.text}</p>
                   
                   {/* Image */}
                   {review.image && (
