@@ -68,6 +68,31 @@ export default function AdminOrderDetail() {
     }
   };
 
+  const handleSendEmail = async () => {
+    setSendingEmail(true);
+    try {
+      const res = await axios.post(`${API_URL}/api/orders/${id}/send-email`, {
+        status: formData.status
+      });
+      
+      if (res.data.status === 'sent') {
+        toast.success(res.data.message);
+      } else if (res.data.status === 'preview') {
+        // Show preview if SMTP not configured
+        toast.info('SMTP nu este configurat. Previzualizare email:', { duration: 5000 });
+        console.log('Email preview:', res.data);
+        alert(`PREVIZUALIZARE EMAIL\n\nCătre: ${res.data.to}\nSubiect: ${res.data.subject}\n\n${res.data.body}\n\n⚠️ Pentru a trimite emailuri reale, configurați SMTP_PASSWORD în backend/.env`);
+      } else {
+        toast.error(res.data.message);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Eroare la trimiterea emailului');
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="pt-24 pb-16 min-h-screen flex items-center justify-center">
