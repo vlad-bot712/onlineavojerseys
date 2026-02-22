@@ -511,6 +511,276 @@ async def health():
     return {"status": "ok"}
 
 
+# ===== ANALYTICS SYSTEM =====
+
+@app.post("/api/analytics/visit")
+async def track_visit(request: Request):
+    """Track a page visit"""
+    try:
+        body = await request.json()
+        visit = {
+            "page": body.get("page", "/"),
+            "referrer": body.get("referrer", ""),
+            "user_agent": request.headers.get("user-agent", ""),
+            "ip": request.client.host if request.client else "unknown",
+            "timestamp": datetime.utcnow(),
+            "session_id": body.get("session_id", "")
+        }
+        await db.analytics_visits.insert_one(visit)
+        return {"status": "tracked"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+@app.get("/api/analytics/stats")
+async def get_analytics_stats():
+    """Get analytics statistics for admin dashboard"""
+    try:
+        now = datetime.utcnow()
+        
+        # Today's visits
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        today_visits = await db.analytics_visits.count_documents({
+            "timestamp": {"$gte": today_start}
+        })
+        
+        # Last 7 days visits by day
+        from datetime import timedelta
+        daily_stats = []
+        for i in range(7):
+            day_start = (now - timedelta(days=i)).replace(hour=0, minute=0, second=0, microsecond=0)
+            day_end = day_start + timedelta(days=1)
+            count = await db.analytics_visits.count_documents({
+                "timestamp": {"$gte": day_start, "$lt": day_end}
+            })
+            daily_stats.append({
+                "date": day_start.strftime("%Y-%m-%d"),
+                "day_name": day_start.strftime("%A"),
+                "visits": count
+            })
+        
+        # Last 30 minutes (active users approximation)
+        thirty_mins_ago = now - timedelta(minutes=30)
+        recent_sessions = await db.analytics_visits.distinct("session_id", {
+            "timestamp": {"$gte": thirty_mins_ago}
+        })
+        active_now = len([s for s in recent_sessions if s])  # Filter empty sessions
+        
+        # Total visits all time
+        total_visits = await db.analytics_visits.count_documents({})
+        
+        # Top pages
+        pipeline = [
+            {"$group": {"_id": "$page", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}},
+            {"$limit": 10}
+        ]
+        top_pages_cursor = db.analytics_visits.aggregate(pipeline)
+        top_pages = await top_pages_cursor.to_list(length=10)
+        
+        return {
+            "today_visits": today_visits,
+            "active_now": active_now,
+            "total_visits": total_visits,
+            "daily_stats": list(reversed(daily_stats)),  # Oldest first for chart
+            "top_pages": [{"page": p["_id"], "visits": p["count"]} for p in top_pages]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting analytics: {str(e)}")
+
+
+# ===== EMAIL SYSTEM =====
+
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+def get_email_template(order, status):
+    """Generate email content based on order status"""
+    templates = {
+        "pending": {
+            "subject": f"Comandă #{order['order_number']} - Primită",
+            "body": f"""
+Dragă {order['customer_name']},
+
+Îți mulțumim pentru comanda ta la AVO JERSEYS!
+
+📦 DETALII COMANDĂ:
+━━━━━━━━━━━━━━━━━━━━
+Număr comandă: #{order['order_number']}
+Total: {order['total_ron']} {order.get('currency', 'RON')}
+Metodă plată: {order.get('payment_method', 'N/A')}
+
+Comanda ta a fost primită și este în curs de verificare.
+Te vom notifica când va fi procesată.
+
+Cu stimă,
+Echipa AVO JERSEYS
+📧 avojerseys@gmail.com
+"""
+        },
+        "processing": {
+            "subject": f"Comandă #{order['order_number']} - În Procesare",
+            "body": f"""
+Dragă {order['customer_name']},
+
+Vești bune! Comanda ta #{order['order_number']} este acum în procesare.
+
+📦 DETALII COMANDĂ:
+━━━━━━━━━━━━━━━━━━━━
+Număr comandă: #{order['order_number']}
+Total: {order['total_ron']} {order.get('currency', 'RON')}
+
+Pregătim produsele pentru expediere și te vom notifica 
+când coletul tău va fi trimis.
+
+Cu stimă,
+Echipa AVO JERSEYS
+📧 avojerseys@gmail.com
+"""
+        },
+        "shipped": {
+            "subject": f"Comandă #{order['order_number']} - Expediată! 🚚",
+            "body": f"""
+Dragă {order['customer_name']},
+
+Coletul tău a fost EXPEDIAT! 🎉
+
+📦 DETALII LIVRARE:
+━━━━━━━━━━━━━━━━━━━━
+Număr comandă: #{order['order_number']}
+AWB: {order.get('awb', 'Va fi adăugat în curând')}
+
+Adresa de livrare:
+{order.get('customer_address', 'N/A')}
+
+Poți urmări coletul folosind numărul AWB de mai sus.
+Livrarea durează de obicei 1-3 zile lucrătoare.
+
+Cu stimă,
+Echipa AVO JERSEYS
+📧 avojerseys@gmail.com
+"""
+        },
+        "delivered": {
+            "subject": f"Comandă #{order['order_number']} - Livrată! ✅",
+            "body": f"""
+Dragă {order['customer_name']},
+
+Comanda ta #{order['order_number']} a fost LIVRATĂ cu succes! ✅
+
+Sperăm că ești mulțumit(ă) de achiziția ta!
+
+💬 Dacă ai orice întrebări sau feedback, nu ezita să ne contactezi.
+
+Mulțumim că ai ales AVO JERSEYS! 
+Așteptăm să te revedem curând! ⚽
+
+Cu stimă,
+Echipa AVO JERSEYS
+📧 avojerseys@gmail.com
+"""
+        },
+        "cancelled": {
+            "subject": f"Comandă #{order['order_number']} - Anulată",
+            "body": f"""
+Dragă {order['customer_name']},
+
+Ne pare rău să te informăm că comanda #{order['order_number']} a fost anulată.
+
+Dacă ai plătit deja, suma va fi returnată în 3-5 zile lucrătoare.
+
+Dacă ai întrebări sau dorești să plasezi o nouă comandă, 
+te rugăm să ne contactezi.
+
+Cu stimă,
+Echipa AVO JERSEYS
+📧 avojerseys@gmail.com
+"""
+        }
+    }
+    
+    return templates.get(status, templates["pending"])
+
+
+@app.post("/api/orders/{order_id}/send-email")
+async def send_order_email(order_id: str, request: Request):
+    """Send email notification to customer based on order status"""
+    try:
+        body = await request.json()
+        status_override = body.get("status")  # Optional: override order status for email
+        
+        # Get order
+        order = await db.orders.find_one({"_id": ObjectId(order_id)})
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        
+        order = serialize_doc(order)
+        status = status_override or order.get("status", "pending")
+        
+        # Get email template
+        template = get_email_template(order, status)
+        
+        # Get email credentials from environment
+        smtp_email = os.getenv("SMTP_EMAIL", "avojerseys@gmail.com")
+        smtp_password = os.getenv("SMTP_PASSWORD", "")
+        
+        if not smtp_password:
+            # Return template info if no password configured (for preview)
+            return {
+                "status": "preview",
+                "message": "Email nu poate fi trimis - lipsește parola SMTP. Configurați SMTP_PASSWORD în .env",
+                "to": order.get("customer_email"),
+                "subject": template["subject"],
+                "body": template["body"]
+            }
+        
+        # Create email message
+        msg = MIMEMultipart()
+        msg['From'] = f"AVO JERSEYS <{smtp_email}>"
+        msg['To'] = order.get("customer_email")
+        msg['Subject'] = template["subject"]
+        
+        msg.attach(MIMEText(template["body"], 'plain', 'utf-8'))
+        
+        # Send email via Gmail SMTP
+        try:
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(smtp_email, smtp_password)
+            server.send_message(msg)
+            server.quit()
+            
+            # Log email sent
+            await db.email_logs.insert_one({
+                "order_id": order_id,
+                "order_number": order.get("order_number"),
+                "to": order.get("customer_email"),
+                "subject": template["subject"],
+                "status": status,
+                "sent_at": datetime.utcnow()
+            })
+            
+            return {
+                "status": "sent",
+                "message": f"Email trimis cu succes la {order.get('customer_email')}",
+                "subject": template["subject"]
+            }
+        except smtplib.SMTPAuthenticationError:
+            return {
+                "status": "error",
+                "message": "Eroare autentificare SMTP. Verificați parola sau activați 'App Passwords' în Gmail."
+            }
+        except Exception as smtp_error:
+            return {
+                "status": "error", 
+                "message": f"Eroare SMTP: {str(smtp_error)}"
+            }
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error sending email: {str(e)}")
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
