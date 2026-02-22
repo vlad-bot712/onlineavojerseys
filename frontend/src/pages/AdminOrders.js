@@ -238,7 +238,7 @@ export default function AdminOrders() {
                           <p className="text-sm text-neutral-600">{order.customer_address}</p>
                         </div>
                         <p className="text-xs text-neutral-500 mt-2">
-                          Metodă: {order.shipping_method === 'express' ? 'Expresă (24h)' : 'Standard (2-3 zile)'}
+                          Metodă: {order.shipping_method === 'express' ? 'Expresă (1-2 saptamani)' : 'Standard (2-3 saptamani)'}
                         </p>
                       </div>
 

@@ -97,7 +97,7 @@ export default function Checkout() {
         };
       });
 
-      const shippingCost = formData.shipping_method === 'express' ? 30 : 15;
+      const shippingCost = formData.shipping_method === 'express' ? 40 : 20;
       const subtotal = getCartTotal();
       const finalTotal = subtotal + shippingCost - couponDiscount;
 
@@ -163,7 +163,7 @@ export default function Checkout() {
   }
 
   const total = getCartTotal();
-  const shippingCost = formData.shipping_method === 'express' ? 30 : 15;
+  const shippingCost = formData.shipping_method === 'express' ? 40 : 20;
   const finalTotal = total + shippingCost - couponDiscount;
 
   const paymentMethods = [
@@ -312,9 +312,9 @@ export default function Checkout() {
                       className="w-5 h-5"
                     />
                     <div className="flex-1">
-                      <span className="font-bold">Livrare Standard (2-3 zile)</span>
+                      <span className="font-bold">Livrare Standard (2-3 saptamani)</span>
                     </div>
-                    <span className="font-bold text-xl">{formatPrice(15)}</span>
+                    <span className="font-bold text-xl">{formatPrice(20)}</span>
                   </label>
                   <label className="flex items-center space-x-3 p-4 border-2 border-neutral-200 hover:border-black cursor-pointer transition-all">
                     <input
@@ -326,9 +326,9 @@ export default function Checkout() {
                       className="w-5 h-5"
                     />
                     <div className="flex-1">
-                      <span className="font-bold">Livrare Expresă (24h)</span>
+                      <span className="font-bold">Livrare Expresă (1-2saptamani)</span>
                     </div>
-                    <span className="font-bold text-xl">{formatPrice(30)}</span>
+                    <span className="font-bold text-xl">{formatPrice(40)}</span>
                   </label>
                 </div>
               </div>
