@@ -160,13 +160,20 @@ export default function AdminOrderDetail() {
                   <Phone className="w-5 h-5" />
                   <span>Sună Clientul</span>
                 </a>
-                <a
-                  href={`mailto:${order.customer_email}?subject=Comandă ${order.order_number}`}
-                  className="w-full bg-blue-500 text-white py-3 px-4 font-bold uppercase text-sm hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2"
+                <button
+                  onClick={handleSendEmail}
+                  disabled={sendingEmail}
+                  className="w-full bg-blue-500 text-white py-3 px-4 font-bold uppercase text-sm hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50"
                 >
-                  <Mail className="w-5 h-5" />
-                  <span>Trimite Email</span>
-                </a>
+                  <Send className="w-5 h-5" />
+                  <span>{sendingEmail ? 'Se trimite...' : 'Trimite Email Status'}</span>
+                </button>
+                <p className="text-xs text-neutral-500 text-center">
+                  Email automat cu status "{formData.status === 'pending' ? 'În Așteptare' : 
+                    formData.status === 'processing' ? 'În Procesare' : 
+                    formData.status === 'shipped' ? 'Expediată' : 
+                    formData.status === 'delivered' ? 'Livrată' : 'Anulată'}"
+                </p>
               </div>
             </div>
 
