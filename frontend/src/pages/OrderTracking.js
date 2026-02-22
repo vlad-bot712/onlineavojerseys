@@ -188,14 +188,39 @@ export default function OrderTracking() {
                   <span>FACTURĂ</span>
                 </h3>
                 <p className="text-sm text-neutral-600 mb-4">Factura ta este disponibilă pentru descărcare.</p>
-                <a 
-                  href={order.invoice_image} 
-                  download={`factura-${order.order_number}.png`}
+                <button 
+                  onClick={() => {
+                    // Convert base64 to blob for mobile compatibility
+                    const base64Data = order.invoice_image;
+                    if (base64Data.startsWith('data:')) {
+                      const byteString = atob(base64Data.split(',')[1]);
+                      const mimeString = base64Data.split(',')[0].split(':')[1].split(';')[0];
+                      const ab = new ArrayBuffer(byteString.length);
+                      const ia = new Uint8Array(ab);
+                      for (let i = 0; i < byteString.length; i++) {
+                        ia[i] = byteString.charCodeAt(i);
+                      }
+                      const blob = new Blob([ab], { type: mimeString });
+                      const url = URL.createObjectURL(blob);
+                      
+                      // Create link and trigger download
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.download = `factura-${order.order_number}.png`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      URL.revokeObjectURL(url);
+                    } else {
+                      // Fallback for regular URLs
+                      window.open(order.invoice_image, '_blank');
+                    }
+                  }}
                   className="inline-flex items-center space-x-2 bg-green-600 text-white px-6 py-3 font-bold uppercase text-sm hover:bg-green-700 transition-colors"
                 >
                   <FileText className="w-5 h-5" />
                   <span>Descarcă Factura</span>
-                </a>
+                </button>
               </div>
             )}
 
