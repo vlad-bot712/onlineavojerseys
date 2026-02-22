@@ -15,6 +15,7 @@ export default function Products() {
   const [searchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showSizeChart, setShowSizeChart] = useState(false);
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
     team: '',
