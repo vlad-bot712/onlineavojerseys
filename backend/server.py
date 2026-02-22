@@ -542,6 +542,18 @@ async def get_reviews(limit: int = 10):
         raise HTTPException(status_code=500, detail=f"Error getting reviews: {str(e)}")
 
 
+@app.delete("/api/reviews/{review_id}")
+async def delete_review(review_id: str):
+    """Delete a review"""
+    try:
+        result = await db.reviews.delete_one({"_id": ObjectId(review_id)})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Review not found")
+        return {"status": "success", "message": "Review deleted"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting review: {str(e)}")
+
+
 # ===== ANALYTICS SYSTEM =====
 
 @app.post("/api/analytics/visit")
