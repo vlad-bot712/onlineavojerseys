@@ -526,8 +526,6 @@ async def create_review(request: Request):
             "created_at": datetime.utcnow()
         }
         result = await db.reviews.insert_one(review)
-        review["id"] = str(result.inserted_id)
-        del review["_id"] if "_id" in review else None
         return {"status": "success", "review_id": str(result.inserted_id)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error creating review: {str(e)}")
