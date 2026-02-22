@@ -171,18 +171,27 @@ export default function AnalyticsModal({ isOpen, onClose }) {
               </div>
 
               {/* Refresh Button */}
-              <button
-                onClick={loadStats}
-                className="w-full bg-black text-white py-3 font-bold hover:bg-neutral-800 transition-colors"
-              >
-                🔄 ACTUALIZEAZĂ DATELE
-              </button>
+              <div className="flex space-x-4">
+                <button
+                  onClick={loadStats}
+                  className="flex-1 bg-black text-white py-3 font-bold hover:bg-neutral-800 transition-colors"
+                >
+                  🔄 ACTUALIZEAZĂ DATELE
+                </button>
+                <button
+                  onClick={handleReset}
+                  className="bg-red-500 text-white px-6 py-3 font-bold hover:bg-red-600 transition-colors flex items-center space-x-2"
+                >
+                  <Trash2 className="w-5 h-5" />
+                  <span>RESETEAZĂ</span>
+                </button>
+              </div>
             </div>
           ) : (
             <div className="text-center py-12">
               <p className="text-neutral-500">Nu s-au putut încărca statisticile</p>
             </div>
-          )}
+          )}}
         </div>
       </div>
     </div>
