@@ -226,6 +226,9 @@ export default function Products() {
           </div>
         </div>
       </div>
+
+      {/* Size Chart Modal */}
+      <SizeChartModal isOpen={showSizeChart} onClose={() => setShowSizeChart(false)} />
     </div>
   );
 }
