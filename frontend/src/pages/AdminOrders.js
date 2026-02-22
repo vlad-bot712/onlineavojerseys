@@ -128,9 +128,19 @@ export default function AdminOrders() {
     <div data-testid="admin-orders-page" className="pt-24 pb-16 min-h-screen bg-neutral-50">
       <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-2">COMENZI ADMIN</h1>
-          <p className="text-neutral-600">Gestionează și monitorizează toate comenzile</p>
+        <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-4xl sm:text-5xl font-bold mb-2">COMENZI ADMIN</h1>
+            <p className="text-neutral-600">Gestionează și monitorizează toate comenzile</p>
+          </div>
+          {/* Analytics Button */}
+          <button
+            onClick={() => setShowAnalytics(true)}
+            className="bg-[#CCFF00] text-black px-6 py-3 font-bold flex items-center space-x-2 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+          >
+            <Activity className="w-5 h-5" />
+            <span>TRAFIC SITE</span>
+          </button>
         </div>
 
         {/* Stats Cards */}
