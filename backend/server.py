@@ -713,7 +713,7 @@ Adresa de livrare:
 {order.get('customer_address', 'N/A')}
 
 Poți urmări coletul folosind numărul AWB de mai sus.
-Livrarea durează de obicei 1-3 zile lucrătoare.
+Livrarea durează de obicei 1-3 saptamani lucrătoare.
 
 Cu stimă,
 Echipa AVO JERSEYS
