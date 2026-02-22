@@ -160,16 +160,60 @@ export default function AdminOrderDetail() {
                   <Phone className="w-5 h-5" />
                   <span>Sună Clientul</span>
                 </a>
-                <button
-                  onClick={handleSendEmail}
-                  disabled={sendingEmail}
-                  className="w-full bg-blue-500 text-white py-3 px-4 font-bold uppercase text-sm hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50"
+                <a
+                  href={`mailto:${order.customer_email}?subject=Comandă AVO JERSEYS %23${order.order_number}`}
+                  className="w-full bg-blue-500 text-white py-3 px-4 font-bold uppercase text-sm hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2"
                 >
-                  <Send className="w-5 h-5" />
-                  <span>{sendingEmail ? 'Se trimite...' : 'Trimite Email Status'}</span>
+                  <Mail className="w-5 h-5" />
+                  <span>Email Client</span>
+                </a>
+                <button
+                  onClick={() => {
+                    const statusLabels = {
+                      pending: 'Comandă Primită',
+                      processing: 'În Procesare', 
+                      shipped: 'Expediată',
+                      delivered: 'Livrată',
+                      cancelled: 'Anulată'
+                    };
+                    const statusMessages = {
+                      pending: `Comandă confirmată și în curs de verificare.`,
+                      processing: `Comanda este acum în procesare și se pregătește pentru expediere.`,
+                      shipped: `Coletul a fost expediat!${order.awb ? ' AWB: ' + order.awb : ''}`,
+                      delivered: `Comanda a fost livrată cu succes!`,
+                      cancelled: `Din păcate, comanda a fost anulată.`
+                    };
+                    const items = order.items.map(i => `• ${i.product_name} (${i.size}) x${i.quantity}`).join('\n');
+                    const template = `Dragă ${order.customer_name},
+
+${statusMessages[formData.status] || statusMessages.pending}
+
+📦 DETALII COMANDĂ:
+━━━━━━━━━━━━━━━━━━━━
+Număr comandă: #${order.order_number}
+Status: ${statusLabels[formData.status] || 'În Așteptare'}
+Total: ${order.total_ron} RON
+
+Produse:
+${items}
+
+Adresa de livrare:
+${order.customer_address}
+
+Cu stimă,
+Echipa AVO JERSEYS
+📧 avojerseys@gmail.com`;
+                    
+                    navigator.clipboard.writeText(template);
+                    toast.success('Template copiat în clipboard!');
+                  }}
+                  className="w-full bg-neutral-800 text-white py-3 px-4 font-bold uppercase text-sm hover:bg-neutral-700 transition-colors flex items-center justify-center space-x-2"
+                >
+                  <Copy className="w-5 h-5" />
+                  <span>Copiază Template Email</span>
                 </button>
                 <p className="text-xs text-neutral-500 text-center">
-                  Email automat cu status "{formData.status === 'pending' ? 'În Așteptare' : 
+                  Template pentru status "{formData.status === 'pending' ? 'În Așteptare' : 
                     formData.status === 'processing' ? 'În Procesare' : 
                     formData.status === 'shipped' ? 'Expediată' : 
                     formData.status === 'delivered' ? 'Livrată' : 'Anulată'}"
