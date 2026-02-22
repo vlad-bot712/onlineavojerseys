@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { CurrencyProvider } from './contexts/CurrencyContext';
 import { CartProvider } from './contexts/CartContext';
 import { FavoritesProvider } from './contexts/FavoritesContext';
@@ -19,12 +19,52 @@ import AdminOrderDetail from './pages/AdminOrderDetail';
 import Contact from './pages/Contact';
 import './App.css';
 
+const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+// Generate or get session ID
+const getSessionId = () => {
+  let sessionId = sessionStorage.getItem('avo_session_id');
+  if (!sessionId) {
+    sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    sessionStorage.setItem('avo_session_id', sessionId);
+  }
+  return sessionId;
+};
+
+// Analytics tracker component
+function AnalyticsTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    // Track page visit
+    const trackVisit = async () => {
+      try {
+        await fetch(`${API_URL}/api/analytics/visit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            page: location.pathname,
+            referrer: document.referrer,
+            session_id: getSessionId()
+          })
+        });
+      } catch (err) {
+        // Silent fail for analytics
+      }
+    };
+    trackVisit();
+  }, [location.pathname]);
+
+  return null;
+}
+
 function App() {
   return (
     <CurrencyProvider>
       <CartProvider>
         <FavoritesProvider>
           <Router>
+            <AnalyticsTracker />
             <div className="App">
               <Navbar />
               <main className="min-h-screen">
