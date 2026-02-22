@@ -511,6 +511,39 @@ async def health():
     return {"status": "ok"}
 
 
+# ===== REVIEWS SYSTEM =====
+
+@app.post("/api/reviews")
+async def create_review(request: Request):
+    """Create a new review"""
+    try:
+        body = await request.json()
+        review = {
+            "name": body.get("name", "Anonim"),
+            "text": body.get("text", ""),
+            "stars": min(max(int(body.get("stars", 5)), 1), 5),
+            "image": body.get("image"),  # Base64 image or null
+            "created_at": datetime.utcnow()
+        }
+        result = await db.reviews.insert_one(review)
+        review["id"] = str(result.inserted_id)
+        del review["_id"] if "_id" in review else None
+        return {"status": "success", "review_id": str(result.inserted_id)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating review: {str(e)}")
+
+
+@app.get("/api/reviews")
+async def get_reviews(limit: int = 10):
+    """Get all reviews"""
+    try:
+        cursor = db.reviews.find().sort("created_at", -1).limit(limit)
+        reviews = await cursor.to_list(length=limit)
+        return [serialize_doc(r) for r in reviews]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting reviews: {str(e)}")
+
+
 # ===== ANALYTICS SYSTEM =====
 
 @app.post("/api/analytics/visit")
