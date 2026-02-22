@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { toast } from 'sonner';
+import ReviewsSection from '../components/ReviewsSection';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
