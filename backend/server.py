@@ -236,6 +236,12 @@ async def get_categories():
             "name": "Retro",
             "slug": "retro",
             "image_url": "https://images.unsplash.com/photo-1770155590942-49d858bc5401?w=800"
+        },
+        {
+            "id": "limited-edition",
+            "name": "Limited Edition",
+            "slug": "limited-edition",
+            "image_url": "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800"
         }
     ]
     return categories
