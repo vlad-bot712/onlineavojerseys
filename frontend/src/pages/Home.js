@@ -154,7 +154,7 @@ export default function Home() {
                 <Truck className="w-8 h-8" />
               </div>
               <h3 className="text-xl font-bold mb-2">LIVRARE RAPIDĂ</h3>
-              <p className="text-neutral-600">Livrare în 24-48h în toată țara</p>
+              <p className="text-neutral-600">Livrare în 1-2sapt, în toată țara</p>
             </div>
             <div data-testid="benefit-payment" className="text-center">
               <div className="w-16 h-16 bg-black text-white flex items-center justify-center mx-auto mb-4">
