@@ -185,8 +185,7 @@ async def get_product(product_id: str):
 async def create_product(product: Product):
     product_dict = product.model_dump(exclude={"id"})
     result = await db.products.insert_one(product_dict)
-    product_dict["id"] = str(result.inserted_id)
-    return product_dict
+    return {"status": "success", "product_id": str(result.inserted_id)}
 
 
 @app.delete("/api/products/{product_id}")
