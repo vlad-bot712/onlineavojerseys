@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Filter, Heart, Shirt } from 'lucide-react';
+import { Filter, Heart, Shirt, Ruler } from 'lucide-react';
 import axios from 'axios';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { toast } from 'sonner';
+import SizeChartModal from '../components/SizeChartModal';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
