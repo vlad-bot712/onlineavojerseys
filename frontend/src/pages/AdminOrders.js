@@ -344,6 +344,9 @@ export default function AdminOrders() {
           </div>
         )}
       </div>
+
+      {/* Analytics Modal */}
+      <AnalyticsModal isOpen={showAnalytics} onClose={() => setShowAnalytics(false)} />
     </div>
   );
 }
