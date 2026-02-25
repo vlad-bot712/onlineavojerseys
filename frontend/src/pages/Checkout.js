@@ -42,15 +42,18 @@ export default function Checkout() {
     if (code === 'AVO10LEI') {
       setCouponDiscount(10);
       setCouponApplied(true);
+      setAppliedCouponCode('AVO10LEI');
       toast.success('Cod de reducere aplicat: -10 RON!');
     } else if (code === 'AVO20') {
       setCouponDiscount(20);
       setCouponApplied(true);
+      setAppliedCouponCode('AVO20');
       toast.success('Cod de reducere aplicat: -20 RON!');
     } else {
       setCouponError('Cod de reducere invalid');
       setCouponDiscount(0);
       setCouponApplied(false);
+      setAppliedCouponCode('');
     }
   };
 
@@ -59,6 +62,7 @@ export default function Checkout() {
     setCouponCode('');
     setCouponDiscount(0);
     setCouponApplied(false);
+    setAppliedCouponCode('');
     setCouponError('');
   };
 
