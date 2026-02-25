@@ -213,10 +213,43 @@ async def get_products(
             {"team": {"$regex": search, "$options": "i"}}
         ]
     
-    # Sort by team name first, then by year
-    cursor = db.products.find(query).sort([("team", 1), ("year", 1)])
-    products = await cursor.to_list(length=100)
-    return [serialize_doc(p) for p in products]
+    cursor = db.products.find(query)
+    products = await cursor.to_list(length=200)
+    
+    # Custom sort order
+    category_order = {"echipe-club": 0, "nationale": 1, "retro": 2, "limited-edition": 3}
+    
+    # Teams by league/country priority
+    team_order = {
+        # Spain first
+        "Real Madrid": 1, "Barcelona": 2, "Atletico Madrid": 3,
+        # England
+        "Manchester United": 10, "Manchester City": 11, "Liverpool": 12, "Chelsea": 13, "Arsenal": 14, "Tottenham": 15,
+        # Italy
+        "Juventus": 20, "AC Milan": 21, "Inter Milan": 22, "AS Roma": 23, "Napoli": 24,
+        # Germany
+        "Bayern Munich": 30, "Bayern Munchen": 30, "Borussia Dortmund": 31,
+        # France
+        "PSG": 40, "Paris Saint-Germain": 40, "Olympique Lyon": 41, "Marseille": 42,
+        # Portugal
+        "Benfica": 50, "Porto": 51, "Sporting": 52,
+        # Netherlands
+        "Ajax": 60,
+        # National teams
+        "România": 100, "Romania": 100, "Spania": 101, "Germania": 102, "Franța": 103, "Franta": 103,
+        "Anglia": 104, "Italia": 105, "Portugalia": 106, "Olanda": 107,
+        "Brazilia": 110, "Argentina": 111, "Japonia": 112,
+    }
+    
+    def sort_key(p):
+        cat_priority = category_order.get(p.get("category", ""), 99)
+        team_priority = team_order.get(p.get("team", ""), 999)
+        year = p.get("year", 2024)
+        return (cat_priority, team_priority, year)
+    
+    products = [serialize_doc(p) for p in products]
+    products.sort(key=sort_key)
+    return products
 
 
 @app.get("/api/products/{product_id}")
