@@ -37,10 +37,15 @@ export default function Checkout() {
   // Apply coupon code
   const handleApplyCoupon = () => {
     setCouponError('');
-    if (couponCode.trim().toUpperCase() === 'AVO10LEI') {
+    const code = couponCode.trim().toUpperCase();
+    if (code === 'AVO10LEI') {
       setCouponDiscount(10);
       setCouponApplied(true);
       toast.success('Cod de reducere aplicat: -10 RON!');
+    } else if (code === 'AVO20') {
+      setCouponDiscount(20);
+      setCouponApplied(true);
+      toast.success('Cod de reducere aplicat: -20 RON!');
     } else {
       setCouponError('Cod de reducere invalid');
       setCouponDiscount(0);
