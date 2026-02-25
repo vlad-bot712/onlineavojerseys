@@ -16,6 +16,7 @@ export default function Checkout() {
   const [couponCode, setCouponCode] = useState('');
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [couponApplied, setCouponApplied] = useState(false);
+  const [appliedCouponCode, setAppliedCouponCode] = useState('');
   const [couponError, setCouponError] = useState('');
   const [formData, setFormData] = useState({
     customer_name: '',
