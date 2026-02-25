@@ -420,8 +420,8 @@ export default function Checkout() {
                   ) : (
                     <div className="flex items-center justify-between bg-green-50 border-2 border-green-200 p-3">
                       <div>
-                        <span className="font-bold text-green-700">AVO10LEI</span>
-                        <span className="text-green-600 ml-2">-10 RON</span>
+                        <span className="font-bold text-green-700">{appliedCouponCode}</span>
+                        <span className="text-green-600 ml-2">-{couponDiscount} RON</span>
                       </div>
                       <button
                         type="button"
@@ -448,7 +448,7 @@ export default function Checkout() {
                   </div>
                   {couponDiscount > 0 && (
                     <div className="flex justify-between text-green-600">
-                      <span>Reducere (AVO10LEI)</span>
+                      <span>Reducere ({appliedCouponCode})</span>
                       <span className="font-bold">-{formatPrice(couponDiscount)}</span>
                     </div>
                   )}
