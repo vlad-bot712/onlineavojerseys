@@ -150,53 +150,54 @@ def serialize_doc(doc):
 # Seed Limited Edition products on startup
 @app.on_event("startup")
 async def seed_limited_edition():
-    """Create Limited Edition products if they don't exist"""
+    """Create Limited Edition products - always ensure exactly 18 exist"""
     existing = await db.products.count_documents({"category": "limited-edition"})
-    if existing >= 18:
-        print(f"Limited Edition products already exist: {existing}")
-        return
     
-    # Delete any existing to recreate fresh
-    await db.products.delete_many({"category": "limited-edition"})
-    
-    limited_products = [
-        {"name": "Tricou Barcelona Limited Edition 1", "team": "Barcelona", "images": "/images/products/special-barcelona-1.jpg"},
-        {"name": "Tricou Barcelona Limited Edition 2", "team": "Barcelona", "images": "/images/products/special-barcelona-2.jpg"},
-        {"name": "Tricou Barcelona Limited Edition 3", "team": "Barcelona", "images": "/images/products/special-barcelona-3.jpg"},
-        {"name": "Tricou Real Madrid Limited Edition 1", "team": "Real Madrid", "images": "/images/products/special-real-madrid-1.jpg"},
-        {"name": "Tricou Real Madrid Limited Edition 2", "team": "Real Madrid", "images": "/images/products/special-real-madrid-2.jpg"},
-        {"name": "Tricou Brazilia Limited Edition", "team": "Brazilia", "images": "/images/products/special-brazilia.jpg"},
-        {"name": "Tricou Bayern Munchen Limited Edition", "team": "Bayern Munchen", "images": "/images/products/special-bayern.jpg"},
-        {"name": "Tricou AC Milan Limited Edition", "team": "AC Milan", "images": "/images/products/special-ac-milan.jpg"},
-        {"name": "Tricou Japonia Limited Edition", "team": "Japonia", "images": "/images/products/special-japonia.jpg"},
-        {"name": "Tricou PSG Limited Edition", "team": "PSG", "images": "/images/products/special-psg.jpg"},
-        {"name": "Tricou Italia Limited Edition", "team": "Italia", "images": "/images/products/special-italia.jpg"},
-        {"name": "Tricou Manchester City Limited Edition", "team": "Manchester City", "images": "/images/products/special-man-city.jpg"},
-        # 5 new slots
-        {"name": "Tricou Limited Edition 13", "team": "Limited", "images": "/images/products/special-13.jpg"},
-        {"name": "Tricou Limited Edition 14", "team": "Limited", "images": "/images/products/special-14.jpg"},
-        {"name": "Tricou Limited Edition 15", "team": "Limited", "images": "/images/products/special-15.jpg"},
-        {"name": "Tricou Limited Edition 16", "team": "Limited", "images": "/images/products/special-16.jpg"},
-        {"name": "Tricou Limited Edition 17", "team": "Limited", "images": "/images/products/special-17.jpg"},
-        {"name": "Tricou Limited Edition 18", "team": "Limited", "images": "/images/products/special-18.jpg"},
-    ]
-    
-    for p in limited_products:
-        product = {
-            "name": p["name"],
-            "category": "limited-edition",
-            "team": p["team"],
-            "year": 2024,
-            "price_ron": 170,
-            "price_eur": 35,
-            "variants": [{"kit": "first", "name": "Limited Edition", "images": [p["images"]]}],
-            "description": f"Ediție limitată {p['team']}",
-            "sizes": ["S", "M", "L", "XL", "XXL"],
-            "in_stock": True
-        }
-        await db.products.insert_one(product)
-    
-    print(f"✓ Created 18 Limited Edition products")
+    # Always recreate to ensure correct products
+    if existing != 18:
+        print(f"Limited Edition: found {existing}, need 18. Recreating...")
+        # Delete all existing
+        await db.products.delete_many({"category": "limited-edition"})
+        
+        limited_products = [
+            {"name": "Tricou Barcelona Limited Edition 1", "team": "Barcelona", "images": "/images/products/special-barcelona-1.jpg"},
+            {"name": "Tricou Barcelona Limited Edition 2", "team": "Barcelona", "images": "/images/products/special-barcelona-2.jpg"},
+            {"name": "Tricou Barcelona Limited Edition 3", "team": "Barcelona", "images": "/images/products/special-barcelona-3.jpg"},
+            {"name": "Tricou Real Madrid Limited Edition 1", "team": "Real Madrid", "images": "/images/products/special-real-madrid-1.jpg"},
+            {"name": "Tricou Real Madrid Limited Edition 2", "team": "Real Madrid", "images": "/images/products/special-real-madrid-2.jpg"},
+            {"name": "Tricou Brazilia Limited Edition", "team": "Brazilia", "images": "/images/products/special-brazilia.jpg"},
+            {"name": "Tricou Bayern Munchen Limited Edition", "team": "Bayern Munchen", "images": "/images/products/special-bayern.jpg"},
+            {"name": "Tricou AC Milan Limited Edition", "team": "AC Milan", "images": "/images/products/special-ac-milan.jpg"},
+            {"name": "Tricou Japonia Limited Edition", "team": "Japonia", "images": "/images/products/special-japonia.jpg"},
+            {"name": "Tricou PSG Limited Edition", "team": "PSG", "images": "/images/products/special-psg.jpg"},
+            {"name": "Tricou Italia Limited Edition", "team": "Italia", "images": "/images/products/special-italia.jpg"},
+            {"name": "Tricou Manchester City Limited Edition", "team": "Manchester City", "images": "/images/products/special-man-city.jpg"},
+            {"name": "Tricou Limited Edition 13", "team": "Limited", "images": "/images/products/special-13.jpg"},
+            {"name": "Tricou Limited Edition 14", "team": "Limited", "images": "/images/products/special-14.jpg"},
+            {"name": "Tricou Limited Edition 15", "team": "Limited", "images": "/images/products/special-15.jpg"},
+            {"name": "Tricou Limited Edition 16", "team": "Limited", "images": "/images/products/special-16.jpg"},
+            {"name": "Tricou Limited Edition 17", "team": "Limited", "images": "/images/products/special-17.jpg"},
+            {"name": "Tricou Limited Edition 18", "team": "Limited", "images": "/images/products/special-18.jpg"},
+        ]
+        
+        for p in limited_products:
+            product = {
+                "name": p["name"],
+                "category": "limited-edition",
+                "team": p["team"],
+                "year": 2024,
+                "price_ron": 170,
+                "price_eur": 35,
+                "variants": [{"kit": "first", "name": "Limited Edition", "images": [p["images"]]}],
+                "description": f"Ediție limitată {p['team']}",
+                "sizes": ["S", "M", "L", "XL", "XXL"],
+                "in_stock": True
+            }
+            await db.products.insert_one(product)
+        
+        print(f"✓ Created 18 Limited Edition products")
+    else:
+        print(f"✓ Limited Edition products OK: {existing}")
 
 
 # Routes - Products
