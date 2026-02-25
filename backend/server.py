@@ -152,7 +152,7 @@ def serialize_doc(doc):
 async def seed_limited_edition():
     """Create Limited Edition products if they don't exist"""
     existing = await db.products.count_documents({"category": "limited-edition"})
-    if existing >= 12:
+    if existing >= 17:
         print(f"Limited Edition products already exist: {existing}")
         return
     
