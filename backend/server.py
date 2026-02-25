@@ -213,7 +213,8 @@ async def get_products(
             {"team": {"$regex": search, "$options": "i"}}
         ]
     
-    cursor = db.products.find(query)
+    # Sort by team name first, then by year
+    cursor = db.products.find(query).sort([("team", 1), ("year", 1)])
     products = await cursor.to_list(length=100)
     return [serialize_doc(p) for p in products]
 
