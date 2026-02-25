@@ -172,6 +172,12 @@ async def seed_limited_edition():
         {"name": "Tricou PSG Limited Edition", "team": "PSG", "images": "/images/products/special-psg.jpg"},
         {"name": "Tricou Italia Limited Edition", "team": "Italia", "images": "/images/products/special-italia.jpg"},
         {"name": "Tricou Manchester City Limited Edition", "team": "Manchester City", "images": "/images/products/special-man-city.jpg"},
+        # 5 new slots
+        {"name": "Tricou Limited Edition 13", "team": "Limited", "images": "/images/products/special-13.jpg"},
+        {"name": "Tricou Limited Edition 14", "team": "Limited", "images": "/images/products/special-14.jpg"},
+        {"name": "Tricou Limited Edition 15", "team": "Limited", "images": "/images/products/special-15.jpg"},
+        {"name": "Tricou Limited Edition 16", "team": "Limited", "images": "/images/products/special-16.jpg"},
+        {"name": "Tricou Limited Edition 17", "team": "Limited", "images": "/images/products/special-17.jpg"},
     ]
     
     for p in limited_products:
@@ -189,7 +195,7 @@ async def seed_limited_edition():
         }
         await db.products.insert_one(product)
     
-    print(f"✓ Created 12 Limited Edition products")
+    print(f"✓ Created 17 Limited Edition products")
 
 
 # Routes - Products
