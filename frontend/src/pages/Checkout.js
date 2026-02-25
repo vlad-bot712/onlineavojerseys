@@ -126,7 +126,7 @@ export default function Checkout() {
         payment_method: formData.payment_method,
         total_ron: finalTotal,
         currency: currency,
-        coupon_code: couponApplied ? 'AVO10LEI' : null,
+        coupon_code: couponApplied ? appliedCouponCode : null,
         coupon_discount: couponDiscount
       };
 
