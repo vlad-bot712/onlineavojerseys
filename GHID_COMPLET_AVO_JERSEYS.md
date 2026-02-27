@@ -5,7 +5,7 @@
 ### Metoda 1: URL Direct
 Accesează acest link în browser:
 ```
-https://football-shop-17.preview.emergentagent.com/admin/orders
+https://limited-edition-1.preview.emergentagent.com/admin/orders
 ```
 
 ### Metoda 2: Din Site
@@ -237,9 +237,9 @@ mongod --dbpath /path/to/data
 ## 📞 SUPORT
 
 ### Link-uri Utile:
-- 🌐 Site Preview: https://football-shop-17.preview.emergentagent.com
-- 👨‍💼 Admin: https://football-shop-17.preview.emergentagent.com/admin/orders
-- 📦 Backend API: https://football-shop-17.preview.emergentagent.com/api/health
+- 🌐 Site Preview: https://limited-edition-1.preview.emergentagent.com
+- 👨‍💼 Admin: https://limited-edition-1.preview.emergentagent.com/admin/orders
+- 📦 Backend API: https://limited-edition-1.preview.emergentagent.com/api/health
 
 ### Resurse:
 - Emergent Docs: https://docs.emergentagent.com
