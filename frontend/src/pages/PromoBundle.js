@@ -316,6 +316,32 @@ export default function PromoBundle() {
             </div>
           )}
 
+          {/* Customization: Name + Number */}
+          <label className="block text-xs font-bold text-neutral-500 mb-1">PERSONALIZARE (optional)</label>
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            <input
+              data-testid="custom-name"
+              type="text"
+              value={customName}
+              onChange={(e) => setCustomName(e.target.value.toUpperCase())}
+              placeholder="Nume (ex: POPESCU)"
+              maxLength={15}
+              className="border-2 border-neutral-200 rounded-lg px-3 py-2.5 text-sm font-bold uppercase focus:outline-none focus:border-black"
+              style={{ fontSize: '16px' }}
+            />
+            <input
+              data-testid="custom-number"
+              type="number"
+              value={customNumber}
+              onChange={(e) => setCustomNumber(e.target.value)}
+              placeholder="Nr (ex: 10)"
+              min="0"
+              max="99"
+              className="border-2 border-neutral-200 rounded-lg px-3 py-2.5 text-sm font-bold focus:outline-none focus:border-black"
+              style={{ fontSize: '16px' }}
+            />
+          </div>
+
           {/* Product Image Preview */}
           {mainImage ? (
             <div className="mb-4 rounded-lg overflow-hidden border-2 border-neutral-100 bg-white">
