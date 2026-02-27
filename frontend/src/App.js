@@ -86,6 +86,7 @@ function App() {
                 </Routes>
               </main>
               <Footer />
+              <PromoPopup />
               <Toaster />
             </div>
           </Router>
