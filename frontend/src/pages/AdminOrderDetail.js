@@ -310,73 +310,98 @@ Echipa AVO JERSEYS
             <div className="bg-white border-2 border-neutral-200 p-6">
               <h2 className="font-bold text-xl mb-4">PRODUSE COMANDATE</h2>
               <div className="space-y-4">
-                {order.items.map((item, idx) => (
-                  <div key={idx} className="flex gap-4 pb-4 border-b border-neutral-100 last:border-0">
-                    <img 
-                      src={item.product_image || 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=200'} 
-                      alt={item.product_name}
-                      className="w-20 h-20 object-cover"
-                    />
-                    <div className="flex-1">
-                      <p className="font-bold text-lg">{item.product_name}</p>
-                      <p className="text-sm text-neutral-600">
-                        Mărime: {item.size} • Cantitate: {item.quantity}
-                      </p>
-                      
-                      {/* Kit Type */}
-                      {item.kit && (
-                        <p className="text-xs text-neutral-700 mb-1">
-                          <span className="font-bold">Kit:</span> {
-                            item.kit === 'first' ? 'First Kit' :
-                            item.kit === 'second' ? 'Second Kit' :
-                            item.kit === 'third' ? 'Third Kit' : item.kit
-                          }
+                {order.items.map((item, idx) => {
+                  const isBundleMain = item.product_name?.startsWith('BUNDLE:');
+                  const isBundleFree = item.product_name?.startsWith('BUNDLE GRATIS:');
+                  const isBundle = isBundleMain || isBundleFree;
+                  
+                  return (
+                    <div key={idx} className={`flex gap-4 pb-4 border-b last:border-0 ${isBundle ? 'border-[#CCFF00]' : 'border-neutral-100'}`}>
+                      {/* Bundle badge */}
+                      {isBundleMain && (
+                        <div className="absolute -mt-3 ml-2">
+                          <span className="bg-[#CCFF00] text-black text-xs font-bold px-2 py-0.5">BUNDLE</span>
+                        </div>
+                      )}
+                      {isBundleFree && (
+                        <div className="absolute -mt-3 ml-2">
+                          <span className="bg-green-500 text-white text-xs font-bold px-2 py-0.5">GRATIS</span>
+                        </div>
+                      )}
+                      <img 
+                        src={item.product_image || 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=200'} 
+                        alt={item.product_name}
+                        className={`w-20 h-20 object-cover ${isBundle ? 'border-2 border-[#CCFF00]' : ''}`}
+                      />
+                      <div className="flex-1">
+                        <p className="font-bold text-lg">{item.product_name}</p>
+                        <p className="text-sm text-neutral-600">
+                          Marime: {item.size} - Cantitate: {item.quantity}
                         </p>
-                      )}
                       
-                      {/* Version Badge */}
-                      {item.version && (
-                        <div className="mt-2">
-                          <span className={`inline-block px-3 py-1 text-xs font-bold ${
-                            item.version === 'player' 
-                              ? 'bg-purple-500 text-white' 
-                              : 'bg-blue-500 text-white'
-                          }`}>
-                            {item.version === 'player' ? '⭐ PLAYER VERSION' : '👕 FAN VERSION'}
-                          </span>
-                        </div>
-                      )}
+                        {/* Kit Type */}
+                        {item.kit && (
+                          <p className="text-xs text-neutral-700 mb-1">
+                            <span className="font-bold">Kit:</span> {
+                              item.kit_name || (
+                                item.kit === 'first' ? 'First Kit' :
+                                item.kit === 'second' ? 'Second Kit' :
+                                item.kit === 'third' ? 'Third Kit' : item.kit
+                              )
+                            }
+                          </p>
+                        )}
                       
-                      {/* Customization Details */}
-                      {item.customization && (
-                        <div className="mt-2 bg-[#CCFF00]/20 border border-[#CCFF00] p-3 space-y-1">
-                          <p className="font-bold text-sm">🎨 CUSTOMIZARE:</p>
-                          {item.customization.name && (
-                            <p className="text-sm">• Nume: <span className="font-bold">{item.customization.name}</span></p>
-                          )}
-                          {item.customization.number && (
-                            <p className="text-sm">• Număr: <span className="font-bold">{item.customization.number}</span></p>
-                          )}
-                          {item.customization.patches && item.customization.patches.length > 0 && (
-                            <p className="text-sm">
-                              • Patch-uri: <span className="font-bold">
-                                {item.customization.patches.map(p => 
-                                  p === 'league' ? '🏆 Liga' : 
-                                  p === 'ucl' ? '⭐ UCL' : p
-                                ).join(', ')}
-                              </span>
-                            </p>
-                          )}
-                        </div>
-                      )}
+                        {/* Version Badge */}
+                        {item.version && (
+                          <div className="mt-2">
+                            <span className={`inline-block px-3 py-1 text-xs font-bold ${
+                              item.version === 'player' 
+                                ? 'bg-purple-500 text-white' 
+                                : 'bg-blue-500 text-white'
+                            }`}>
+                              {item.version === 'player' ? 'PLAYER VERSION' : 'FAN VERSION'}
+                            </span>
+                          </div>
+                        )}
                       
-                      <p className="font-bold mt-2">{item.price_ron} RON x {item.quantity}</p>
+                        {/* Customization Details */}
+                        {item.customization && (
+                          <div className="mt-2 bg-[#CCFF00]/20 border border-[#CCFF00] p-3 space-y-1">
+                            <p className="font-bold text-sm">CUSTOMIZARE:</p>
+                            {item.customization.name && (
+                              <p className="text-sm">Nume: <span className="font-bold">{item.customization.name}</span></p>
+                            )}
+                            {item.customization.number && (
+                              <p className="text-sm">Numar: <span className="font-bold">{item.customization.number}</span></p>
+                            )}
+                            {item.customization.patches && item.customization.patches.length > 0 && (
+                              <p className="text-sm">
+                                Patch-uri: <span className="font-bold">
+                                  {item.customization.patches.map(p => 
+                                    p === 'league' ? 'Liga' : 
+                                    p === 'ucl' ? 'UCL' : p
+                                  ).join(', ')}
+                                </span>
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      
+                        <p className="font-bold mt-2">{item.price_ron} RON x {item.quantity}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-lg">
+                          {isBundleFree ? (
+                            <span className="text-green-600">GRATIS</span>
+                          ) : (
+                            `${item.price_ron * item.quantity} RON`
+                          )}
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold text-lg">{item.price_ron * item.quantity} RON</p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <div className="mt-6 pt-6 border-t-2 border-neutral-200 flex justify-between text-2xl">
                 <span className="font-bold">TOTAL</span>
