@@ -175,7 +175,33 @@ export default function Products() {
 
           {/* Products Grid */}
           <div className="lg:col-span-3">
-            {loading ? (
+            {isPromo ? (
+              /* Promo Bundle Section */
+              <div data-testid="promo-filter-section" className="space-y-6">
+                <div className="text-center mb-2">
+                  <h2 className="text-3xl sm:text-4xl font-bold">BUNDLE 1+1 GRATIS</h2>
+                  <p className="text-neutral-500 mt-1">Cumperi un tricou de club, primesti unul de nationala GRATIS!</p>
+                  <div className="inline-block bg-[#CCFF00] text-black px-4 py-1 font-bold text-lg mt-3 border-2 border-black">200 RON</div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="overflow-hidden rounded-lg border-2 border-black shadow-lg">
+                    <img src="/images/promo-bundle-clubs.jpeg" alt="Bundle Clubs" className="w-full aspect-square object-cover" />
+                  </div>
+                  <div className="overflow-hidden rounded-lg border-2 border-black shadow-lg">
+                    <img src="/images/promo-bundle-nationals.jpeg" alt="Bundle Nationals" className="w-full aspect-square object-cover" />
+                  </div>
+                </div>
+                <button
+                  data-testid="promo-filter-cta"
+                  onClick={() => navigate('/promotii')}
+                  className="w-full bg-[#CCFF00] text-black py-4 font-bold text-lg uppercase flex items-center justify-center gap-2 border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all"
+                >
+                  <Gift className="w-6 h-6" />
+                  CONFIGUREAZA BUNDLE-UL TAU
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
+            ) : loading ? (
               <div className="text-center py-12">Se încarcă...</div>
             ) : products.length === 0 ? (
               <div className="text-center py-12">
