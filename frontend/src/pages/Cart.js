@@ -33,7 +33,7 @@ export default function Cart() {
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {cart.map((item) => {
-              // Get the CORRECT variant image - use selectedVariantImage if available
+              const isBundle = item.product.isBundle;
               const productImage = item.product.selectedVariantImage 
                 || (item.product.variants && item.product.variants.length > 0 && item.product.variants[0].images && item.product.variants[0].images.length > 0
                   ? item.product.variants[0].images[0]
@@ -45,64 +45,105 @@ export default function Cart() {
                 <div
                   key={`${item.product.id}-${item.size}`}
                   data-testid={`cart-item-${item.product.id}`}
-                  className="bg-white border border-neutral-200 p-4 flex gap-4"
+                  className={`bg-white border p-4 ${isBundle ? 'border-2 border-[#CCFF00]' : 'border-neutral-200'}`}
                 >
-                  <img 
-                    src={productImage} 
-                    alt={item.product.name}
-                    className="w-24 h-24 object-cover"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg">{item.product.name}</h3>
-                    <p className="text-sm text-neutral-500">{item.product.team} • {item.product.year}</p>
-                    <p className="text-sm text-neutral-500">Mărime: {item.size}</p>
-                    {/* Show selected kit */}
-                    {item.product.selectedKit && (
-                      <p className="text-sm text-neutral-600">
-                        Kit: <span className="font-bold">{item.product.selectedKitName || (item.product.selectedKit === 'first' ? 'First Kit' : item.product.selectedKit === 'second' ? 'Second Kit' : 'Third Kit')}</span>
-                      </p>
-                    )}
-                    {/* Show selected version */}
-                    {item.product.selectedVersion && (
-                      <span className={`inline-block text-xs font-bold px-2 py-0.5 mt-1 ${item.product.selectedVersion === 'player' ? 'bg-black text-[#CCFF00]' : 'bg-neutral-200 text-neutral-700'}`}>
-                        {item.product.selectedVersion === 'player' ? 'PLAYER VERSION' : 'FAN VERSION'}
-                      </span>
-                    )}
-                    {item.product.customization && (
-                      <div className="text-xs text-neutral-600 mt-1">
-                        {item.product.customization.name && <p>Nume: {item.product.customization.name}</p>}
-                        {item.product.customization.number && <p>Număr: {item.product.customization.number}</p>}
-                        {item.product.customization.patches && item.product.customization.patches.length > 0 && (
-                          <p>Patch-uri: {item.product.customization.patches.map(p => p === 'league' ? 'Liga' : p === 'ucl' ? 'UCL' : p).join(', ')}</p>
-                        )}
+                  {isBundle && (
+                    <div className="flex items-center gap-2 mb-3 pb-3 border-b border-neutral-200">
+                      <span className="bg-[#CCFF00] text-black text-xs font-bold px-2 py-1">BUNDLE 1+1</span>
+                      <span className="text-sm font-bold">200 RON</span>
+                    </div>
+                  )}
+                  <div className="flex gap-4">
+                    <img 
+                      src={productImage} 
+                      alt={item.product.name}
+                      className="w-24 h-24 object-cover"
+                    />
+                    <div className="flex-1">
+                      {isBundle ? (
+                        <>
+                          <h3 className="font-bold text-lg">{item.product.bundleDetails.mainProduct.team} {item.product.bundleDetails.mainProduct.year}/{(item.product.bundleDetails.mainProduct.year+1).toString().slice(-2)}</h3>
+                          <p className="text-sm text-neutral-500">Kit: {item.product.bundleDetails.mainProduct.kitName} | Marime: {item.size}</p>
+                          {item.product.customization && (
+                            <div className="text-xs text-neutral-600 mt-1">
+                              {item.product.customization.name && <p>Nume: {item.product.customization.name}</p>}
+                              {item.product.customization.number && <p>Numar: {item.product.customization.number}</p>}
+                              {item.product.customization.patches && item.product.customization.patches.length > 0 && (
+                                <p>Patch-uri: {item.product.customization.patches.join(', ')}</p>
+                              )}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <h3 className="font-bold text-lg">{item.product.name}</h3>
+                          <p className="text-sm text-neutral-500">{item.product.team} - {item.product.year}</p>
+                          <p className="text-sm text-neutral-500">Marime: {item.size}</p>
+                          {item.product.selectedKit && (
+                            <p className="text-sm text-neutral-600">
+                              Kit: <span className="font-bold">{item.product.selectedKitName || item.product.selectedKit}</span>
+                            </p>
+                          )}
+                          {item.product.selectedVersion && (
+                            <span className={`inline-block text-xs font-bold px-2 py-0.5 mt-1 ${item.product.selectedVersion === 'player' ? 'bg-black text-[#CCFF00]' : 'bg-neutral-200 text-neutral-700'}`}>
+                              {item.product.selectedVersion === 'player' ? 'PLAYER VERSION' : 'FAN VERSION'}
+                            </span>
+                          )}
+                          {item.product.customization && (
+                            <div className="text-xs text-neutral-600 mt-1">
+                              {item.product.customization.name && <p>Nume: {item.product.customization.name}</p>}
+                              {item.product.customization.number && <p>Numar: {item.product.customization.number}</p>}
+                              {item.product.customization.patches && item.product.customization.patches.length > 0 && (
+                                <p>Patch-uri: {item.product.customization.patches.map(p => p === 'league' ? 'Liga' : p === 'ucl' ? 'UCL' : p).join(', ')}</p>
+                              )}
+                            </div>
+                          )}
+                          <p className="font-bold mt-2">{formatPrice(item.product.price_ron)}</p>
+                        </>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-end justify-between">
+                      <button
+                        onClick={() => removeFromCart(item.product.id, item.size)}
+                        data-testid={`remove-item-${item.product.id}`}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => updateQuantity(item.product.id, item.size, item.quantity - 1)}
+                          className="w-8 h-8 border border-neutral-300 flex items-center justify-center hover:bg-neutral-100"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-8 text-center font-bold">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.product.id, item.size, item.quantity + 1)}
+                          className="w-8 h-8 border border-neutral-300 flex items-center justify-center hover:bg-neutral-100"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
                       </div>
-                    )}
-                    <p className="font-bold mt-2">{formatPrice(item.product.price_ron)}</p>
-                  </div>
-                  <div className="flex flex-col items-end justify-between">
-                    <button
-                      onClick={() => removeFromCart(item.product.id, item.size)}
-                      data-testid={`remove-item-${item.product.id}`}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => updateQuantity(item.product.id, item.size, item.quantity - 1)}
-                        className="w-8 h-8 border border-neutral-300 flex items-center justify-center hover:bg-neutral-100"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </button>
-                      <span className="w-8 text-center font-bold">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item.product.id, item.size, item.quantity + 1)}
-                        className="w-8 h-8 border border-neutral-300 flex items-center justify-center hover:bg-neutral-100"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
                     </div>
                   </div>
+                  {/* Bundle: Free product details */}
+                  {isBundle && item.product.bundleDetails?.freeProduct && (
+                    <div className="mt-3 pt-3 border-t border-dashed border-green-300 flex gap-4">
+                      {item.product.bundleDetails.freeProduct.image && (
+                        <img 
+                          src={item.product.bundleDetails.freeProduct.image} 
+                          alt="Free"
+                          className="w-20 h-20 object-cover border border-green-200 rounded"
+                        />
+                      )}
+                      <div>
+                        <span className="text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">GRATIS</span>
+                        <p className="font-bold mt-1">{item.product.bundleDetails.freeProduct.team} 25/26</p>
+                        <p className="text-sm text-neutral-500">Marime: {item.product.bundleDetails.freeProduct.size}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
