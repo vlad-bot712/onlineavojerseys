@@ -83,28 +83,57 @@ export default function Checkout() {
       // Create full address
       const fullAddress = `${formData.customer_street}, ${formData.customer_city}, Județul ${formData.customer_county}, ${formData.customer_zip}, ${formData.customer_country}`;
 
-      // Create order items with CORRECT variant image
-      const orderItems = cart.map(item => {
-        // Use the selectedVariantImage from cart item - this is the CORRECT image for the selected kit
-        const productImage = item.product.selectedVariantImage 
-          || (item.product.variants && item.product.variants.length > 0 && item.product.variants[0].images && item.product.variants[0].images.length > 0
-            ? item.product.variants[0].images[0]
-            : (item.product.images && item.product.images.length > 0 
-              ? item.product.images[0] 
-              : 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=200'));
-        
-        return {
-          product_id: item.product.id,
-          product_name: item.product.name,
-          product_image: productImage,
-          size: item.size,
-          quantity: item.quantity,
-          price_ron: item.product.price_ron,
-          customization: item.product.customization || null,
-          version: item.product.selectedVersion || 'fan',
-          kit: item.product.selectedKit || 'first',
-          kit_name: item.product.selectedKitName || null
-        };
+      // Create order items - split bundles into 2 items (main + free)
+      const orderItems = [];
+      cart.forEach(item => {
+        if (item.product.isBundle && item.product.bundleDetails) {
+          const bd = item.product.bundleDetails;
+          // Main product (paid)
+          orderItems.push({
+            product_id: item.product.id + '_main',
+            product_name: `BUNDLE: ${bd.mainProduct.team} ${bd.mainProduct.year}/${(bd.mainProduct.year+1).toString().slice(-2)} ${bd.mainProduct.kitName}`,
+            product_image: bd.mainProduct.image || 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=200',
+            size: item.size,
+            quantity: item.quantity,
+            price_ron: item.product.price_ron,
+            customization: item.product.customization || null,
+            version: 'fan',
+            kit: bd.mainProduct.kit || 'first',
+            kit_name: bd.mainProduct.kitName || 'First Kit'
+          });
+          // Free product
+          orderItems.push({
+            product_id: item.product.id + '_free',
+            product_name: `BUNDLE GRATIS: ${bd.freeProduct.team} 25/26`,
+            product_image: bd.freeProduct.image || 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=200',
+            size: bd.freeProduct.size,
+            quantity: item.quantity,
+            price_ron: 0,
+            customization: null,
+            version: 'fan',
+            kit: 'first',
+            kit_name: 'First Kit'
+          });
+        } else {
+          const productImage = item.product.selectedVariantImage 
+            || (item.product.variants && item.product.variants.length > 0 && item.product.variants[0].images && item.product.variants[0].images.length > 0
+              ? item.product.variants[0].images[0]
+              : (item.product.images && item.product.images.length > 0 
+                ? item.product.images[0] 
+                : 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=200'));
+          orderItems.push({
+            product_id: item.product.id,
+            product_name: item.product.name,
+            product_image: productImage,
+            size: item.size,
+            quantity: item.quantity,
+            price_ron: item.product.price_ron,
+            customization: item.product.customization || null,
+            version: item.product.selectedVersion || 'fan',
+            kit: item.product.selectedKit || 'first',
+            kit_name: item.product.selectedKitName || null
+          });
+        }
       });
 
       const shippingCost = formData.shipping_method === 'express' ? 40 : 20;
