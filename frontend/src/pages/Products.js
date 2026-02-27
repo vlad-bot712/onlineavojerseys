@@ -13,6 +13,7 @@ export default function Products() {
   const { formatPrice } = useCurrency();
   const { isFavorite, toggleFavorite } = useFavorites();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showSizeChart, setShowSizeChart] = useState(false);
@@ -21,6 +22,8 @@ export default function Products() {
     team: '',
     year: ''
   });
+
+  const isPromo = filters.category === 'promotie-1-1';
 
   useEffect(() => {
     loadProducts();
