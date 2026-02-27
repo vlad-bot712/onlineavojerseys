@@ -189,7 +189,10 @@ export default function PromoBundle() {
       selectedKitName: kitName,
       selectedVariantImage: mainImage,
       selectedVersion: 'fan',
-      customization: null,
+      customization: (customName || customNumber) ? {
+        name: customName || null,
+        number: customNumber || null,
+      } : null,
       bundleDetails: {
         mainProduct: {
           team: selectedTeam,
