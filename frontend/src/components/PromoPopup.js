@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Gift, ArrowRight } from 'lucide-react';
+import { X, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function PromoPopup() {
@@ -7,10 +7,8 @@ export default function PromoPopup() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if popup was shown in this session
     const shown = sessionStorage.getItem('promo_popup_shown');
     if (!shown) {
-      // Show popup after 2 seconds
       const timer = setTimeout(() => {
         setShow(true);
         sessionStorage.setItem('promo_popup_shown', 'true');
@@ -19,68 +17,44 @@ export default function PromoPopup() {
     }
   }, []);
 
-  const handleGoToPromo = () => {
-    setShow(false);
-    navigate('/promotii');
-  };
-
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+      <div
+        className="absolute inset-0 bg-black/70"
         onClick={() => setShow(false)}
       />
-      
-      {/* Popup */}
-      <div className="relative bg-white w-full max-w-lg overflow-hidden animate-[scale-in_0.3s_ease-out] rounded-lg shadow-2xl">
-        {/* Close Button */}
-        <button 
+
+      {/* Popup - bottom sheet on mobile, centered on desktop */}
+      <div className="relative bg-black text-white w-full sm:max-w-sm sm:rounded-lg overflow-hidden rounded-t-2xl sm:rounded-b-lg">
+        {/* Close */}
+        <button
           onClick={() => setShow(false)}
-          className="absolute top-4 right-4 z-10 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-all"
+          data-testid="promo-popup-close"
+          className="absolute top-3 right-3 z-10 bg-white/20 hover:bg-white/40 p-1.5 rounded-full transition-all"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4 text-white" />
         </button>
 
-        {/* Image */}
-        <div className="relative">
-          <img 
-            src="/images/promo-1plus1.jpg" 
-            alt="Promoție 1+1" 
-            className="w-full h-auto"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-        </div>
-
-        {/* Content */}
-        <div className="p-6 text-center">
-          <div className="inline-flex items-center space-x-2 bg-red-500 text-white px-4 py-1 rounded-full text-sm font-bold mb-4 animate-pulse">
-            <Gift className="w-4 h-4" />
-            <span>PROMOȚIE SPECIALĂ</span>
-          </div>
-          
-          <h2 className="text-3xl font-bold mb-2">BUNDLE 1+1 GRATIS</h2>
-          <p className="text-neutral-600 mb-6">
-            Cumperi un tricou de club la alegere și primești unul de națională <strong>COMPLET GRATUIT!</strong>
+        {/* Compact content */}
+        <div className="p-5 pt-6 text-center">
+          <p className="text-[#CCFF00] text-xs font-bold tracking-widest mb-1">PROMOTIE SPECIALA</p>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-1">BUNDLE 1+1 GRATIS</h2>
+          <p className="text-neutral-400 text-sm mb-4">
+            Tricou club + tricou nationala <span className="text-[#CCFF00] font-bold">GRATUIT</span>
           </p>
 
-          <div className="flex items-center justify-center space-x-4 mb-6">
-            <div className="text-center">
-              <p className="text-neutral-400 line-through">300 RON</p>
-              <p className="text-3xl font-bold text-[#CCFF00] bg-black px-4 py-2 rounded">200 RON</p>
-            </div>
-            <div className="text-left">
-              <p className="text-green-600 font-bold">✓ 2 tricouri</p>
-              <p className="text-green-600 font-bold">✓ Livrare rapidă</p>
-              <p className="text-green-600 font-bold">✓ Economisești 100 RON</p>
-            </div>
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <span className="text-neutral-500 line-through text-lg">300 RON</span>
+            <span className="text-3xl font-bold text-[#CCFF00]">200 RON</span>
           </div>
 
           <button
-            onClick={handleGoToPromo}
-            className="w-full bg-[#CCFF00] text-black py-4 font-bold text-lg uppercase flex items-center justify-center space-x-2 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+            onClick={() => { setShow(false); navigate('/promotii'); }}
+            data-testid="promo-popup-cta"
+            className="w-full bg-[#CCFF00] text-black py-3.5 font-bold text-base uppercase flex items-center justify-center gap-2 rounded-md active:scale-95 transition-transform"
           >
             <span>VEZI OFERTA</span>
             <ArrowRight className="w-5 h-5" />
@@ -88,9 +62,9 @@ export default function PromoPopup() {
 
           <button
             onClick={() => setShow(false)}
-            className="mt-3 text-sm text-neutral-500 hover:text-black transition-colors"
+            className="mt-3 text-xs text-neutral-500 active:text-white transition-colors"
           >
-            Nu mă interesează acum
+            Nu ma intereseaza
           </button>
         </div>
       </div>
