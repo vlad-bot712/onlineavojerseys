@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ShoppingCart, Gift, Star, Check, Shirt } from 'lucide-react';
+import { ShoppingCart, Gift, Star, Check, Shirt, ChevronDown, X } from 'lucide-react';
 import axios from 'axios';
 import { useCart } from '../contexts/CartContext';
 import { toast } from 'sonner';
@@ -8,6 +8,79 @@ const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
 const YEARS = [2024, 2025, 2026];
+
+function TeamPicker({ teams, selected, onSelect, label, placeholder, color = 'black' }) {
+  const [open, setOpen] = useState(false);
+  const isGreen = color === 'green';
+
+  return (
+    <div className="mb-4">
+      <label className={`block text-xs font-bold mb-1 ${isGreen ? 'text-green-700' : 'text-neutral-500'}`}>{label}</label>
+      {/* Trigger button */}
+      <button
+        data-testid={isGreen ? 'free-team-select' : 'main-team-select'}
+        onClick={() => setOpen(!open)}
+        className={`w-full text-left border-2 rounded-lg p-3 text-base font-bold flex items-center justify-between ${
+          isGreen
+            ? selected ? 'border-green-500 bg-green-50' : 'border-green-300 bg-white'
+            : selected ? 'border-black' : 'border-neutral-200'
+        }`}
+        style={{ fontSize: '16px' }}
+      >
+        <span className={selected ? '' : 'text-neutral-400'}>{selected || placeholder}</span>
+        <ChevronDown className={`w-5 h-5 transition-transform ${open ? 'rotate-180' : ''} ${isGreen ? 'text-green-500' : 'text-neutral-400'}`} />
+      </button>
+
+      {/* Dropdown list */}
+      {open && (
+        <div className={`mt-1 border-2 rounded-lg overflow-hidden ${isGreen ? 'border-green-300' : 'border-neutral-200'}`}>
+          <div className="max-h-64 overflow-y-auto">
+            {typeof teams[0] === 'string' ? (
+              // Flat list (nationals)
+              teams.map(team => (
+                <button
+                  key={team}
+                  data-testid={`team-opt-${team}`}
+                  onClick={() => { onSelect(team); setOpen(false); }}
+                  className={`w-full text-left px-4 py-3 text-sm font-bold border-b last:border-0 flex items-center justify-between active:bg-neutral-100 ${
+                    selected === team
+                      ? isGreen ? 'bg-green-100 text-green-800' : 'bg-black text-white'
+                      : 'bg-white'
+                  }`}
+                >
+                  {team}
+                  {selected === team && <Check className="w-4 h-4" />}
+                </button>
+              ))
+            ) : (
+              // Grouped list (clubs)
+              teams.map(group => (
+                <div key={group.league}>
+                  <div className="px-4 py-2 bg-neutral-100 text-xs font-bold text-neutral-500 sticky top-0">
+                    {group.league}
+                  </div>
+                  {group.teams.map(team => (
+                    <button
+                      key={team}
+                      data-testid={`team-opt-${team}`}
+                      onClick={() => { onSelect(team); setOpen(false); }}
+                      className={`w-full text-left px-4 py-3 text-sm font-bold border-b last:border-0 flex items-center justify-between active:bg-neutral-100 ${
+                        selected === team ? 'bg-black text-white' : 'bg-white'
+                      }`}
+                    >
+                      {team}
+                      {selected === team && <Check className="w-4 h-4" />}
+                    </button>
+                  ))}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function PromoBundle() {
   const { addToCart } = useCart();
@@ -41,29 +114,24 @@ export default function PromoBundle() {
     load();
   }, []);
 
-  // Flat list of teams with league separators (no optgroup - iOS fix)
-  const teamOptions = useMemo(() => {
+  // Teams grouped by league (for picker)
+  const clubTeamGroups = useMemo(() => {
     const map = {};
     products.forEach(p => {
       const league = p.league || 'Altele';
       if (!map[league]) map[league] = new Set();
       map[league].add(p.team);
     });
-    const opts = [];
-    Object.keys(map).sort().forEach(league => {
-      opts.push({ type: 'separator', label: league });
-      [...map[league]].sort().forEach(team => {
-        opts.push({ type: 'team', value: team, label: team });
-      });
-    });
-    return opts;
+    return Object.keys(map).sort().map(league => ({
+      league,
+      teams: [...map[league]].sort()
+    }));
   }, [products]);
 
   const uniqueNationals = useMemo(() => {
     return [...new Set(nationals.map(n => n.team))].sort();
   }, [nationals]);
 
-  // Available years for selected team
   const availableYears = useMemo(() => {
     if (!selectedTeam) return [];
     return YEARS.filter(y => products.some(p => p.team === selectedTeam && p.year === y));
@@ -181,26 +249,16 @@ export default function PromoBundle() {
             TRICOU CLUB
           </h2>
 
-          {/* Team Select - flat list, no optgroup for iOS */}
-          <label className="block text-xs font-bold text-neutral-500 mb-1">ECHIPA</label>
-          <select
-            data-testid="main-team-select"
-            value={selectedTeam}
-            onChange={(e) => onTeamChange(e.target.value)}
-            className="w-full border-2 border-neutral-200 rounded-lg p-3 text-base font-bold mb-4 bg-white"
-            style={{ fontSize: '16px' }}
-          >
-            <option value="">Selecteaza echipa</option>
-            {teamOptions.map((opt, i) =>
-              opt.type === 'separator' ? (
-                <option key={`sep-${i}`} disabled value="">{'── ' + opt.label + ' ──'}</option>
-              ) : (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              )
-            )}
-          </select>
+          {/* Team Picker - custom, no native select */}
+          <TeamPicker
+            teams={clubTeamGroups}
+            selected={selectedTeam}
+            onSelect={onTeamChange}
+            label="ECHIPA"
+            placeholder="Selecteaza echipa"
+          />
 
-          {/* Season - always visible */}
+          {/* Season */}
           <label className="block text-xs font-bold text-neutral-500 mb-1">SEZON</label>
           <div className="grid grid-cols-3 gap-2 mb-4">
             {YEARS.map(year => {
@@ -223,7 +281,7 @@ export default function PromoBundle() {
             })}
           </div>
 
-          {/* Kit - always visible */}
+          {/* Kit */}
           <label className="block text-xs font-bold text-neutral-500 mb-1">KIT</label>
           {matchingProduct && matchingProduct.variants?.length > 0 ? (
             <div className="grid grid-cols-3 gap-2 mb-4">
@@ -253,7 +311,7 @@ export default function PromoBundle() {
             </div>
           )}
 
-          {/* Product Image Preview - always visible */}
+          {/* Product Image Preview */}
           {mainImage ? (
             <div className="mb-4 rounded-lg overflow-hidden border-2 border-neutral-100 bg-white">
               <img
@@ -272,7 +330,7 @@ export default function PromoBundle() {
             </div>
           )}
 
-          {/* Size - always visible */}
+          {/* Size */}
           <label className="block text-xs font-bold text-neutral-500 mb-1">MARIME</label>
           <div className="grid grid-cols-5 gap-2">
             {SIZES.map(size => (
@@ -299,19 +357,15 @@ export default function PromoBundle() {
             TRICOU GRATUIT
           </h2>
 
-          <label className="block text-xs font-bold text-green-700 mb-1">NATIONALA</label>
-          <select
-            data-testid="free-team-select"
-            value={freeTeam}
-            onChange={(e) => setFreeTeam(e.target.value)}
-            className="w-full border-2 border-green-300 rounded-lg p-3 text-base font-bold mb-4 bg-white"
-            style={{ fontSize: '16px' }}
-          >
-            <option value="">Selecteaza nationala</option>
-            {uniqueNationals.map(team => (
-              <option key={team} value={team}>{team}</option>
-            ))}
-          </select>
+          {/* National Team Picker - custom */}
+          <TeamPicker
+            teams={uniqueNationals}
+            selected={freeTeam}
+            onSelect={setFreeTeam}
+            label="NATIONALA"
+            placeholder="Selecteaza nationala"
+            color="green"
+          />
 
           {/* Free Product Image */}
           {freeImage ? (
