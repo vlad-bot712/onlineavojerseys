@@ -15,13 +15,11 @@ export default function PromoBundle() {
   const [nationals, setNationals] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Main product
   const [selectedTeam, setSelectedTeam] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedKit, setSelectedKit] = useState(0);
   const [mainSize, setMainSize] = useState('');
 
-  // Free product
   const [freeTeam, setFreeTeam] = useState('');
   const [freeSize, setFreeSize] = useState('');
 
@@ -43,38 +41,45 @@ export default function PromoBundle() {
     load();
   }, []);
 
-  // Unique club teams grouped by league
-  const teamsByLeague = useMemo(() => {
+  // Flat list of teams with league separators (no optgroup - iOS fix)
+  const teamOptions = useMemo(() => {
     const map = {};
     products.forEach(p => {
       const league = p.league || 'Altele';
       if (!map[league]) map[league] = new Set();
       map[league].add(p.team);
     });
-    const result = {};
-    Object.keys(map).sort().forEach(l => { result[l] = [...map[l]].sort(); });
-    return result;
+    const opts = [];
+    Object.keys(map).sort().forEach(league => {
+      opts.push({ type: 'separator', label: league });
+      [...map[league]].sort().forEach(team => {
+        opts.push({ type: 'team', value: team, label: team });
+      });
+    });
+    return opts;
   }, [products]);
 
-  // Unique national teams
   const uniqueNationals = useMemo(() => {
     return [...new Set(nationals.map(n => n.team))].sort();
   }, [nationals]);
 
-  // Matching club product
+  // Available years for selected team
+  const availableYears = useMemo(() => {
+    if (!selectedTeam) return [];
+    return YEARS.filter(y => products.some(p => p.team === selectedTeam && p.year === y));
+  }, [products, selectedTeam]);
+
   const matchingProduct = useMemo(() => {
     if (!selectedTeam || !selectedYear) return null;
     return products.find(p => p.team === selectedTeam && p.year === parseInt(selectedYear));
   }, [products, selectedTeam, selectedYear]);
 
-  // Main product image from selected variant
   const mainImage = useMemo(() => {
     if (!matchingProduct) return null;
     const v = matchingProduct.variants?.[selectedKit];
     return v?.images?.[0] || matchingProduct.variants?.[0]?.images?.[0] || null;
   }, [matchingProduct, selectedKit]);
 
-  // Free product: find 2025 version (or any)
   const freeProduct = useMemo(() => {
     if (!freeTeam) return null;
     return nationals.find(n => n.team === freeTeam && n.year === 2025)
@@ -83,8 +88,14 @@ export default function PromoBundle() {
 
   const freeImage = freeProduct?.variants?.[0]?.images?.[0] || null;
 
-  // Reset kit when team/year changes
   useEffect(() => { setSelectedKit(0); }, [selectedTeam, selectedYear]);
+
+  const onTeamChange = (val) => {
+    setSelectedTeam(val);
+    setSelectedYear('');
+    setSelectedKit(0);
+    setMainSize('');
+  };
 
   const handleAddToCart = () => {
     if (!selectedTeam) return toast.error('Selecteaza echipa de club!');
@@ -170,76 +181,79 @@ export default function PromoBundle() {
             TRICOU CLUB
           </h2>
 
-          {/* Team Select */}
+          {/* Team Select - flat list, no optgroup for iOS */}
           <label className="block text-xs font-bold text-neutral-500 mb-1">ECHIPA</label>
           <select
             data-testid="main-team-select"
             value={selectedTeam}
-            onChange={(e) => { setSelectedTeam(e.target.value); setSelectedYear(''); }}
-            className="w-full border-2 border-neutral-200 rounded-lg p-3 text-base font-bold mb-4 bg-white focus:outline-none focus:border-black"
+            onChange={(e) => onTeamChange(e.target.value)}
+            className="w-full border-2 border-neutral-200 rounded-lg p-3 text-base font-bold mb-4 bg-white"
+            style={{ fontSize: '16px' }}
           >
             <option value="">Selecteaza echipa</option>
-            {Object.entries(teamsByLeague).map(([league, teams]) => (
-              <optgroup key={league} label={league}>
-                {teams.map(team => (
-                  <option key={team} value={team}>{team}</option>
-                ))}
-              </optgroup>
-            ))}
+            {teamOptions.map((opt, i) =>
+              opt.type === 'separator' ? (
+                <option key={`sep-${i}`} disabled value="">{'── ' + opt.label + ' ──'}</option>
+              ) : (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              )
+            )}
           </select>
 
-          {/* Season */}
-          {selectedTeam && (
-            <>
-              <label className="block text-xs font-bold text-neutral-500 mb-1">SEZON</label>
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                {YEARS.map(year => {
-                  const has = products.some(p => p.team === selectedTeam && p.year === year);
-                  return (
-                    <button
-                      key={year}
-                      data-testid={`year-${year}`}
-                      disabled={!has}
-                      onClick={() => setSelectedYear(String(year))}
-                      className={`py-2.5 rounded-lg border-2 font-bold text-sm transition-all ${
-                        String(year) === selectedYear
-                          ? 'border-black bg-black text-white'
-                          : has ? 'border-neutral-200 active:border-black' : 'border-neutral-100 text-neutral-300'
-                      }`}
-                    >
-                      {year}/{(year + 1).toString().slice(-2)}
-                    </button>
-                  );
-                })}
-              </div>
-            </>
+          {/* Season - always visible */}
+          <label className="block text-xs font-bold text-neutral-500 mb-1">SEZON</label>
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            {YEARS.map(year => {
+              const has = selectedTeam ? availableYears.includes(year) : false;
+              return (
+                <button
+                  key={year}
+                  data-testid={`year-${year}`}
+                  disabled={!has}
+                  onClick={() => setSelectedYear(String(year))}
+                  className={`py-2.5 rounded-lg border-2 font-bold text-sm transition-all ${
+                    String(year) === selectedYear
+                      ? 'border-black bg-black text-white'
+                      : has ? 'border-neutral-200 active:border-black' : 'border-neutral-100 text-neutral-300'
+                  }`}
+                >
+                  {year}/{(year + 1).toString().slice(-2)}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Kit - always visible */}
+          <label className="block text-xs font-bold text-neutral-500 mb-1">KIT</label>
+          {matchingProduct && matchingProduct.variants?.length > 0 ? (
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              {matchingProduct.variants.map((v, idx) => (
+                <button
+                  key={idx}
+                  data-testid={`kit-${idx}`}
+                  onClick={() => setSelectedKit(idx)}
+                  className={`py-2.5 rounded-lg border-2 font-bold text-sm transition-all flex items-center justify-center gap-1 ${
+                    selectedKit === idx
+                      ? 'border-black bg-[#CCFF00]'
+                      : 'border-neutral-200 active:border-black'
+                  }`}
+                >
+                  {selectedKit === idx && <Check className="w-3.5 h-3.5" />}
+                  {v.name || `Kit ${idx + 1}`}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              {['First Kit', 'Second Kit', 'Third Kit'].map((k, idx) => (
+                <button key={idx} disabled className="py-2.5 rounded-lg border-2 border-neutral-100 text-neutral-300 font-bold text-sm">
+                  {k}
+                </button>
+              ))}
+            </div>
           )}
 
-          {/* Kit */}
-          {matchingProduct && matchingProduct.variants?.length > 0 && (
-            <>
-              <label className="block text-xs font-bold text-neutral-500 mb-1">KIT</label>
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                {matchingProduct.variants.map((v, idx) => (
-                  <button
-                    key={idx}
-                    data-testid={`kit-${idx}`}
-                    onClick={() => setSelectedKit(idx)}
-                    className={`py-2.5 rounded-lg border-2 font-bold text-sm transition-all flex items-center justify-center gap-1 ${
-                      selectedKit === idx
-                        ? 'border-black bg-[#CCFF00]'
-                        : 'border-neutral-200 active:border-black'
-                    }`}
-                  >
-                    {selectedKit === idx && <Check className="w-3.5 h-3.5" />}
-                    {v.name || `Kit ${idx + 1}`}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-
-          {/* Product Image Preview */}
+          {/* Product Image Preview - always visible */}
           {mainImage ? (
             <div className="mb-4 rounded-lg overflow-hidden border-2 border-neutral-100 bg-white">
               <img
@@ -247,35 +261,35 @@ export default function PromoBundle() {
                 alt={`${selectedTeam} ${selectedYear}`}
                 className="w-full aspect-[4/5] object-contain"
               />
-            </div>
-          ) : selectedTeam && selectedYear ? (
-            <div className="mb-4 rounded-lg border-2 border-dashed border-neutral-200 bg-neutral-50 flex items-center justify-center h-48">
-              <Shirt className="w-12 h-12 text-neutral-300" />
-            </div>
-          ) : null}
-
-          {/* Size */}
-          {matchingProduct && (
-            <>
-              <label className="block text-xs font-bold text-neutral-500 mb-1">MARIME</label>
-              <div className="grid grid-cols-5 gap-2">
-                {SIZES.map(size => (
-                  <button
-                    key={size}
-                    data-testid={`main-size-${size}`}
-                    onClick={() => setMainSize(size)}
-                    className={`py-2.5 rounded-lg border-2 font-bold text-sm transition-all ${
-                      mainSize === size
-                        ? 'border-black bg-black text-white'
-                        : 'border-neutral-200 active:border-black'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
+              <div className="bg-neutral-50 px-3 py-2 border-t text-sm font-bold text-center">
+                {selectedTeam} {selectedYear}/{(parseInt(selectedYear) + 1).toString().slice(-2)} - {matchingProduct?.variants?.[selectedKit]?.name || 'First Kit'}
               </div>
-            </>
+            </div>
+          ) : (
+            <div className="mb-4 rounded-lg border-2 border-dashed border-neutral-200 bg-neutral-50 flex flex-col items-center justify-center py-12 text-neutral-400">
+              <Shirt className="w-12 h-12 mb-2" />
+              <p className="text-xs">Selecteaza echipa si sezonul pentru preview</p>
+            </div>
           )}
+
+          {/* Size - always visible */}
+          <label className="block text-xs font-bold text-neutral-500 mb-1">MARIME</label>
+          <div className="grid grid-cols-5 gap-2">
+            {SIZES.map(size => (
+              <button
+                key={size}
+                data-testid={`main-size-${size}`}
+                onClick={() => setMainSize(size)}
+                className={`py-2.5 rounded-lg border-2 font-bold text-sm transition-all ${
+                  mainSize === size
+                    ? 'border-black bg-black text-white'
+                    : 'border-neutral-200 active:border-black'
+                }`}
+              >
+                {size}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* === FREE PRODUCT === */}
@@ -285,13 +299,13 @@ export default function PromoBundle() {
             TRICOU GRATUIT
           </h2>
 
-          {/* National Team Select */}
           <label className="block text-xs font-bold text-green-700 mb-1">NATIONALA</label>
           <select
             data-testid="free-team-select"
             value={freeTeam}
             onChange={(e) => setFreeTeam(e.target.value)}
-            className="w-full border-2 border-green-300 rounded-lg p-3 text-base font-bold mb-4 bg-white focus:outline-none focus:border-green-600"
+            className="w-full border-2 border-green-300 rounded-lg p-3 text-base font-bold mb-4 bg-white"
+            style={{ fontSize: '16px' }}
           >
             <option value="">Selecteaza nationala</option>
             {uniqueNationals.map(team => (
@@ -307,20 +321,17 @@ export default function PromoBundle() {
                 alt={`${freeTeam} 25/26`}
                 className="w-full aspect-[4/5] object-contain"
               />
+              <div className="bg-green-50 px-3 py-2 border-t border-green-200 text-sm font-bold text-center text-green-700">
+                {freeTeam} 2025/26 - First Kit
+              </div>
             </div>
-          ) : freeTeam ? (
-            <div className="mb-4 rounded-lg border-2 border-dashed border-green-200 bg-white flex items-center justify-center h-48">
-              <Gift className="w-12 h-12 text-green-200" />
+          ) : (
+            <div className="mb-4 rounded-lg border-2 border-dashed border-green-200 bg-white flex flex-col items-center justify-center py-12 text-green-300">
+              <Gift className="w-12 h-12 mb-2" />
+              <p className="text-xs">Selecteaza nationala pentru preview</p>
             </div>
-          ) : null}
+          )}
 
-          {/* Preset info */}
-          <div className="bg-white/70 rounded-lg p-2 mb-4 text-xs text-green-700 space-y-0.5">
-            <p><span className="font-bold">Sezon:</span> 2025/26 (presetat)</p>
-            <p><span className="font-bold">Kit:</span> First Kit (presetat)</p>
-          </div>
-
-          {/* Free Size */}
           <label className="block text-xs font-bold text-green-700 mb-1">MARIME</label>
           <div className="grid grid-cols-5 gap-2">
             {SIZES.map(size => (
