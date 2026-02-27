@@ -415,11 +415,29 @@ export default function Checkout() {
                 {/* Items */}
                 <div className="space-y-3 mb-6 max-h-60 overflow-y-auto border-b border-neutral-200 pb-4">
                   {cart.map((item) => (
-                    <div key={`${item.product.id}-${item.size}`} className="flex justify-between text-sm">
-                      <span className="text-neutral-600">
-                        {item.product.name} ({item.size}) x{item.quantity}
-                      </span>
-                      <span className="font-bold">{formatPrice(item.product.price_ron * item.quantity)}</span>
+                    <div key={`${item.product.id}-${item.size}`} className="text-sm">
+                      {item.product.isBundle ? (
+                        <div className="space-y-1">
+                          <div className="flex justify-between">
+                            <span className="text-neutral-600">
+                              <span className="bg-[#CCFF00] text-black text-xs font-bold px-1">BUNDLE</span>{' '}
+                              {item.product.bundleDetails.mainProduct.team} ({item.size}) x{item.quantity}
+                            </span>
+                            <span className="font-bold">{formatPrice(item.product.price_ron * item.quantity)}</span>
+                          </div>
+                          <div className="flex justify-between text-green-600">
+                            <span className="text-xs">+ GRATIS: {item.product.bundleDetails.freeProduct.team} ({item.product.bundleDetails.freeProduct.size})</span>
+                            <span className="text-xs font-bold">0 RON</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex justify-between">
+                          <span className="text-neutral-600">
+                            {item.product.name} ({item.size}) x{item.quantity}
+                          </span>
+                          <span className="font-bold">{formatPrice(item.product.price_ron * item.quantity)}</span>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
