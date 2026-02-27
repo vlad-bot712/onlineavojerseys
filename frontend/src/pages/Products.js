@@ -26,7 +26,7 @@ export default function Products() {
   const isPromo = filters.category === 'promotie-1-1';
 
   useEffect(() => {
-    loadProducts();
+    if (!isPromo) loadProducts();
   }, [filters]);
 
   const loadProducts = async () => {
