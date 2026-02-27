@@ -82,6 +82,7 @@ function App() {
                   <Route path="/admin/orders" element={<AdminOrders />} />
                   <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
                   <Route path="/contact" element={<Contact />} />
+                  <Route path="/promotii" element={<PromoBundle />} />
                 </Routes>
               </main>
               <Footer />
