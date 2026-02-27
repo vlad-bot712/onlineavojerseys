@@ -35,17 +35,13 @@ E-commerce website for premium football jerseys. Built with React, FastAPI, and 
 - AWB tracking, Invoice generation, Email templates
 - **Bundle items shown with BUNDLE/GRATIS badges**
 
-### 5. Promo Bundle Configurator (/promotii) - NEW
-- Step 1: Select club team (grouped by league via optgroup)
-- Step 2: Select season (2024/25, 2025/26, 2026/27)
-- Step 3: Select kit (1st, 2nd, 3rd with variant images)
-- Step 4: Customize name + number
-- Step 5: Select patches (league-specific + UCL)
-- Step 6: Select size
-- Step 7: Select free national team + size (year preset 25/26)
-- Live preview panel showing selections
+### 5. Promo Bundle Configurator (/promotii) - NEW (Updated Feb 27)
+- Mobile-first design, single column, touch-friendly
+- Main product: Team select (optgroup by league) → Season → Kit → Inline image preview → Size
+- Free product: National team select → Inline image preview → Size (year preset 25/26)
+- Product images show inline for both selections
 - Price: 200 RON (save 100 RON)
-- PromoPopup appears on first visit after 2 seconds
+- PromoPopup: bottom sheet on mobile, centered on desktop
 
 ### 6. Customer Order Tracking
 - Search by order number
