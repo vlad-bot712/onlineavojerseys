@@ -352,6 +352,11 @@ export default function PromoBundle() {
               />
               <div className="bg-neutral-50 px-3 py-2 border-t text-sm font-bold text-center">
                 {selectedTeam} {selectedYear}/{(parseInt(selectedYear) + 1).toString().slice(-2)} - {matchingProduct?.variants?.[selectedKit]?.name || 'First Kit'}
+                {(customName || customNumber) && (
+                  <p className="text-xs text-neutral-500 font-normal mt-0.5">
+                    {customName && customName}{customName && customNumber && ' #'}{customNumber && customNumber}
+                  </p>
+                )}
               </div>
             </div>
           ) : (
