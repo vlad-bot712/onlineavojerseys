@@ -6,6 +6,7 @@ import { FavoritesProvider } from './contexts/FavoritesContext';
 import { Toaster } from './components/ui/sonner';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import PromoPopup from './components/PromoPopup';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
@@ -17,6 +18,7 @@ import Favorites from './pages/Favorites';
 import AdminOrders from './pages/AdminOrders';
 import AdminOrderDetail from './pages/AdminOrderDetail';
 import Contact from './pages/Contact';
+import PromoBundle from './pages/PromoBundle';
 import './App.css';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
