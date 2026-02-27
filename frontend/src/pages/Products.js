@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { Filter, Heart, Shirt, Ruler } from 'lucide-react';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { Filter, Heart, Shirt, Ruler, Gift, ArrowRight } from 'lucide-react';
 import axios from 'axios';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useFavorites } from '../contexts/FavoritesContext';
