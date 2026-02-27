@@ -92,6 +92,8 @@ export default function PromoBundle() {
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedKit, setSelectedKit] = useState(0);
   const [mainSize, setMainSize] = useState('');
+  const [customName, setCustomName] = useState('');
+  const [customNumber, setCustomNumber] = useState('');
 
   const [freeTeam, setFreeTeam] = useState('');
   const [freeSize, setFreeSize] = useState('');
