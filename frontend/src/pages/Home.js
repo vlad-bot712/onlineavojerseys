@@ -43,7 +43,7 @@ export default function Home() {
         <div className="relative z-10 text-center text-white px-4">
           {/* Price Banner */}
           <div className="bg-[#CCFF00] text-black px-8 py-3 inline-block mb-6 font-bold text-lg tracking-wider shadow-lg">
-            ⚡ NICIUN PRODUS NU DEPĂȘEȘTE 170 RON ⚡
+            ⚡ NICIUN PRODUS NU DEPĂȘEȘTE 200 RON ⚡
           </div>
           
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 tracking-tighter">
