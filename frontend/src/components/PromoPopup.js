@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { X, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function PromoPopup() {
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
+    // Don't show on admin or promo pages
+    if (location.pathname.startsWith('/admin') || location.pathname === '/promotii') return;
     const shown = sessionStorage.getItem('promo_popup_shown');
     if (!shown) {
       const timer = setTimeout(() => {
@@ -15,7 +18,7 @@ export default function PromoPopup() {
       }, 2000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [location.pathname]);
 
   if (!show) return null;
 
