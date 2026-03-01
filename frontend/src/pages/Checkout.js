@@ -97,7 +97,7 @@ export default function Checkout() {
             quantity: item.quantity,
             price_ron: item.product.price_ron,
             customization: item.product.customization || null,
-            version: 'fan',
+            version: item.product.selectedVersion || 'fan',
             kit: bd.mainProduct.kit || 'first',
             kit_name: bd.mainProduct.kitName || 'First Kit'
           });
