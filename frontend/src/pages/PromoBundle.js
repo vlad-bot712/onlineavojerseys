@@ -13,6 +13,17 @@ function TeamPicker({ teams, selected, onSelect, label, placeholder, color = 'bl
   const [open, setOpen] = useState(false);
   const isGreen = color === 'green';
 
+  // Resolve display name from selected ID
+  const displayName = useMemo(() => {
+    if (!selected) return '';
+    if (typeof teams[0] === 'string') return selected;
+    for (const g of teams) {
+      const found = g.items?.find(i => i.id === selected);
+      if (found) return found.name;
+    }
+    return selected;
+  }, [selected, teams]);
+
   return (
     <div className="mb-4">
       <label className={`block text-xs font-bold mb-1 ${isGreen ? 'text-green-700' : 'text-neutral-500'}`}>{label}</label>
