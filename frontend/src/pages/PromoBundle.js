@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ShoppingCart, Gift, Star, Check, Shirt, ChevronDown, X } from 'lucide-react';
+import { ShoppingCart, Gift, Star, Check, Shirt, ChevronDown } from 'lucide-react';
 import axios from 'axios';
 import { useCart } from '../contexts/CartContext';
 import { toast } from 'sonner';
@@ -16,7 +16,6 @@ function TeamPicker({ teams, selected, onSelect, label, placeholder, color = 'bl
   return (
     <div className="mb-4">
       <label className={`block text-xs font-bold mb-1 ${isGreen ? 'text-green-700' : 'text-neutral-500'}`}>{label}</label>
-      {/* Trigger button */}
       <button
         data-testid={isGreen ? 'free-team-select' : 'main-team-select'}
         onClick={() => setOpen(!open)}
@@ -31,21 +30,17 @@ function TeamPicker({ teams, selected, onSelect, label, placeholder, color = 'bl
         <ChevronDown className={`w-5 h-5 transition-transform ${open ? 'rotate-180' : ''} ${isGreen ? 'text-green-500' : 'text-neutral-400'}`} />
       </button>
 
-      {/* Dropdown list */}
       {open && (
         <div className={`mt-1 border-2 rounded-lg overflow-hidden ${isGreen ? 'border-green-300' : 'border-neutral-200'}`}>
-          <div className="max-h-64 overflow-y-auto">
+          <div className="max-h-72 overflow-y-auto">
             {typeof teams[0] === 'string' ? (
-              // Flat list (nationals)
               teams.map(team => (
                 <button
                   key={team}
                   data-testid={`team-opt-${team}`}
                   onClick={() => { onSelect(team); setOpen(false); }}
                   className={`w-full text-left px-4 py-3 text-sm font-bold border-b last:border-0 flex items-center justify-between active:bg-neutral-100 ${
-                    selected === team
-                      ? isGreen ? 'bg-green-100 text-green-800' : 'bg-black text-white'
-                      : 'bg-white'
+                    selected === team ? (isGreen ? 'bg-green-100 text-green-800' : 'bg-black text-white') : 'bg-white'
                   }`}
                 >
                   {team}
@@ -53,23 +48,26 @@ function TeamPicker({ teams, selected, onSelect, label, placeholder, color = 'bl
                 </button>
               ))
             ) : (
-              // Grouped list (clubs)
               teams.map(group => (
-                <div key={group.league}>
-                  <div className="px-4 py-2 bg-neutral-100 text-xs font-bold text-neutral-500 sticky top-0">
-                    {group.league}
+                <div key={group.label}>
+                  <div className={`px-4 py-2 text-xs font-bold sticky top-0 ${
+                    group.type === 'retro' ? 'bg-amber-100 text-amber-700' :
+                    group.type === 'limited' ? 'bg-orange-100 text-orange-700' :
+                    'bg-neutral-100 text-neutral-500'
+                  }`}>
+                    {group.label}
                   </div>
-                  {group.teams.map(team => (
+                  {group.items.map(item => (
                     <button
-                      key={team}
-                      data-testid={`team-opt-${team}`}
-                      onClick={() => { onSelect(team); setOpen(false); }}
+                      key={item.id}
+                      data-testid={`team-opt-${item.id}`}
+                      onClick={() => { onSelect(item.id); setOpen(false); }}
                       className={`w-full text-left px-4 py-3 text-sm font-bold border-b last:border-0 flex items-center justify-between active:bg-neutral-100 ${
-                        selected === team ? 'bg-black text-white' : 'bg-white'
+                        selected === item.id ? 'bg-black text-white' : 'bg-white'
                       }`}
                     >
-                      {team}
-                      {selected === team && <Check className="w-4 h-4" />}
+                      {item.name}
+                      {selected === item.id && <Check className="w-4 h-4" />}
                     </button>
                   ))}
                 </div>
@@ -84,11 +82,13 @@ function TeamPicker({ teams, selected, onSelect, label, placeholder, color = 'bl
 
 export default function PromoBundle() {
   const { addToCart } = useCart();
-  const [products, setProducts] = useState([]);
+  const [clubProducts, setClubProducts] = useState([]);
+  const [retroProducts, setRetroProducts] = useState([]);
+  const [limitedProducts, setLimitedProducts] = useState([]);
   const [nationals, setNationals] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [selectedTeam, setSelectedTeam] = useState('');
+  const [selectedProductId, setSelectedProductId] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedKit, setSelectedKit] = useState(0);
   const [mainSize, setMainSize] = useState('');
@@ -103,12 +103,16 @@ export default function PromoBundle() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [clubRes, natRes] = await Promise.all([
+        const [clubRes, natRes, retroRes, limitedRes] = await Promise.all([
           axios.get(`${API_URL}/api/products?category=echipe-club`),
-          axios.get(`${API_URL}/api/products?category=nationale`)
+          axios.get(`${API_URL}/api/products?category=nationale`),
+          axios.get(`${API_URL}/api/products?category=retro`),
+          axios.get(`${API_URL}/api/products?category=limited-edition`)
         ]);
-        setProducts(clubRes.data);
+        setClubProducts(clubRes.data);
         setNationals(natRes.data);
+        setRetroProducts(retroRes.data);
+        setLimitedProducts(limitedRes.data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -118,39 +122,94 @@ export default function PromoBundle() {
     load();
   }, []);
 
-  // Teams grouped by league (for picker)
-  const clubTeamGroups = useMemo(() => {
-    const map = {};
-    products.forEach(p => {
+  // Build picker groups: Club teams by league, then Retro, then Limited Edition
+  const pickerGroups = useMemo(() => {
+    const groups = [];
+    // Club teams grouped by league
+    const leagueMap = {};
+    clubProducts.forEach(p => {
       const league = p.league || 'Altele';
-      if (!map[league]) map[league] = new Set();
-      map[league].add(p.team);
+      if (!leagueMap[league]) leagueMap[league] = new Set();
+      leagueMap[league].add(p.team);
     });
-    return Object.keys(map).sort().map(league => ({
-      league,
-      teams: [...map[league]].sort()
-    }));
-  }, [products]);
+    Object.keys(leagueMap).sort().forEach(league => {
+      groups.push({
+        label: league,
+        type: 'club',
+        items: [...leagueMap[league]].sort().map(team => ({ id: `club:${team}`, name: team }))
+      });
+    });
+    // Retro
+    if (retroProducts.length > 0) {
+      groups.push({
+        label: 'RETRO',
+        type: 'retro',
+        items: retroProducts.map(p => ({ id: `retro:${p.id}`, name: p.name }))
+      });
+    }
+    // Limited Edition
+    if (limitedProducts.length > 0) {
+      groups.push({
+        label: 'LIMITED EDITION',
+        type: 'limited',
+        items: limitedProducts.map(p => ({ id: `limited:${p.id}`, name: p.name }))
+      });
+    }
+    return groups;
+  }, [clubProducts, retroProducts, limitedProducts]);
 
   const uniqueNationals = useMemo(() => {
     return [...new Set(nationals.map(n => n.team))].sort();
   }, [nationals]);
 
-  const availableYears = useMemo(() => {
-    if (!selectedTeam) return [];
-    return YEARS.filter(y => products.some(p => p.team === selectedTeam && p.year === y));
-  }, [products, selectedTeam]);
+  // Parse selection type
+  const selectionType = useMemo(() => {
+    if (!selectedProductId) return null;
+    if (selectedProductId.startsWith('club:')) return 'club';
+    if (selectedProductId.startsWith('retro:')) return 'retro';
+    if (selectedProductId.startsWith('limited:')) return 'limited';
+    return null;
+  }, [selectedProductId]);
 
+  const selectedTeamName = useMemo(() => {
+    if (!selectedProductId) return '';
+    const val = selectedProductId.split(':').slice(1).join(':');
+    if (selectionType === 'club') return val;
+    // For retro/limited, find the product name
+    const allSpecial = [...retroProducts, ...limitedProducts];
+    const found = allSpecial.find(p => p.id === val);
+    return found?.name || val;
+  }, [selectedProductId, selectionType, retroProducts, limitedProducts]);
+
+  // For club: available years
+  const availableYears = useMemo(() => {
+    if (selectionType !== 'club') return [];
+    const team = selectedProductId.replace('club:', '');
+    return YEARS.filter(y => clubProducts.some(p => p.team === team && p.year === y));
+  }, [clubProducts, selectedProductId, selectionType]);
+
+  // Matching product
   const matchingProduct = useMemo(() => {
-    if (!selectedTeam || !selectedYear) return null;
-    return products.find(p => p.team === selectedTeam && p.year === parseInt(selectedYear));
-  }, [products, selectedTeam, selectedYear]);
+    if (!selectedProductId) return null;
+    if (selectionType === 'club') {
+      if (!selectedYear) return null;
+      const team = selectedProductId.replace('club:', '');
+      return clubProducts.find(p => p.team === team && p.year === parseInt(selectedYear));
+    }
+    const prodId = selectedProductId.split(':').slice(1).join(':');
+    const allSpecial = [...retroProducts, ...limitedProducts];
+    return allSpecial.find(p => p.id === prodId) || null;
+  }, [selectedProductId, selectionType, selectedYear, clubProducts, retroProducts, limitedProducts]);
 
   const mainImage = useMemo(() => {
     if (!matchingProduct) return null;
-    const v = matchingProduct.variants?.[selectedKit];
-    return v?.images?.[0] || matchingProduct.variants?.[0]?.images?.[0] || null;
-  }, [matchingProduct, selectedKit]);
+    if (selectionType === 'club') {
+      const v = matchingProduct.variants?.[selectedKit];
+      return v?.images?.[0] || matchingProduct.variants?.[0]?.images?.[0] || null;
+    }
+    // Retro/Limited have 1 variant
+    return matchingProduct.variants?.[0]?.images?.[0] || null;
+  }, [matchingProduct, selectedKit, selectionType]);
 
   const freeProduct = useMemo(() => {
     if (!freeTeam) return null;
@@ -160,33 +219,47 @@ export default function PromoBundle() {
 
   const freeImage = freeProduct?.variants?.[0]?.images?.[0] || null;
 
-  useEffect(() => { setSelectedKit(0); }, [selectedTeam, selectedYear]);
+  // Is club type (shows year/kit/version selectors)
+  const isClub = selectionType === 'club';
+  const isRetro = selectionType === 'retro';
+  const isLimited = selectionType === 'limited';
 
-  const onTeamChange = (val) => {
-    setSelectedTeam(val);
+  useEffect(() => { setSelectedKit(0); }, [selectedProductId, selectedYear]);
+
+  // Force fan version for retro
+  useEffect(() => {
+    if (isRetro) setSelectedVersion('fan');
+  }, [isRetro]);
+
+  const onProductChange = (val) => {
+    setSelectedProductId(val);
     setSelectedYear('');
     setSelectedKit(0);
     setMainSize('');
+    setSelectedVersion('fan');
+    setSelectedPatches([]);
   };
 
   const handleAddToCart = () => {
-    if (!selectedTeam) return toast.error('Selecteaza echipa de club!');
-    if (!selectedYear) return toast.error('Selecteaza sezonul!');
+    if (!selectedProductId) return toast.error('Selecteaza produsul!');
+    if (isClub && !selectedYear) return toast.error('Selecteaza sezonul!');
     if (!mainSize) return toast.error('Selecteaza marimea tricoului principal!');
     if (!freeTeam) return toast.error('Selecteaza nationala!');
     if (!freeSize) return toast.error('Selecteaza marimea tricoului gratuit!');
+    if (!matchingProduct) return toast.error('Produsul nu a fost gasit!');
 
-    const variant = matchingProduct?.variants?.[selectedKit];
-    const kitName = variant?.name || `Kit ${selectedKit + 1}`;
-    const kitKey = variant?.kit || (selectedKit === 0 ? 'first' : selectedKit === 1 ? 'second' : 'third');
+    const variant = matchingProduct.variants?.[isClub ? selectedKit : 0];
+    const kitName = isClub ? (variant?.name || `Kit ${selectedKit + 1}`) : (variant?.name || matchingProduct.name);
+    const kitKey = isClub ? (variant?.kit || (selectedKit === 0 ? 'first' : selectedKit === 1 ? 'second' : 'third')) : 'first';
+    const year = isClub ? parseInt(selectedYear) : matchingProduct.year;
 
     const bundleProduct = {
       id: `bundle_${Date.now()}`,
-      name: `Bundle: ${selectedTeam} + ${freeTeam}`,
+      name: `Bundle: ${selectedTeamName} + ${freeTeam}`,
       isBundle: true,
       price_ron: 200,
-      team: selectedTeam,
-      year: parseInt(selectedYear),
+      team: selectedTeamName,
+      year: year,
       selectedKit: kitKey,
       selectedKitName: kitName,
       selectedVariantImage: mainImage,
@@ -198,12 +271,13 @@ export default function PromoBundle() {
       } : null,
       bundleDetails: {
         mainProduct: {
-          team: selectedTeam,
-          year: parseInt(selectedYear),
+          team: selectedTeamName,
+          year: year,
           kit: kitKey,
           kitName: kitName,
           image: mainImage,
-          league: matchingProduct?.league || ''
+          league: matchingProduct.league || '',
+          category: matchingProduct.category || 'echipe-club'
         },
         freeProduct: {
           team: freeTeam,
@@ -217,6 +291,17 @@ export default function PromoBundle() {
     addToCart(bundleProduct, mainSize);
     toast.success('Bundle adaugat in cos!');
   };
+
+  // Display name for picker
+  const pickerDisplayName = useMemo(() => {
+    if (!selectedProductId) return '';
+    const groups = pickerGroups.flat();
+    for (const g of pickerGroups) {
+      const found = g.items.find(i => i.id === selectedProductId);
+      if (found) return found.name;
+    }
+    return selectedTeamName;
+  }, [selectedProductId, pickerGroups, selectedTeamName]);
 
   if (loading) {
     return (
@@ -254,72 +339,91 @@ export default function PromoBundle() {
         <div className="bg-white border-2 border-black rounded-lg p-4 mb-4">
           <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
             <span className="bg-black text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
-            TRICOU CLUB
+            TRICOU PRINCIPAL
           </h2>
 
-          {/* Team Picker - custom, no native select */}
+          {/* Product Picker */}
           <TeamPicker
-            teams={clubTeamGroups}
-            selected={selectedTeam}
-            onSelect={onTeamChange}
-            label="ECHIPA"
-            placeholder="Selecteaza echipa"
+            teams={pickerGroups}
+            selected={selectedProductId}
+            onSelect={onProductChange}
+            label="PRODUS"
+            placeholder="Selecteaza tricoul"
           />
 
-          {/* Season */}
-          <label className="block text-xs font-bold text-neutral-500 mb-1">SEZON</label>
-          <div className="grid grid-cols-3 gap-2 mb-4">
-            {YEARS.map(year => {
-              const has = selectedTeam ? availableYears.includes(year) : false;
-              return (
-                <button
-                  key={year}
-                  data-testid={`year-${year}`}
-                  disabled={!has}
-                  onClick={() => setSelectedYear(String(year))}
-                  className={`py-2.5 rounded-lg border-2 font-bold text-sm transition-all ${
-                    String(year) === selectedYear
-                      ? 'border-black bg-black text-white'
-                      : has ? 'border-neutral-200 active:border-black' : 'border-neutral-100 text-neutral-300'
-                  }`}
-                >
-                  {year}/{(year + 1).toString().slice(-2)}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Kit */}
-          <label className="block text-xs font-bold text-neutral-500 mb-1">KIT</label>
-          {matchingProduct && matchingProduct.variants?.length > 0 ? (
-            <div className="grid grid-cols-3 gap-2 mb-4">
-              {matchingProduct.variants.map((v, idx) => (
-                <button
-                  key={idx}
-                  data-testid={`kit-${idx}`}
-                  onClick={() => setSelectedKit(idx)}
-                  className={`py-2.5 rounded-lg border-2 font-bold text-sm transition-all flex items-center justify-center gap-1 ${
-                    selectedKit === idx
-                      ? 'border-black bg-[#CCFF00]'
-                      : 'border-neutral-200 active:border-black'
-                  }`}
-                >
-                  {selectedKit === idx && <Check className="w-3.5 h-3.5" />}
-                  {v.name || `Kit ${idx + 1}`}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 gap-2 mb-4">
-              {['First Kit', 'Second Kit', 'Third Kit'].map((k, idx) => (
-                <button key={idx} disabled className="py-2.5 rounded-lg border-2 border-neutral-100 text-neutral-300 font-bold text-sm">
-                  {k}
-                </button>
-              ))}
+          {/* Category badge */}
+          {selectionType && (
+            <div className="mb-3 -mt-2">
+              <span className={`inline-block text-xs font-bold px-2 py-0.5 rounded ${
+                isRetro ? 'bg-amber-100 text-amber-700' :
+                isLimited ? 'bg-orange-100 text-orange-700' :
+                'bg-neutral-100 text-neutral-600'
+              }`}>
+                {isRetro ? 'RETRO' : isLimited ? 'LIMITED EDITION' : 'CLUB'}
+              </span>
             </div>
           )}
 
-          {/* Customization: Name + Number */}
+          {/* Season - only for club */}
+          {isClub && (
+            <>
+              <label className="block text-xs font-bold text-neutral-500 mb-1">SEZON</label>
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                {YEARS.map(year => {
+                  const has = availableYears.includes(year);
+                  return (
+                    <button
+                      key={year}
+                      data-testid={`year-${year}`}
+                      disabled={!has}
+                      onClick={() => setSelectedYear(String(year))}
+                      className={`py-2.5 rounded-lg border-2 font-bold text-sm transition-all ${
+                        String(year) === selectedYear
+                          ? 'border-black bg-black text-white'
+                          : has ? 'border-neutral-200 active:border-black' : 'border-neutral-100 text-neutral-300'
+                      }`}
+                    >
+                      {year}/{(year + 1).toString().slice(-2)}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+
+          {/* Kit - only for club */}
+          {isClub && (
+            <>
+              <label className="block text-xs font-bold text-neutral-500 mb-1">KIT</label>
+              {matchingProduct && matchingProduct.variants?.length > 0 ? (
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  {matchingProduct.variants.map((v, idx) => (
+                    <button
+                      key={idx}
+                      data-testid={`kit-${idx}`}
+                      onClick={() => setSelectedKit(idx)}
+                      className={`py-2.5 rounded-lg border-2 font-bold text-sm transition-all flex items-center justify-center gap-1 ${
+                        selectedKit === idx
+                          ? 'border-black bg-[#CCFF00]'
+                          : 'border-neutral-200 active:border-black'
+                      }`}
+                    >
+                      {selectedKit === idx && <Check className="w-3.5 h-3.5" />}
+                      {v.name || `Kit ${idx + 1}`}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  {['First Kit', 'Second Kit', 'Third Kit'].map((k, idx) => (
+                    <button key={idx} disabled className="py-2.5 rounded-lg border-2 border-neutral-100 text-neutral-300 font-bold text-sm">{k}</button>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Customization */}
           <label className="block text-xs font-bold text-neutral-500 mb-1">PERSONALIZARE (optional)</label>
           <div className="grid grid-cols-2 gap-2 mb-4">
             <input
@@ -345,72 +449,91 @@ export default function PromoBundle() {
             />
           </div>
 
-          {/* Version */}
-          <label className="block text-xs font-bold text-neutral-500 mb-1">VERSIUNE</label>
-          <div className="grid grid-cols-2 gap-2 mb-4">
-            {['fan', 'player'].map(v => (
-              <button
-                key={v}
-                data-testid={`version-${v}`}
-                onClick={() => setSelectedVersion(v)}
-                className={`py-2.5 rounded-lg border-2 font-bold text-sm transition-all ${
-                  selectedVersion === v
-                    ? v === 'player' ? 'border-black bg-black text-[#CCFF00]' : 'border-black bg-black text-white'
-                    : 'border-neutral-200 active:border-black'
-                }`}
-              >
-                {v === 'fan' ? 'FAN VERSION' : 'PLAYER VERSION'}
-              </button>
-            ))}
-          </div>
+          {/* Version - not for retro */}
+          {!isRetro && (
+            <>
+              <label className="block text-xs font-bold text-neutral-500 mb-1">VERSIUNE</label>
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                {['fan', 'player'].map(v => (
+                  <button
+                    key={v}
+                    data-testid={`version-${v}`}
+                    onClick={() => setSelectedVersion(v)}
+                    className={`py-2.5 rounded-lg border-2 font-bold text-sm transition-all ${
+                      selectedVersion === v
+                        ? v === 'player' ? 'border-black bg-black text-[#CCFF00]' : 'border-black bg-black text-white'
+                        : 'border-neutral-200 active:border-black'
+                    }`}
+                  >
+                    {v === 'fan' ? 'FAN VERSION' : 'PLAYER VERSION'}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
 
-          {/* Patches */}
-          <label className="block text-xs font-bold text-neutral-500 mb-1">PATCH-URI (optional)</label>
-          <div className="grid grid-cols-2 gap-2 mb-4">
-            {[
-              { id: 'UCL', name: 'Champions League' },
-              { id: 'Europa League', name: 'Europa League' },
-              { id: 'Conference League', name: 'Conference League' },
-              { id: 'La Liga', name: 'La Liga' },
-              { id: 'Premier League', name: 'Premier League' },
-              { id: 'Serie A', name: 'Serie A' },
-              { id: 'Bundesliga', name: 'Bundesliga' },
-              { id: 'Ligue 1', name: 'Ligue 1' },
-            ].map(patch => (
-              <button
-                key={patch.id}
-                data-testid={`patch-${patch.id}`}
-                onClick={() => setSelectedPatches(prev =>
-                  prev.includes(patch.id) ? prev.filter(p => p !== patch.id) : [...prev, patch.id]
-                )}
-                className={`py-2 px-2 rounded-lg border-2 font-bold text-xs transition-all flex items-center justify-center gap-1 ${
-                  selectedPatches.includes(patch.id)
-                    ? 'border-black bg-[#CCFF00]'
-                    : 'border-neutral-200 active:border-black'
-                }`}
-              >
-                {selectedPatches.includes(patch.id) && <Check className="w-3 h-3 flex-shrink-0" />}
-                {patch.name}
-              </button>
-            ))}
-          </div>
+          {/* Retro: show Fan Version fixed */}
+          {isRetro && (
+            <div className="mb-4">
+              <label className="block text-xs font-bold text-neutral-500 mb-1">VERSIUNE</label>
+              <div className="border-2 border-black rounded-lg px-4 py-2.5 bg-black text-white font-bold text-sm text-center">
+                FAN VERSION
+              </div>
+            </div>
+          )}
+
+          {/* Patches - only for club/limited */}
+          {(isClub || isLimited) && (
+            <>
+              <label className="block text-xs font-bold text-neutral-500 mb-1">PATCH-URI (optional)</label>
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                {[
+                  { id: 'UCL', name: 'Champions League' },
+                  { id: 'Europa League', name: 'Europa League' },
+                  { id: 'Conference League', name: 'Conference League' },
+                  { id: 'La Liga', name: 'La Liga' },
+                  { id: 'Premier League', name: 'Premier League' },
+                  { id: 'Serie A', name: 'Serie A' },
+                  { id: 'Bundesliga', name: 'Bundesliga' },
+                  { id: 'Ligue 1', name: 'Ligue 1' },
+                ].map(patch => (
+                  <button
+                    key={patch.id}
+                    data-testid={`patch-${patch.id}`}
+                    onClick={() => setSelectedPatches(prev =>
+                      prev.includes(patch.id) ? prev.filter(p => p !== patch.id) : [...prev, patch.id]
+                    )}
+                    className={`py-2 px-2 rounded-lg border-2 font-bold text-xs transition-all flex items-center justify-center gap-1 ${
+                      selectedPatches.includes(patch.id)
+                        ? 'border-black bg-[#CCFF00]'
+                        : 'border-neutral-200 active:border-black'
+                    }`}
+                  >
+                    {selectedPatches.includes(patch.id) && <Check className="w-3 h-3 flex-shrink-0" />}
+                    {patch.name}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
 
           {/* Product Image Preview */}
           {mainImage ? (
             <div className="mb-4 rounded-lg overflow-hidden border-2 border-neutral-100 bg-white">
               <img
                 src={mainImage}
-                alt={`${selectedTeam} ${selectedYear}`}
+                alt={selectedTeamName}
                 className="w-full aspect-[4/5] object-contain"
               />
               <div className="bg-neutral-50 px-3 py-2 border-t text-sm font-bold text-center">
-                {selectedTeam} {selectedYear}/{(parseInt(selectedYear) + 1).toString().slice(-2)} - {matchingProduct?.variants?.[selectedKit]?.name || 'First Kit'}
+                {selectedTeamName}{isClub && selectedYear ? ` ${selectedYear}/${(parseInt(selectedYear) + 1).toString().slice(-2)}` : ''}
+                {isClub && matchingProduct?.variants?.[selectedKit]?.name ? ` - ${matchingProduct.variants[selectedKit].name}` : ''}
                 <span className={`ml-1 text-xs px-1.5 py-0.5 rounded ${selectedVersion === 'player' ? 'bg-black text-[#CCFF00]' : 'bg-neutral-200 text-neutral-600'}`}>
                   {selectedVersion === 'player' ? 'PLAYER' : 'FAN'}
                 </span>
                 {(customName || customNumber) && (
                   <p className="text-xs text-neutral-500 font-normal mt-0.5">
-                    {customName && customName}{customName && customNumber && ' #'}{customNumber && customNumber}
+                    {customName}{customName && customNumber && ' #'}{customNumber}
                   </p>
                 )}
                 {selectedPatches.length > 0 && (
@@ -423,7 +546,7 @@ export default function PromoBundle() {
           ) : (
             <div className="mb-4 rounded-lg border-2 border-dashed border-neutral-200 bg-neutral-50 flex flex-col items-center justify-center py-12 text-neutral-400">
               <Shirt className="w-12 h-12 mb-2" />
-              <p className="text-xs">Selecteaza echipa si sezonul pentru preview</p>
+              <p className="text-xs">{isClub && !selectedYear ? 'Selecteaza sezonul pentru preview' : 'Selecteaza produsul pentru preview'}</p>
             </div>
           )}
 
@@ -454,7 +577,6 @@ export default function PromoBundle() {
             TRICOU GRATUIT
           </h2>
 
-          {/* National Team Picker - custom */}
           <TeamPicker
             teams={uniqueNationals}
             selected={freeTeam}
@@ -464,14 +586,9 @@ export default function PromoBundle() {
             color="green"
           />
 
-          {/* Free Product Image */}
           {freeImage ? (
             <div className="mb-4 rounded-lg overflow-hidden border-2 border-green-200 bg-white">
-              <img
-                src={freeImage}
-                alt={`${freeTeam} 25/26`}
-                className="w-full aspect-[4/5] object-contain"
-              />
+              <img src={freeImage} alt={`${freeTeam} 25/26`} className="w-full aspect-[4/5] object-contain" />
               <div className="bg-green-50 px-3 py-2 border-t border-green-200 text-sm font-bold text-center text-green-700">
                 {freeTeam} 2025/26 - First Kit
               </div>
@@ -516,11 +633,15 @@ export default function PromoBundle() {
         <div className="grid grid-cols-3 gap-2 text-center text-xs">
           <div className="bg-white p-2 rounded-lg border border-neutral-200">
             <p className="font-bold">Livrare</p>
-            <p className="text-neutral-500">1-3sapt</p>
+            <p className="text-neutral-500">2-4 zile</p>
           </div>
           <div className="bg-white p-2 rounded-lg border border-neutral-200">
             <p className="font-bold">Calitate</p>
             <p className="text-neutral-500">Premium</p>
+          </div>
+          <div className="bg-white p-2 rounded-lg border border-neutral-200">
+            <p className="font-bold">Retur</p>
+            <p className="text-neutral-500">14 zile</p>
           </div>
         </div>
       </div>
