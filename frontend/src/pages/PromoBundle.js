@@ -237,10 +237,10 @@ export default function PromoBundle() {
 
   useEffect(() => { setSelectedKit(0); }, [selectedProductId, selectedYear]);
 
-  // Force fan version for retro
+  // Force fan version for retro and limited
   useEffect(() => {
-    if (isRetro) setSelectedVersion('fan');
-  }, [isRetro]);
+    if (isRetro || isLimited) setSelectedVersion('fan');
+  }, [isRetro, isLimited]);
 
   const onProductChange = (val) => {
     setSelectedProductId(val);
