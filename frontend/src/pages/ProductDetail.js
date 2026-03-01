@@ -229,34 +229,6 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            {/* Fan vs Player Version Info */}
-            <div className="mb-8 border-2 border-neutral-200 rounded-lg overflow-hidden">
-              <img src="/images/fan-vs-player.jpg" alt="Fan vs Player Version" className="w-full" />
-              <div className="p-4 bg-neutral-50">
-                <h3 className="font-bold text-lg mb-3">FAN vs PLAYER VERSION</h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="font-bold mb-1">FAN VERSION</p>
-                    <ul className="space-y-1 text-neutral-600">
-                      <li>- Material standard, confortabil</li>
-                      <li>- Croiala mai larga</li>
-                      <li>- Embleme imprimate (serigrafie)</li>
-                      <li>- Ideal pentru uzul zilnic</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <p className="font-bold mb-1">PLAYER VERSION</p>
-                    <ul className="space-y-1 text-neutral-600">
-                      <li>- Material tehnic Dri-FIT ADV</li>
-                      <li>- Croiala slim, atletica</li>
-                      <li>- Embleme cusute/termoadezive</li>
-                      <li>- Identic cu cel de pe teren</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* Customization Section */}
             <div className="mb-8 border-2 border-neutral-200 p-6 bg-neutral-50">
               <div className="flex items-center justify-between mb-4">
