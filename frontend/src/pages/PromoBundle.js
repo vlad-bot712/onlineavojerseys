@@ -345,6 +345,56 @@ export default function PromoBundle() {
             />
           </div>
 
+          {/* Version */}
+          <label className="block text-xs font-bold text-neutral-500 mb-1">VERSIUNE</label>
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            {['fan', 'player'].map(v => (
+              <button
+                key={v}
+                data-testid={`version-${v}`}
+                onClick={() => setSelectedVersion(v)}
+                className={`py-2.5 rounded-lg border-2 font-bold text-sm transition-all ${
+                  selectedVersion === v
+                    ? v === 'player' ? 'border-black bg-black text-[#CCFF00]' : 'border-black bg-black text-white'
+                    : 'border-neutral-200 active:border-black'
+                }`}
+              >
+                {v === 'fan' ? 'FAN VERSION' : 'PLAYER VERSION'}
+              </button>
+            ))}
+          </div>
+
+          {/* Patches */}
+          <label className="block text-xs font-bold text-neutral-500 mb-1">PATCH-URI (optional)</label>
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            {[
+              { id: 'UCL', name: 'Champions League' },
+              { id: 'Europa League', name: 'Europa League' },
+              { id: 'Conference League', name: 'Conference League' },
+              { id: 'La Liga', name: 'La Liga' },
+              { id: 'Premier League', name: 'Premier League' },
+              { id: 'Serie A', name: 'Serie A' },
+              { id: 'Bundesliga', name: 'Bundesliga' },
+              { id: 'Ligue 1', name: 'Ligue 1' },
+            ].map(patch => (
+              <button
+                key={patch.id}
+                data-testid={`patch-${patch.id}`}
+                onClick={() => setSelectedPatches(prev =>
+                  prev.includes(patch.id) ? prev.filter(p => p !== patch.id) : [...prev, patch.id]
+                )}
+                className={`py-2 px-2 rounded-lg border-2 font-bold text-xs transition-all flex items-center justify-center gap-1 ${
+                  selectedPatches.includes(patch.id)
+                    ? 'border-black bg-[#CCFF00]'
+                    : 'border-neutral-200 active:border-black'
+                }`}
+              >
+                {selectedPatches.includes(patch.id) && <Check className="w-3 h-3 flex-shrink-0" />}
+                {patch.name}
+              </button>
+            ))}
+          </div>
+
           {/* Product Image Preview */}
           {mainImage ? (
             <div className="mb-4 rounded-lg overflow-hidden border-2 border-neutral-100 bg-white">
