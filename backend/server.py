@@ -674,7 +674,6 @@ async def get_analytics_stats():
         })
         
         # Last 7 days visits by day
-        from datetime import timedelta
         daily_stats = []
         for i in range(7):
             day_start = (now - timedelta(days=i)).replace(hour=0, minute=0, second=0, microsecond=0)
