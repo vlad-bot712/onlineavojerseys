@@ -455,15 +455,11 @@ export default function PromoBundle() {
         <div className="grid grid-cols-3 gap-2 text-center text-xs">
           <div className="bg-white p-2 rounded-lg border border-neutral-200">
             <p className="font-bold">Livrare</p>
-            <p className="text-neutral-500">2-4 zile</p>
+            <p className="text-neutral-500">1-3sapt</p>
           </div>
           <div className="bg-white p-2 rounded-lg border border-neutral-200">
             <p className="font-bold">Calitate</p>
             <p className="text-neutral-500">Premium</p>
-          </div>
-          <div className="bg-white p-2 rounded-lg border border-neutral-200">
-            <p className="font-bold">Retur</p>
-            <p className="text-neutral-500">14 zile</p>
           </div>
         </div>
       </div>
