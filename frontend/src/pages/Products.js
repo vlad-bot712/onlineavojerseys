@@ -277,6 +277,45 @@ export default function Products() {
 
       {/* Size Chart Modal */}
       <SizeChartModal isOpen={showSizeChart} onClose={() => setShowSizeChart(false)} />
+
+      {/* Fan vs Player Modal */}
+      {showFanVsPlayer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setShowFanVsPlayer(false)} />
+          <div className="relative bg-white rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setShowFanVsPlayer(false)}
+              className="absolute top-3 right-3 z-10 bg-black/10 hover:bg-black/20 p-2 rounded-full"
+            >
+              <span className="text-xl leading-none">&times;</span>
+            </button>
+            <img src="/images/fan-vs-player.jpg" alt="Fan vs Player" className="w-full rounded-t-lg" />
+            <div className="p-5">
+              <h3 className="font-bold text-xl mb-4">FAN VS PLAYER VERSION</h3>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="font-bold mb-2">FAN VERSION</p>
+                  <ul className="space-y-1.5 text-neutral-600">
+                    <li>- Material standard, confortabil</li>
+                    <li>- Croiala mai larga</li>
+                    <li>- Embleme imprimate (serigrafie)</li>
+                    <li>- Ideal pentru uzul zilnic</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-bold mb-2">PLAYER VERSION</p>
+                  <ul className="space-y-1.5 text-neutral-600">
+                    <li>- Material tehnic Dri-FIT ADV</li>
+                    <li>- Croiala slim, atletica</li>
+                    <li>- Embleme cusute/termoadezive</li>
+                    <li>- Identic cu cel de pe teren</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
