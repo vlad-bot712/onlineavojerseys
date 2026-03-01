@@ -37,7 +37,7 @@ function TeamPicker({ teams, selected, onSelect, label, placeholder, color = 'bl
         }`}
         style={{ fontSize: '16px' }}
       >
-        <span className={selected ? '' : 'text-neutral-400'}>{selected || placeholder}</span>
+        <span className={selected ? '' : 'text-neutral-400'}>{displayName || placeholder}</span>
         <ChevronDown className={`w-5 h-5 transition-transform ${open ? 'rotate-180' : ''} ${isGreen ? 'text-green-500' : 'text-neutral-400'}`} />
       </button>
 
