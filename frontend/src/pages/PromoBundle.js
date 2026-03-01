@@ -94,6 +94,8 @@ export default function PromoBundle() {
   const [mainSize, setMainSize] = useState('');
   const [customName, setCustomName] = useState('');
   const [customNumber, setCustomNumber] = useState('');
+  const [selectedVersion, setSelectedVersion] = useState('fan');
+  const [selectedPatches, setSelectedPatches] = useState([]);
 
   const [freeTeam, setFreeTeam] = useState('');
   const [freeSize, setFreeSize] = useState('');
