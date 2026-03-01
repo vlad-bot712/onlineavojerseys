@@ -415,11 +415,11 @@ Echipa AVO JERSEYS
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-neutral-500">Data Comenzii:</span>
-                  <span className="font-bold">{new Date(order.created_at).toLocaleString('ro-RO')}</span>
+                  <span className="font-bold">{new Date(order.created_at).toLocaleString('ro-RO', { timeZone: 'Europe/Bucharest' })}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-neutral-500">Ultima Actualizare:</span>
-                  <span className="font-bold">{new Date(order.updated_at).toLocaleString('ro-RO')}</span>
+                  <span className="font-bold">{new Date(order.updated_at).toLocaleString('ro-RO', { timeZone: 'Europe/Bucharest' })}</span>
                 </div>
               </div>
             </div>
