@@ -171,6 +171,16 @@ export default function Products() {
                 <Ruler className="w-5 h-5" />
                 <span>TABEL MĂRIMI</span>
               </button>
+
+              {/* Fan vs Player Button */}
+              <button
+                onClick={() => setShowFanVsPlayer(true)}
+                data-testid="fan-vs-player-btn"
+                className="w-full mt-3 bg-white text-black py-3 font-bold hover:bg-neutral-100 transition-colors flex items-center justify-center space-x-2 border-2 border-black"
+              >
+                <Shirt className="w-5 h-5" />
+                <span>FAN VS PLAYER VERSION</span>
+              </button>
             </div>
           </aside>
 
