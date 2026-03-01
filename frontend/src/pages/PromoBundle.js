@@ -493,8 +493,8 @@ export default function PromoBundle() {
             </div>
           )}
 
-          {/* Patches - only for club/limited */}
-          {(isClub || isLimited) && (
+          {/* Patches - only for club */}
+          {isClub && (
             <>
               <label className="block text-xs font-bold text-neutral-500 mb-1">PATCH-URI (optional)</label>
               <div className="grid grid-cols-2 gap-2 mb-4">
