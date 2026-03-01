@@ -392,7 +392,7 @@ async def get_order_by_number(order_number: str):
 
 @app.patch("/api/orders/{order_id}")
 async def update_order_status(order_id: str, update_req: UpdateOrderStatusRequest):
-    update_data = {"status": update_req.status, "updated_at": datetime.utcnow()}
+    update_data = {"status": update_req.status, "updated_at": datetime.now(timezone(timedelta(hours=3)))}
     if update_req.awb:
         update_data["awb"] = update_req.awb
     
@@ -433,7 +433,7 @@ async def save_invoice(order_id: str, request: Request):
         
         result = await db.orders.update_one(
             {"_id": ObjectId(order_id)},
-            {"$set": {"invoice_image": invoice_image, "updated_at": datetime.utcnow()}}
+            {"$set": {"invoice_image": invoice_image, "updated_at": datetime.now(timezone(timedelta(hours=3)))}}
         )
         
         if result.matched_count == 0:
@@ -491,14 +491,14 @@ async def create_stripe_session(request: Request):
         "currency": stripe_currency,
         "payment_status": "pending",
         "metadata": {"order_id": order_id},
-        "created_at": datetime.utcnow()
+        "created_at": datetime.now(timezone(timedelta(hours=3)))
     }
     await db.payment_transactions.insert_one(transaction)
     
     # Update order with payment method
     await db.orders.update_one(
         {"_id": ObjectId(order_id)},
-        {"$set": {"payment_method": "stripe", "updated_at": datetime.utcnow()}}
+        {"$set": {"payment_method": "stripe", "updated_at": datetime.now(timezone(timedelta(hours=3)))}}
     )
     
     return {"url": session.url, "session_id": session.session_id}
@@ -537,7 +537,7 @@ async def get_stripe_status(session_id: str):
                 {"$set": {
                     "payment_status": "paid",
                     "status": "processing",
-                    "updated_at": datetime.utcnow()
+                    "updated_at": datetime.now(timezone(timedelta(hours=3)))
                 }}
             )
         
@@ -582,7 +582,7 @@ async def stripe_webhook(request: Request):
                     {"$set": {
                         "payment_status": "paid",
                         "status": "processing",
-                        "updated_at": datetime.utcnow()
+                        "updated_at": datetime.now(timezone(timedelta(hours=3)))
                     }}
                 )
         
@@ -609,7 +609,7 @@ async def create_review(request: Request):
             "text": body.get("text", ""),
             "stars": min(max(int(body.get("stars", 5)), 1), 5),
             "image": body.get("image"),  # Base64 image or null
-            "created_at": datetime.utcnow()
+            "created_at": datetime.now(timezone(timedelta(hours=3)))
         }
         result = await db.reviews.insert_one(review)
         return {"status": "success", "review_id": str(result.inserted_id)}
@@ -652,7 +652,7 @@ async def track_visit(request: Request):
             "referrer": body.get("referrer", ""),
             "user_agent": request.headers.get("user-agent", ""),
             "ip": request.client.host if request.client else "unknown",
-            "timestamp": datetime.utcnow(),
+            "timestamp": datetime.now(timezone(timedelta(hours=3))),
             "session_id": body.get("session_id", "")
         }
         await db.analytics_visits.insert_one(visit)
@@ -665,7 +665,7 @@ async def track_visit(request: Request):
 async def get_analytics_stats():
     """Get analytics statistics for admin dashboard"""
     try:
-        now = datetime.utcnow()
+        now = datetime.now(timezone(timedelta(hours=3)))
         
         # Today's visits
         today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -897,7 +897,7 @@ async def send_order_email(order_id: str, request: Request):
                 "to": order.get("customer_email"),
                 "subject": template["subject"],
                 "status": status,
-                "sent_at": datetime.utcnow()
+                "sent_at": datetime.now(timezone(timedelta(hours=3)))
             })
             
             return {
