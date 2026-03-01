@@ -190,10 +190,11 @@ export default function PromoBundle() {
       selectedKit: kitKey,
       selectedKitName: kitName,
       selectedVariantImage: mainImage,
-      selectedVersion: 'fan',
-      customization: (customName || customNumber) ? {
+      selectedVersion: selectedVersion,
+      customization: (customName || customNumber || selectedPatches.length > 0) ? {
         name: customName || null,
         number: customNumber || null,
+        patches: selectedPatches.length > 0 ? selectedPatches : null,
       } : null,
       bundleDetails: {
         mainProduct: {
