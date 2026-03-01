@@ -17,6 +17,7 @@ export default function Products() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showSizeChart, setShowSizeChart] = useState(false);
+  const [showFanVsPlayer, setShowFanVsPlayer] = useState(false);
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
     team: '',
