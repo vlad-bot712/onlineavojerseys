@@ -483,8 +483,8 @@ export default function PromoBundle() {
             </>
           )}
 
-          {/* Retro: show Fan Version fixed */}
-          {isRetro && (
+          {/* Retro/Limited: show Fan Version fixed */}
+          {(isRetro || isLimited) && (
             <div className="mb-4">
               <label className="block text-xs font-bold text-neutral-500 mb-1">VERSIUNE</label>
               <div className="border-2 border-black rounded-lg px-4 py-2.5 bg-black text-white font-bold text-sm text-center">
