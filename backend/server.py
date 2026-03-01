@@ -349,8 +349,8 @@ async def create_order(order_req: CreateOrderRequest):
         order_dict["payment_status"] = "pending"
     
     order_dict["awb"] = ""
-    order_dict["created_at"] = datetime.utcnow()
-    order_dict["updated_at"] = datetime.utcnow()
+    order_dict["created_at"] = datetime.now(timezone(timedelta(hours=3))).isoformat()
+    order_dict["updated_at"] = datetime.now(timezone(timedelta(hours=3))).isoformat()
     
     result = await db.orders.insert_one(order_dict)
     order_dict["id"] = str(result.inserted_id)
