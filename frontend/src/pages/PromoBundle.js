@@ -460,8 +460,8 @@ export default function PromoBundle() {
             />
           </div>
 
-          {/* Version - not for retro */}
-          {!isRetro && (
+          {/* Version - not for retro or limited */}
+          {!isRetro && !isLimited && (
             <>
               <label className="block text-xs font-bold text-neutral-500 mb-1">VERSIUNE</label>
               <div className="grid grid-cols-2 gap-2 mb-4">
