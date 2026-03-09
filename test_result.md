@@ -116,6 +116,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "Comprehensive test completed successfully. Home page (data-testid='home-page') loaded correctly. Hero section (data-testid='hero-section') found with Champions League stadium background image properly configured (URL: https://customer-assets.emergentagent.com/job_change-maker-18/artifacts/c1cph1qg_champions-league-stadium-wallpaper-preview.jpg verified in style attribute). Background image displays correctly with proper overlay and hero content. All hero elements visible: Bundle 1+1 promo banner (⚡ BUNDLE 1+1 GRATIS - DOAR 250 RON ⚡), main heading, subtitle, and CTA button (data-testid='hero-cta'). Featured products section loaded with products displayed. No console errors. Feature is production-ready."
+        - working: true
+          agent: "testing"
+          comment: "RETEST - New Background Image Verified: Home page tested with NEW Champions League stadium background. Background image URL confirmed as 'p4urc78a_champions-league-stadium-wallpaper-preview (2).jpg' (different from previous c1cph1qg version). Full URL: https://customer-assets.emergentagent.com/job_change-maker-18/artifacts/p4urc78a_champions-league-stadium-wallpaper-preview%20%282%29.jpg. Hero section displays correctly with proper styling (background-size: cover, background-position: center). All hero content visible and functional. Screenshot captured. No errors."
 
   - task: "Products Page - Product Listing"
     implemented: true
@@ -188,7 +191,7 @@ frontend:
 
   - task: "Preview 360° Feature - Products Page"
     implemented: true
-    working: true
+    working: false
     file: "frontend/src/pages/Products.js"
     stuck_count: 0
     priority: "high"
@@ -197,11 +200,26 @@ frontend:
         - working: true
           agent: "testing"
           comment: "Comprehensive test of NEW Preview 360° feature completed successfully. All requested features verified and working: (1) Preview 360° section found on Products page with dark background (bg-gradient-to-br from-neutral-900 to-neutral-800) and lime green accents (#CCFF00), found 8 lime green accent elements, (2) Promo popup closed successfully using data-testid='promo-popup-close', (3) ECHIPA dropdown working - selected 'Real Madrid' successfully (confirmed value: Real Madrid), (4) SEZON selector working - selected 2025/26 season button with proper lime yellow background visual feedback, (5) KIT selector working - selected 'Second Kit' button with lime yellow background, (6) PERSONALIZARE section working - typed 'RONALDO' in NUME field (confirmed value: RONALDO), typed '7' in NR field (confirmed value: 7), (7) Jersey preview image displays correctly (/images/products/real-madrid-2025-second.jpg) showing Real Madrid Second Kit, (8) Name overlay 'RONALDO' verified present on jersey at position (x=1179, y=586) with font-size: 24px in white color, (9) Number overlay '7' verified present on jersey, (10) Disclaimer text visible and contains all required mentions ('font', 'oficial', 'simulare'), (11) Team info 'Real Madrid' and season '2025/2026' displayed correctly below preview. Minor: Console shows React hydration warnings about span/select/option nesting (non-critical), analytics API calls failed (non-critical third-party). Zero critical issues. Feature is production-ready."
+        - working: false
+          agent: "testing"
+          comment: "RETEST - Feature REMOVED: Preview 360° section is NO LONGER present on Products page. Comprehensive search conducted: (1) No elements found with data-testid containing 'preview-360' or 'preview360', (2) No text content containing 'preview 360' or 'previzualizare 360' found in page HTML, (3) Code review of Products.js confirms no Preview 360° implementation exists (file shows only product listing, filters, and promo bundle section). Feature has been successfully REMOVED from the Products page as requested. Screenshot captured showing current Products page without the feature."
+
+  - task: "Checkout Flow - PayPal Integration"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/Checkout.js, frontend/src/pages/OrderSuccess.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "Complete checkout flow tested with PayPal payment method: (1) TEST PLATA - STICKER AVO product (2.00 RON, Product ID: 87e60544-12e0-4799-a120-fee9a1638b3f) located successfully using product search, (2) Product detail page loaded and size selected, (3) Add to Cart successful, (4) Cart page navigated and checkout initiated, (5) Checkout form filled with test data (Name: Test Customer AVO, Email: test.avo@example.com, Phone: +40 723 456 789, Address: București, Str. Test nr. 123), (6) PayPal payment method selected successfully from available payment options (Card, Apple Pay, Google Pay, PayPal, Transfer, Ramburs), (7) PayPal info box appears on checkout page showing 'Plată prin PayPal' and payment amount (22.00 RON including 20 RON shipping). FINDING: PayPal email (crissopris80@gmail.com) is NOT displayed on checkout page - code review (Checkout.js lines 620-636) confirms email is intentionally shown only on Order Success page (OrderSuccess.js line 229) after order placement, along with PayPal.me payment link (https://www.paypal.com/paypalme/crissopris80/[amount]RON) and full payment instructions. Checkout page shows only generic PayPal info to avoid exposing merchant email before order commitment. Total of 8 test screenshots captured documenting entire flow. No console errors detected. PayPal integration working as implemented, but UX decision needed: should email appear on checkout page for transparency or remain on order success page (current behavior)?"
 
 metadata:
   created_by: "testing_agent"
   version: "1.0"
-  test_sequence: 5
+  test_sequence: 6
   run_ui: true
 
 test_plan:
@@ -211,6 +229,7 @@ test_plan:
     - "Product Detail Page - Full Feature Set"
     - "PromoBundle Page - Clubs and Nationals"
     - "Preview 360° Feature - Products Page"
+    - "Checkout Flow - PayPal Integration"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
@@ -226,3 +245,5 @@ agent_communication:
       message: "COMPREHENSIVE WEBSITE TEST COMPLETED: Tested entire AVO JERSEYS website as requested. All 4 major sections verified and working perfectly: (1) Home page - Champions League stadium background image loads correctly and displays properly, (2) Products page - 90 products loaded and displayed with proper cards, images, and navigation working, (3) ProductDetail page - All features tested and working including product images, kit selector (3 options), size selector (5 sizes), version selector (FAN/PLAYER), customization (name, number, patches), and Add to Cart functionality, (4) PromoBundle page - Both club teams (32 options grouped by leagues) and national teams (10 options) working perfectly with season selection, kit selection, size selection, and bundle Add to Cart. Zero critical issues found. All screenshots captured successfully. Website is production-ready."
     - agent: "testing"
       message: "NEW FEATURE TEST COMPLETED - Preview 360° on Products Page: Comprehensive testing of the NEW Preview 360° feature completed successfully. All functionality verified and working perfectly: (1) Section displays with dark background and lime green (#CCFF00) accents as designed, (2) ECHIPA dropdown working - Real Madrid selected, (3) SEZON selector working - 2025 selected with proper visual feedback, (4) KIT selector working - Second Kit selected with lime yellow background, (5) NUME and NR fields working - RONALDO and 7 entered successfully, (6) Jersey preview image loads correctly (/images/products/real-madrid-2025-second.jpg), (7) Name overlay 'RONALDO' displayed on jersey at correct position with proper styling (24px white text with shadow), (8) Number overlay '7' displayed on jersey, (9) Disclaimer text visible with all required information about fonts. Minor: React hydration warnings (non-critical) and failed analytics calls (non-critical). Zero critical issues. Feature is production-ready and provides excellent user experience for customization preview."
+    - agent: "testing"
+      message: "NEW TEST COMPLETED - User Request Review: Tested all requested items: (1) Home page Champions League background - VERIFIED: New background image (p4urc78a_champions-league-stadium-wallpaper-preview (2).jpg) is displaying correctly, different from previous version. (2) Products page - VERIFIED: Preview 360° section is REMOVED (not present on page). (3) TEST PLATA product - FOUND: Product '🧪 TEST PLATA - STICKER AVO' with 2.00 RON price located and tested successfully. (4) Add to cart - SUCCESS: Product added to cart. (5) Checkout form - SUCCESS: All fields filled with test data. (6) PayPal payment - SUCCESS: PayPal payment method selected. (7) PayPal email - FINDING: Email 'crissopris80@gmail.com' is NOT displayed on checkout page. Code review shows email appears only on ORDER SUCCESS page (OrderSuccess.js line 229) after order is placed, along with PayPal.me link and payment instructions. Checkout page only shows generic PayPal info. All 8 test screenshots captured. Zero critical errors. PayPal integration working, but email display behavior needs clarification: should email appear on checkout page or only on order success page (current behavior)?"

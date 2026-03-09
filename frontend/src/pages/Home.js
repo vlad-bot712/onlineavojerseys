@@ -34,7 +34,7 @@ export default function Home() {
         data-testid="hero-section"
         className="relative h-[90vh] flex items-center justify-center overflow-hidden mt-20"
         style={{
-          backgroundImage: 'url(https://customer-assets.emergentagent.com/job_change-maker-18/artifacts/c1cph1qg_champions-league-stadium-wallpaper-preview.jpg)',
+          backgroundImage: 'url(https://customer-assets.emergentagent.com/job_change-maker-18/artifacts/p4urc78a_champions-league-stadium-wallpaper-preview%20%282%29.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}

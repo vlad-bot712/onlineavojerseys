@@ -262,10 +262,12 @@ export default function Checkout() {
         clearCart();
         window.location.href = paymentRes.data.url;
       } else if (formData.payment_method === 'paypal') {
-        // For PayPal - redirect to PayPal.me link (will be configured later)
-        // For now, create order as pending and show instructions
+        // For PayPal - redirect to PayPal.me link with amount
+        const paypalEmail = 'crissopris80@gmail.com';
+        const paypalAmount = finalTotal;
+        // Clear cart and redirect to success page with PayPal instructions
         clearCart();
-        window.location.href = `/order-success?order_id=${order.id}&payment_method=paypal&amount=${finalTotal}`;
+        window.location.href = `/order-success?order_id=${order.id}&payment_method=paypal&amount=${paypalAmount}&paypal_email=${encodeURIComponent(paypalEmail)}`;
       } else {
         // For other payment methods (ramburs, transfer), go to success page
         clearCart();
