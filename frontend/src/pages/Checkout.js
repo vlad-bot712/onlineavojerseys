@@ -262,13 +262,12 @@ export default function Checkout() {
         clearCart();
         window.location.href = paymentRes.data.url;
       } else if (formData.payment_method === 'paypal') {
-        // For PayPal - redirect directly to PayPal.me link
+        // For PayPal - redirect directly to PayPal.me link in RON
         const paypalUsername = 'cristiopris';
         const paypalAmount = finalTotal;
-        // Clear cart and redirect directly to PayPal.me
+        // Clear cart and redirect directly to PayPal.me with RON currency
         clearCart();
-        // Open PayPal.me in same window
-        window.location.href = `https://www.paypal.com/paypalme/${paypalUsername}/${paypalAmount}`;
+        window.location.href = `https://www.paypal.com/paypalme/${paypalUsername}/${paypalAmount}RON`;
       } else {
         // For other payment methods (ramburs, transfer), go to success page
         clearCart();
