@@ -286,8 +286,11 @@ export default function Checkout() {
     return null;
   }
 
+  // Check if cart contains only test products (free shipping)
+  const hasOnlyTestProducts = cart.every(item => item.product.category === 'test');
+
   const total = getCartTotal();
-  const shippingCost = formData.shipping_method === 'express' ? 40 : 20;
+  const shippingCost = hasOnlyTestProducts ? 0 : (formData.shipping_method === 'express' ? 40 : 20);
   const finalTotal = total + shippingCost - couponDiscount;
 
   // Payment methods configuration
