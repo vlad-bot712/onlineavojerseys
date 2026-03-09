@@ -66,36 +66,10 @@ export default function Products() {
   return (
     <div data-testid="products-page" className="pt-24 pb-16 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
-        {/* Hero Section */}
-        <div className="text-center mb-8">
-          <div className="inline-block bg-[#CCFF00] text-black px-4 py-1 rounded-full text-sm font-bold mb-4 animate-pulse">
-            COLECȚIE 2024/25
-          </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-4">
-            TRICOURI <span className="text-[#CCFF00] bg-black px-3">PREMIUM</span>
-          </h1>
-          <p className="text-neutral-600 max-w-2xl mx-auto">
-            Descoperă colecția noastră de tricouri de fotbal pentru cele mai bune echipe din lume
-          </p>
-        </div>
-
-        {/* Quick Stats Bar */}
-        <div className="flex flex-wrap justify-center gap-6 mb-8 py-4 border-y-2 border-neutral-200">
-          <div className="flex items-center gap-2 text-sm">
-            <Shirt className="w-5 h-5 text-[#CCFF00]" />
-            <span><strong>{products.length}</strong> Produse</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Gift className="w-5 h-5 text-green-500" />
-            <span><strong>PROMOTIE</strong> 1+1 Gratis</span>
-          </div>
-          <button 
-            onClick={() => setShowSizeChart(true)}
-            className="flex items-center gap-2 text-sm hover:text-[#CCFF00] transition-colors"
-          >
-            <Ruler className="w-5 h-5" />
-            <span>Ghid Mărimi</span>
-          </button>
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl sm:text-5xl font-black mb-2">PRODUSE</h1>
+          <p className="text-neutral-500">{products.length} tricouri disponibile</p>
         </div>
 
         {/* Preorder Banner */}
@@ -124,24 +98,24 @@ export default function Products() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Filters Sidebar */}
           <aside className="lg:col-span-1">
-            <div className="bg-white border-2 border-neutral-200 rounded-xl p-6 sticky top-24 shadow-lg">
+            <div className="bg-white border border-neutral-200 p-5 sticky top-24">
               {/* Filters Header */}
-              <div className="bg-gradient-to-r from-neutral-900 to-neutral-800 text-white -mx-6 -mt-6 px-6 py-4 rounded-t-lg mb-6 flex items-center space-x-2">
-                <Filter className="w-5 h-5 text-[#CCFF00]" />
-                <h2 className="text-xl font-bold">FILTRE</h2>
+              <div className="flex items-center space-x-2 mb-5 pb-3 border-b border-neutral-200">
+                <Filter className="w-4 h-4" />
+                <h2 className="font-bold">FILTRE</h2>
               </div>
 
               {/* Category Filter */}
               <div className="mb-6">
                 <h3 className="font-bold mb-3 text-sm text-neutral-500 uppercase tracking-wider">Categorie</h3>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {['', 'echipe-club', 'nationale', 'retro', 'limited-edition', 'promotie-1-1'].map(cat => (
                     <label 
                       key={cat} 
-                      className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg transition-all ${
+                      className={`flex items-center space-x-3 cursor-pointer p-2.5 rounded-lg transition-all ${
                         filters.category === cat 
-                          ? 'bg-[#CCFF00]/20 border-l-4 border-[#CCFF00]' 
-                          : 'hover:bg-neutral-50'
+                          ? 'bg-black text-white' 
+                          : 'hover:bg-neutral-100'
                       }`}
                     >
                       <input
@@ -149,18 +123,18 @@ export default function Products() {
                         name="category"
                         checked={filters.category === cat}
                         onChange={() => setFilters({ ...filters, category: cat })}
-                        className="w-4 h-4 accent-[#CCFF00]"
+                        className="hidden"
                       />
-                      <span className={`text-sm ${
-                        cat === 'limited-edition' ? 'font-bold text-orange-600' : 
-                        cat === 'promotie-1-1' ? 'font-bold text-green-600' : ''
+                      <span className={`text-sm font-medium ${
+                        cat === 'limited-edition' && filters.category !== cat ? 'text-orange-600' : 
+                        cat === 'promotie-1-1' && filters.category !== cat ? 'text-green-600' : ''
                       }`}>
-                        {cat === '' ? '🌐 Toate' : 
-                         cat === 'echipe-club' ? '⚽ Echipe de Club' : 
-                         cat === 'nationale' ? '🌍 Naționale' : 
-                         cat === 'retro' ? '📀 Retro' : 
-                         cat === 'limited-edition' ? '⭐ Limited Edition' :
-                         '🎁 PROMOTIE 1+1'}
+                        {cat === '' ? 'Toate' : 
+                         cat === 'echipe-club' ? 'Echipe de Club' : 
+                         cat === 'nationale' ? 'Naționale' : 
+                         cat === 'retro' ? 'Retro' : 
+                         cat === 'limited-edition' ? 'Limited Edition' :
+                         'Promoție 1+1'}
                       </span>
                     </label>
                   ))}
