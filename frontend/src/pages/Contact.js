@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, Instagram } from 'lucide-react';
 import { toast } from 'sonner';
 
+const API_URL = process.env.REACT_APP_BACKEND_URL || '';
+
 export default function Contact() {
   const [formData, setFormData] = useState({
     name: '',
@@ -19,11 +21,29 @@ export default function Contact() {
     e.preventDefault();
     setSending(true);
     
-    setTimeout(() => {
-      toast.success('Mesajul tău a fost trimis!');
-      setFormData({ name: '', email: '', subject: '', message: '' });
+    try {
+      const response = await fetch(`${API_URL}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        toast.success(data.message || 'Mesajul tău a fost trimis!');
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        toast.error('A apărut o eroare. Te rugăm încearcă din nou.');
+      }
+    } catch (error) {
+      console.error('Contact form error:', error);
+      toast.error('A apărut o eroare de conexiune.');
+    } finally {
       setSending(false);
-    }, 1000);
+    }
   };
 
   return (

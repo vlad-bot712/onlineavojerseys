@@ -116,7 +116,7 @@ export default function CountdownModal({ isOpen, onClose }) {
 
           {/* Launch Date */}
           <p className="text-neutral-500 text-sm mb-6">
-            📅 Lansare: <span className="text-white font-bold">1 Aprilie 2026</span>
+             Lansare: <span className="text-white font-bold">01 / 04 / 2026</span>
           </p>
 
           {/* Email Subscribe */}
@@ -140,7 +140,7 @@ export default function CountdownModal({ isOpen, onClose }) {
             </form>
           ) : (
             <div className="bg-green-500/20 border border-green-500 text-green-400 px-4 py-3 rounded-lg">
-              ✅ Te vom anunța când lansăm!
+               Te vom anunța când lansăm!
             </div>
           )}
 

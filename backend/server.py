@@ -139,6 +139,13 @@ class PaymentTransaction(BaseModel):
         json_encoders = {datetime: lambda v: v.isoformat()}
 
 
+class ContactMessageRequest(BaseModel):
+    name: str
+    email: str
+    subject: str
+    message: str
+
+
 # Helper function
 def serialize_doc(doc):
     if doc:
@@ -933,3 +940,69 @@ async def send_order_email(order_id: str, request: Request):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
+
+
+# Contact form endpoint - send email to avojerseys@gmail.com
+@app.post("/api/contact")
+async def send_contact_message(data: ContactMessageRequest):
+    """Send contact message via email to avojerseys@gmail.com"""
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    
+    # Store message in database
+    contact_doc = {
+        "name": data.name,
+        "email": data.email,
+        "subject": data.subject,
+        "message": data.message,
+        "created_at": datetime.utcnow(),
+        "status": "new"
+    }
+    await db.contact_messages.insert_one(contact_doc)
+    
+    # Try to send email notification
+    try:
+        # Create email content
+        email_body = f"""
+Mesaj nou de pe site-ul AVO JERSEYS!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DE LA: {data.name}
+EMAIL: {data.email}
+SUBIECT: {data.subject}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MESAJ:
+{data.message}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Trimis automat de pe avojerseys.com
+        """
+        
+        # Try using Gmail SMTP if credentials are available
+        smtp_user = os.getenv("SMTP_USER")
+        smtp_pass = os.getenv("SMTP_PASS")
+        
+        if smtp_user and smtp_pass:
+            msg = MIMEMultipart()
+            msg['From'] = smtp_user
+            msg['To'] = "avojerseys@gmail.com"
+            msg['Subject'] = f"[AVO JERSEYS] {data.subject} - de la {data.name}"
+            msg['Reply-To'] = data.email
+            msg.attach(MIMEText(email_body, 'plain', 'utf-8'))
+            
+            with smtplib.SMTP('smtp.gmail.com', 587) as server:
+                server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+            
+            return {"status": "success", "message": "Mesajul a fost trimis cu succes!"}
+        else:
+            # No SMTP credentials - just store in database
+            return {"status": "success", "message": "Mesajul a fost înregistrat! Te vom contacta în curând."}
+            
+    except Exception as e:
+        print(f"Email send error: {e}")
+        # Even if email fails, message is stored in DB
+        return {"status": "success", "message": "Mesajul a fost înregistrat! Te vom contacta în curând."}
