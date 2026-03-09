@@ -6,6 +6,7 @@ import { useCurrency } from '../contexts/CurrencyContext';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { toast } from 'sonner';
 import ReviewsSection from '../components/ReviewsSection';
+import CountdownModal from '../components/CountdownModal';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -14,6 +15,7 @@ export default function Home() {
   const { isFavorite, toggleFavorite } = useFavorites();
   const [categories, setCategories] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [showCountdown, setShowCountdown] = useState(false);
 
   useEffect(() => {
     // Load categories
@@ -77,7 +79,7 @@ export default function Home() {
             
             {/* Coming Soon Button */}
             <button 
-              onClick={() => toast.info('🔥 DROP CASUAL - COMING SOON...')}
+              onClick={() => setShowCountdown(true)}
               className="inline-flex items-center space-x-2 bg-transparent border-2 border-white text-white px-8 py-4 font-bold uppercase tracking-wider hover:bg-white hover:text-black transition-all"
             >
               <span>Drop Casual</span>
@@ -268,6 +270,9 @@ export default function Home() {
 
       {/* Reviews Section */}
       <ReviewsSection />
+      
+      {/* Countdown Modal */}
+      <CountdownModal isOpen={showCountdown} onClose={() => setShowCountdown(false)} />
     </div>
   );
 }

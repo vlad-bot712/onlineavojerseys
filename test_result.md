@@ -219,22 +219,80 @@ frontend:
           agent: "testing"
           comment: "Complete checkout flow tested with PayPal payment method: (1) TEST PLATA - STICKER AVO product (2.00 RON, Product ID: 87e60544-12e0-4799-a120-fee9a1638b3f) located successfully using product search, (2) Product detail page loaded and size selected, (3) Add to Cart successful, (4) Cart page navigated and checkout initiated, (5) Checkout form filled with test data (Name: Test Customer AVO, Email: test.avo@example.com, Phone: +40 723 456 789, Address: București, Str. Test nr. 123), (6) PayPal payment method selected successfully from available payment options (Card, Apple Pay, Google Pay, PayPal, Transfer, Ramburs), (7) PayPal info box appears on checkout page showing 'Plată prin PayPal' and payment amount (22.00 RON including 20 RON shipping). FINDING: PayPal email (crissopris80@gmail.com) is NOT displayed on checkout page - code review (Checkout.js lines 620-636) confirms email is intentionally shown only on Order Success page (OrderSuccess.js line 229) after order placement, along with PayPal.me payment link (https://www.paypal.com/paypalme/crissopris80/[amount]RON) and full payment instructions. Checkout page shows only generic PayPal info to avoid exposing merchant email before order commitment. Total of 8 test screenshots captured documenting entire flow. No console errors detected. PayPal integration working as implemented, but UX decision needed: should email appear on checkout page for transparency or remain on order success page (current behavior)?"
 
+  - task: "Home Page - Drop Casual Button with Countdown Modal"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/Home.js, frontend/src/components/CountdownModal.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "New review request - Need to test that clicking 'Drop Casual' button opens modal with: (1) Countdown timer to April 1, 2026 with Days/Hours/Minutes/Seconds updating live, (2) Email subscribe field, (3) Social links (Instagram, Email)"
+        - working: true
+          agent: "testing"
+          comment: "COMPREHENSIVE TEST PASSED - Drop Casual Countdown Modal fully functional: (1) 'Drop Casual' button found on Home page and clicked successfully, (2) Modal opened successfully (data captured in screenshots 01_countdown_modal_opened.png and 02_countdown_modal_with_data.png), (3) COUNTDOWN TIMER VERIFIED - All 4 time units present and updating live: Days: 22, Hours: 05, Minutes: 05, Seconds: 21→19 (confirmed timer is live-updating every second), (4) Launch date '1 Aprilie 2026' displayed correctly in modal, (5) EMAIL SUBSCRIBE FIELD found and functional - successfully filled with test email 'test.countdown@example.com', (6) SOCIAL LINKS verified - Both Instagram link (href contains 'instagram') and Email link (href contains 'mailto') present and functional. Modal has beautiful dark gradient design (from-neutral-900 via-neutral-800 to-black) with lime green (#CCFF00) accents. Target date correctly set to April 1, 2026. All requested features working perfectly. Note: PromoPopup modal also appears on page load (z-index 100) which is separate from this feature. Zero critical issues. Feature is production-ready."
+
+  - task: "Products Page - New Hero Section and Quick Stats Bar"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/Products.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "New review request - Need to test: (1) Hero section with 'TRICOURI PREMIUM' title, (2) Quick stats bar showing number of products, promo info (1+1 GRATIS), and size guide button"
+        - working: true
+          agent: "testing"
+          comment: "COMPREHENSIVE TEST PASSED - Products page hero section and quick stats bar fully functional: (1) HERO SECTION verified - 'TRICOURI PREMIUM' heading found with PREMIUM span having black background (rgb(0,0,0)) as designed (lines 74-76 in Products.js), 'COLECȚIE 2024/25' badge present with lime green (#CCFF00) background and pulse animation, subtitle text present (visible in screenshot 03_products_hero_section.png: 'Descoperă colecția noastră de tricouri de fotbal pentru cele mai bune echipe din lume'), (2) QUICK STATS BAR verified (lines 83-99) - All 3 stats present: Products count with Shirt icon and lime color, 'PROMOTIE 1+1 Gratis' with Gift icon and green color, 'Ghid Mărimi' button with Ruler icon (functional and clickable). Stats bar has proper border-y-2 border-neutral-200 styling creating the horizontal divider effect. Screenshot 04_products_stats_bar.png shows complete hero and stats bar layout. Modern design with centered text, large font sizes (text-4xl to text-6xl), and lime green (#CCFF00) accent colors throughout. Zero critical issues. Feature is production-ready."
+
+  - task: "Products Page - Modern Filter Sidebar"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/Products.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "New review request - Need to test: Modern filter sidebar with rounded corners, lime green accents (#CCFF00), category filters with emojis (🌐 Toate, ⚽ Echipe de Club, 🌍 Naționale, 📀 Retro, ⭐ Limited Edition, 🎁 PROMOTIE 1+1)"
+        - working: true
+          agent: "testing"
+          comment: "COMPREHENSIVE TEST PASSED - Modern filter sidebar fully functional with all requested design elements: (1) FILTER HEADER verified (lines 129-132) - Dark gradient header (bg-gradient-to-r from-neutral-900 to-neutral-800) with white text, Filter icon with lime green (#CCFF00) color, 'FILTRE' heading in bold, proper rounded-t-lg corners, (2) ROUNDED CORNERS verified - Filter container (line 127) has rounded-xl class resulting in 12px border-radius as measured in browser, border-2 border-neutral-200 styling applied, (3) LIME GREEN ACCENTS verified - Filter icon text-[#CCFF00], selected filter has bg-[#CCFF00]/20 background with border-l-4 border-[#CCFF00] (20% opacity lime background with solid lime left border), hover states use lime accent throughout, (4) CATEGORY FILTERS WITH EMOJIS - All 6 categories verified present (lines 138-166): '🌐 Toate', '⚽ Echipe de Club', '🌍 Naționale', '📀 Retro', '⭐ Limited Edition' (orange text), '🎁 PROMOTIE 1+1' (green text). (5) FUNCTIONALITY tested - Clicked 'Naționale' filter, products filtered to national teams correctly, selected state shows lime background highlight. Screenshots 05_filter_sidebar.png and 06_filter_selected.png document complete sidebar design and interaction. Sidebar is sticky (sticky top-24) for better UX. Zero critical issues. Feature is production-ready."
+
+  - task: "Contact Page - New Modern Design"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/Contact.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "New review request - Need to test: (1) New modern design with dark gradient cards for contact options, (2) Email, WhatsApp, Instagram, Location cards with hover effects, (3) FAQ section at bottom, (4) Quick stats section (24h response time, 500+ clients, Fast support, Instagram DM)"
+        - working: true
+          agent: "testing"
+          comment: "COMPREHENSIVE TEST PASSED - Contact page with new modern design fully functional: (1) HERO SECTION verified (lines 34-44) - 'HAI SĂ VORBIM' heading with 'VORBIM' span having lime green (#CCFF00) text on black background (px-3), contact badge with lime background, subtitle text present. (2) QUICK STATS verified (lines 47-68) - All 4 stat cards present with proper styling: '24h - Timp răspuns' with Clock icon, '500+ - Clienți mulțumiți' with MessageCircle icon, 'Fast - Suport activ' with Zap icon, 'DM - Instagram' with Instagram icon. All cards have white background, border-2 border-neutral-200, rounded-xl corners, hover:border-[#CCFF00] transitions, and lime icons. (3) DARK GRADIENT CONTACT CARDS verified: EMAIL CARD (lines 74-84) - Dark gradient (bg-gradient-to-br from-neutral-900 to-neutral-800), lime icon background (bg-[#CCFF00]), email 'avojerseys@gmail.com' in lime text, clickable mailto link, hover effects (border-[#CCFF00], icon scale-110). WHATSAPP CARD (lines 87-94) - Same dark gradient styling, WhatsApp text and functionality. INSTAGRAM CARD (lines 97-109) - Purple/pink gradient (from-purple-900 to-pink-900), gradient icon background (from-purple-500 to-pink-500), '@avojerseys' handle in pink-300, clickable link to instagram.com/avojerseys. LOCATION CARD (lines 112-119) - White card with 'Sălaj, România' location, delivery info. (4) CONTACT FORM verified (lines 124-200) - All 4 fields present with data-testid attributes: contact-name, contact-email, contact-subject, contact-message. Send button (data-testid='send-message-btn') with lime background and shadow effect. (5) FAQ SECTION verified (lines 203-216) - FAQ heading '❓ ÎNTREBĂRI FRECVENTE' found, all 3 FAQ items present: 'Cât durează livrarea?', 'Pot returna produsele?', 'Cum plătesc?' with answers. Screenshots captured: 07_contact_hero.png, 08_contact_stats.png, 09_contact_cards.png, 10_contact_faq.png document complete page layout. Zero critical issues. Feature is production-ready."
+
 metadata:
   created_by: "testing_agent"
   version: "1.0"
-  test_sequence: 7
+  test_sequence: 9
   run_ui: true
 
 test_plan:
   current_focus:
-    - "Home Page - Champions League Stadium Background"
-    - "Products Page - Product Listing"
-    - "Product Detail Page - Full Feature Set"
-    - "PromoBundle Page - Clubs and Nationals"
-    - "Preview 360° Feature - Products Page"
-    - "Checkout Flow - PayPal Integration"
+    - "Home Page - Drop Casual Button with Countdown Modal"
+    - "Products Page - New Hero Section and Quick Stats Bar"
+    - "Products Page - Modern Filter Sidebar"
+    - "Contact Page - New Modern Design"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
@@ -251,4 +309,6 @@ agent_communication:
     - agent: "testing"
       message: "NEW TEST COMPLETED - User Request Review: Tested all requested items: (1) Home page Champions League background - VERIFIED: New background image (p4urc78a_champions-league-stadium-wallpaper-preview (2).jpg) is displaying correctly, different from previous version. (2) Products page - VERIFIED: Preview 360° section is REMOVED (not present on page). (3) TEST PLATA product - FOUND: Product '🧪 TEST PLATA - STICKER AVO' with 2.00 RON price located and tested successfully. (4) Add to cart - SUCCESS: Product added to cart. (5) Checkout form - SUCCESS: All fields filled with test data. (6) PayPal payment - SUCCESS: PayPal payment method selected. (7) PayPal email - FINDING: Email 'crissopris80@gmail.com' is NOT displayed on checkout page. Code review shows email appears only on ORDER SUCCESS page (OrderSuccess.js line 229) after order is placed, along with PayPal.me link and payment instructions. Checkout page only shows generic PayPal info. All 8 test screenshots captured. Zero critical errors. PayPal integration working, but email display behavior needs clarification: should email appear on checkout page or only on order success page (current behavior)?"
     - agent: "testing"
+    - agent: "testing"
+      message: "NEW REVIEW REQUEST TEST COMPLETED - All 4 Updated Pages Verified: Comprehensive testing of updated pages completed successfully. (1) HOME PAGE - Drop Casual Button: Modal opens correctly with countdown timer to April 1, 2026 showing Days (22), Hours (05), Minutes (05), Seconds (updating live every second), email subscribe field functional, and social links (Instagram, Email) present. Beautiful dark gradient modal with lime accents. (2) PRODUCTS PAGE - Hero Section: 'TRICOURI PREMIUM' title with black background on PREMIUM span, 'COLECȚIE 2024/25' badge with lime background, subtitle text present. Quick Stats Bar: All 3 stats present (90 Produse, PROMOTIE 1+1 Gratis, Ghid Mărimi button) with proper icons and styling. (3) PRODUCTS PAGE - Filter Sidebar: Modern design verified with rounded corners (12px border-radius), dark gradient header, lime green accents throughout. All 6 category filters with emojis present and functional (🌐 Toate, ⚽ Echipe de Club, 🌍 Naționale, 📀 Retro, ⭐ Limited Edition, 🎁 PROMOTIE 1+1). Selected filter shows lime background highlight. (4) CONTACT PAGE - Modern Design: Hero section with 'HAI SĂ VORBIM', Quick stats (24h, 500+, Fast, DM) all present. Dark gradient contact cards verified: Email card (dark gradient, lime icon, mailto link), WhatsApp card (dark gradient), Instagram card (purple/pink gradient, @avojerseys link), Location card (white, Sălaj România). Contact form with all 4 fields working. FAQ section with 3 FAQ items present. Total 10 screenshots captured documenting all features. Zero critical issues found. All requested features working perfectly and looking modern/professional. Website is production-ready."
       message: "HOME PAGE MODERNIST UPDATE - COMPLETE VERIFICATION: Comprehensive testing of updated Home page completed successfully. ALL FEATURES WORKING PERFECTLY: (1) HERO SECTION - Animated particles (4 elements with pulse/ping animations), Stats section verified (500+ Modele, 24h Procesare, 100% Calitate), Drop Casual button working with 'COMING SOON' toast message, Scroll indicator with bounce animation present, Champions League stadium background correct, all hero content (bundle banner, headings, CTA) verified. (2) CATEGORIES SECTION - All 3 category cards verified: Echipe de Club with UCL/Champions League logo, Naționale with UNL/Nations League logo, Retro with black & white soccer image and grayscale effect. Hover effects working on all cards (lime border, scale effect, text appears). (3) MODERN DESIGN - Lime green (#CCFF00) accent color used throughout, animations present (pulse, ping, bounce), transitions applied, gradients working. Console logs clean (only Tailwind CDN non-critical warning). Total 7 screenshots captured. Zero critical issues. Feature is production-ready and looks stunning."

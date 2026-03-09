@@ -66,7 +66,37 @@ export default function Products() {
   return (
     <div data-testid="products-page" className="pt-24 pb-16 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
-        <h1 className="text-4xl sm:text-5xl font-bold mb-8">PRODUSE</h1>
+        {/* Hero Section */}
+        <div className="text-center mb-8">
+          <div className="inline-block bg-[#CCFF00] text-black px-4 py-1 rounded-full text-sm font-bold mb-4 animate-pulse">
+            COLECȚIE 2024/25
+          </div>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-4">
+            TRICOURI <span className="text-[#CCFF00] bg-black px-3">PREMIUM</span>
+          </h1>
+          <p className="text-neutral-600 max-w-2xl mx-auto">
+            Descoperă colecția noastră de tricouri de fotbal pentru cele mai bune echipe din lume
+          </p>
+        </div>
+
+        {/* Quick Stats Bar */}
+        <div className="flex flex-wrap justify-center gap-6 mb-8 py-4 border-y-2 border-neutral-200">
+          <div className="flex items-center gap-2 text-sm">
+            <Shirt className="w-5 h-5 text-[#CCFF00]" />
+            <span><strong>{products.length}</strong> Produse</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <Gift className="w-5 h-5 text-green-500" />
+            <span><strong>PROMOTIE</strong> 1+1 Gratis</span>
+          </div>
+          <button 
+            onClick={() => setShowSizeChart(true)}
+            className="flex items-center gap-2 text-sm hover:text-[#CCFF00] transition-colors"
+          >
+            <Ruler className="w-5 h-5" />
+            <span>Ghid Mărimi</span>
+          </button>
+        </div>
 
         {/* Preorder Banner */}
         <div className="bg-[#CCFF00] border-2 border-black p-6 mb-8 shadow-lg">
@@ -94,35 +124,43 @@ export default function Products() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Filters Sidebar */}
           <aside className="lg:col-span-1">
-            <div className="bg-white border border-neutral-200 p-6 sticky top-24">
-              <div className="flex items-center space-x-2 mb-6">
-                <Filter className="w-5 h-5" />
+            <div className="bg-white border-2 border-neutral-200 rounded-xl p-6 sticky top-24 shadow-lg">
+              {/* Filters Header */}
+              <div className="bg-gradient-to-r from-neutral-900 to-neutral-800 text-white -mx-6 -mt-6 px-6 py-4 rounded-t-lg mb-6 flex items-center space-x-2">
+                <Filter className="w-5 h-5 text-[#CCFF00]" />
                 <h2 className="text-xl font-bold">FILTRE</h2>
               </div>
 
               {/* Category Filter */}
               <div className="mb-6">
-                <h3 className="font-bold mb-3">CATEGORIE</h3>
+                <h3 className="font-bold mb-3 text-sm text-neutral-500 uppercase tracking-wider">Categorie</h3>
                 <div className="space-y-2">
                   {['', 'echipe-club', 'nationale', 'retro', 'limited-edition', 'promotie-1-1'].map(cat => (
-                    <label key={cat} className="flex items-center space-x-2 cursor-pointer">
+                    <label 
+                      key={cat} 
+                      className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg transition-all ${
+                        filters.category === cat 
+                          ? 'bg-[#CCFF00]/20 border-l-4 border-[#CCFF00]' 
+                          : 'hover:bg-neutral-50'
+                      }`}
+                    >
                       <input
                         type="radio"
                         name="category"
                         checked={filters.category === cat}
                         onChange={() => setFilters({ ...filters, category: cat })}
-                        className="w-4 h-4"
+                        className="w-4 h-4 accent-[#CCFF00]"
                       />
                       <span className={`text-sm ${
                         cat === 'limited-edition' ? 'font-bold text-orange-600' : 
                         cat === 'promotie-1-1' ? 'font-bold text-green-600' : ''
                       }`}>
-                        {cat === '' ? 'Toate' : 
-                         cat === 'echipe-club' ? 'Echipe de Club' : 
-                         cat === 'nationale' ? 'Naționale' : 
-                         cat === 'retro' ? 'Retro' : 
-                         cat === 'limited-edition' ? 'Limited Edition' :
-                         'PROMOTIE 1+1 GRATIS'}
+                        {cat === '' ? '🌐 Toate' : 
+                         cat === 'echipe-club' ? '⚽ Echipe de Club' : 
+                         cat === 'nationale' ? '🌍 Naționale' : 
+                         cat === 'retro' ? '📀 Retro' : 
+                         cat === 'limited-edition' ? '⭐ Limited Edition' :
+                         '🎁 PROMOTIE 1+1'}
                       </span>
                     </label>
                   ))}
@@ -131,36 +169,39 @@ export default function Products() {
 
               {/* Year Filter */}
               <div className="mb-6">
-                <h3 className="font-bold mb-3">AN</h3>
+                <h3 className="font-bold mb-3 text-sm text-neutral-500 uppercase tracking-wider">Sezon</h3>
                 <select
                   value={filters.year}
                   onChange={(e) => setFilters({ ...filters, year: e.target.value })}
-                  className="w-full border border-neutral-200 px-3 py-2 focus:outline-none focus:border-black"
+                  className="w-full border-2 border-neutral-200 px-3 py-2.5 rounded-lg focus:outline-none focus:border-[#CCFF00] transition-colors"
                 >
-                  <option value="">Toate</option>
+                  <option value="">Toate Sezoanele</option>
                   {years.map(year => (
-                    <option key={year} value={year}>{year}</option>
+                    <option key={year} value={year}>{year}/{(year+1).toString().slice(-2)}</option>
                   ))}
                 </select>
               </div>
 
               {/* Team Filter */}
-              <div>
-                <h3 className="font-bold mb-3">ECHIPĂ</h3>
+              <div className="mb-6">
+                <h3 className="font-bold mb-3 text-sm text-neutral-500 uppercase tracking-wider">Echipă</h3>
                 <input
                   type="text"
-                  placeholder="Caută echipă..."
+                  placeholder="🔍 Caută echipă..."
                   value={filters.team}
                   onChange={(e) => setFilters({ ...filters, team: e.target.value })}
-                  className="w-full border border-neutral-200 px-3 py-2 focus:outline-none focus:border-black"
+                  className="w-full border-2 border-neutral-200 px-3 py-2.5 rounded-lg focus:outline-none focus:border-[#CCFF00] transition-colors"
                 />
               </div>
 
               <button
                 onClick={() => setFilters({ category: '', team: '', year: '' })}
-                className="w-full mt-6 bg-black text-white py-2 font-bold hover:bg-neutral-800 transition-colors"
+                className="w-full bg-neutral-100 text-neutral-700 py-2.5 rounded-lg font-bold text-sm hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2"
               >
-                RESETEAZĂ FILTRE
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                RESETEAZĂ FILTRELE
               </button>
 
               {/* Size Chart Button */}
