@@ -96,58 +96,55 @@ export default function Products() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Filters Sidebar */}
+          {/* Filters Sidebar - Modern Design */}
           <aside className="lg:col-span-1">
-            <div className="bg-white border border-neutral-200 p-5 sticky top-24">
+            <div className="bg-neutral-50 rounded-2xl p-6 sticky top-24 shadow-sm">
               {/* Filters Header */}
-              <div className="flex items-center space-x-2 mb-5 pb-3 border-b border-neutral-200">
-                <Filter className="w-4 h-4" />
-                <h2 className="font-bold">FILTRE</h2>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center">
+                  <Filter className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="font-bold text-lg">Filtre</h2>
+                  <p className="text-xs text-neutral-400">Rafinează căutarea</p>
+                </div>
               </div>
 
               {/* Category Filter */}
               <div className="mb-6">
-                <h3 className="font-bold mb-3 text-sm text-neutral-500 uppercase tracking-wider">Categorie</h3>
-                <div className="space-y-1">
+                <h3 className="font-semibold mb-3 text-xs text-neutral-400 uppercase tracking-widest">Categorie</h3>
+                <div className="space-y-1.5">
                   {['', 'echipe-club', 'nationale', 'retro', 'limited-edition', 'promotie-1-1'].map(cat => (
-                    <label 
-                      key={cat} 
-                      className={`flex items-center space-x-3 cursor-pointer p-2.5 rounded-lg transition-all ${
+                    <button 
+                      key={cat}
+                      onClick={() => setFilters({ ...filters, category: cat })}
+                      className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 ${
                         filters.category === cat 
-                          ? 'bg-black text-white' 
-                          : 'hover:bg-neutral-100'
+                          ? 'bg-black text-white shadow-lg' 
+                          : 'bg-white hover:bg-neutral-100 text-neutral-700'
                       }`}
                     >
-                      <input
-                        type="radio"
-                        name="category"
-                        checked={filters.category === cat}
-                        onChange={() => setFilters({ ...filters, category: cat })}
-                        className="hidden"
-                      />
-                      <span className={`text-sm font-medium ${
-                        cat === 'limited-edition' && filters.category !== cat ? 'text-orange-600' : 
-                        cat === 'promotie-1-1' && filters.category !== cat ? 'text-green-600' : ''
-                      }`}>
-                        {cat === '' ? 'Toate' : 
+                      <span className="text-sm font-medium">
+                        {cat === '' ? 'Toate Produsele' : 
                          cat === 'echipe-club' ? 'Echipe de Club' : 
-                         cat === 'nationale' ? 'Naționale' : 
-                         cat === 'retro' ? 'Retro' : 
+                         cat === 'nationale' ? 'Echipe Naționale' : 
+                         cat === 'retro' ? 'Colecția Retro' : 
                          cat === 'limited-edition' ? 'Limited Edition' :
-                         'Promoție 1+1'}
+                         'Bundle 1+1'}
                       </span>
-                    </label>
+                    </button>
                   ))}
                 </div>
               </div>
 
               {/* Year Filter */}
               <div className="mb-6">
-                <h3 className="font-bold mb-3 text-sm text-neutral-500 uppercase tracking-wider">Sezon</h3>
+                <h3 className="font-semibold mb-3 text-xs text-neutral-400 uppercase tracking-widest">Sezon</h3>
                 <select
                   value={filters.year}
                   onChange={(e) => setFilters({ ...filters, year: e.target.value })}
-                  className="w-full border-2 border-neutral-200 px-3 py-2.5 rounded-lg focus:outline-none focus:border-[#CCFF00] transition-colors"
+                  className="w-full bg-white border-0 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/10 transition-all text-sm font-medium appearance-none cursor-pointer"
+                  style={{backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23999'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', backgroundSize: '20px'}}
                 >
                   <option value="">Toate Sezoanele</option>
                   {years.map(year => (
@@ -158,44 +155,55 @@ export default function Products() {
 
               {/* Team Filter */}
               <div className="mb-6">
-                <h3 className="font-bold mb-3 text-sm text-neutral-500 uppercase tracking-wider">Echipă</h3>
-                <input
-                  type="text"
-                  placeholder="Caută echipă..."
-                  value={filters.team}
-                  onChange={(e) => setFilters({ ...filters, team: e.target.value })}
-                  className="w-full border-2 border-neutral-200 px-3 py-2.5 rounded-lg focus:outline-none focus:border-[#CCFF00] transition-colors"
-                />
+                <h3 className="font-semibold mb-3 text-xs text-neutral-400 uppercase tracking-widest">Caută Echipă</h3>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Ex: Real Madrid..."
+                    value={filters.team}
+                    onChange={(e) => setFilters({ ...filters, team: e.target.value })}
+                    className="w-full bg-white border-0 pl-4 pr-10 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/10 transition-all text-sm"
+                  />
+                  <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
               </div>
 
-              <button
-                onClick={() => setFilters({ category: '', team: '', year: '' })}
-                className="w-full bg-neutral-100 text-neutral-700 py-2.5 rounded-lg font-bold text-sm hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                RESETEAZĂ FILTRELE
-              </button>
+              {/* Divider */}
+              <div className="border-t border-neutral-200 my-6"></div>
 
-              {/* Size Chart Button */}
-              <button
-                onClick={() => setShowSizeChart(true)}
-                className="w-full mt-4 bg-[#CCFF00] text-black py-3 font-bold hover:bg-[#b8e600] transition-colors flex items-center justify-center space-x-2 border-2 border-black"
-              >
-                <Ruler className="w-5 h-5" />
-                <span>TABEL MĂRIMI</span>
-              </button>
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                <button
+                  onClick={() => setShowSizeChart(true)}
+                  className="w-full bg-black text-white py-3.5 rounded-xl font-semibold text-sm hover:bg-neutral-800 transition-all flex items-center justify-center gap-2"
+                >
+                  <Ruler className="w-4 h-4" />
+                  Tabel Mărimi
+                </button>
 
-              {/* Fan vs Player Button */}
-              <button
-                onClick={() => setShowFanVsPlayer(true)}
-                data-testid="fan-vs-player-btn"
-                className="w-full mt-3 bg-white text-black py-3 font-bold hover:bg-neutral-100 transition-colors flex items-center justify-center space-x-2 border-2 border-black"
-              >
-                <Shirt className="w-5 h-5" />
-                <span>FAN VS PLAYER VERSION</span>
-              </button>
+                <button
+                  onClick={() => setShowFanVsPlayer(true)}
+                  data-testid="fan-vs-player-btn"
+                  className="w-full bg-white text-black py-3.5 rounded-xl font-semibold text-sm hover:bg-neutral-100 transition-all flex items-center justify-center gap-2 border border-neutral-200"
+                >
+                  <Shirt className="w-4 h-4" />
+                  Fan vs Player
+                </button>
+
+                {(filters.category || filters.team || filters.year) && (
+                  <button
+                    onClick={() => setFilters({ category: '', team: '', year: '' })}
+                    className="w-full text-neutral-500 py-2 text-sm font-medium hover:text-black transition-colors flex items-center justify-center gap-1"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Șterge filtrele
+                  </button>
+                )}
+              </div>
             </div>
           </aside>
 
