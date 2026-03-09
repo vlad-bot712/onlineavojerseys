@@ -262,7 +262,14 @@ async def get_products(
 
 @app.get("/api/products/{product_id}")
 async def get_product(product_id: str):
-    product = await db.products.find_one({"_id": ObjectId(product_id)})
+    # Try to find by string ID first (UUID format)
+    product = await db.products.find_one({"_id": product_id})
+    if not product:
+        # Try with ObjectId if string search fails
+        try:
+            product = await db.products.find_one({"_id": ObjectId(product_id)})
+        except:
+            pass
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     return serialize_doc(product)
@@ -278,7 +285,11 @@ async def create_product(product: Product):
 @app.delete("/api/products/{product_id}")
 async def delete_product(product_id: str):
     try:
-        result = await db.products.delete_one({"_id": ObjectId(product_id)})
+        # Try string ID first
+        result = await db.products.delete_one({"_id": product_id})
+        if result.deleted_count == 0:
+            # Try ObjectId
+            result = await db.products.delete_one({"_id": ObjectId(product_id)})
         if result.deleted_count == 0:
             raise HTTPException(status_code=404, detail="Product not found")
         return {"message": "Product deleted successfully", "product_id": product_id}

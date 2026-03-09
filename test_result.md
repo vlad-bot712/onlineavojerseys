@@ -102,9 +102,57 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the PromoBundle page main product selector (TRICOU PRINCIPAL) with club teams grouped by leagues"
+user_problem_statement: "Test the AVO JERSEYS website - Home page Champions League background, Products page, ProductDetail page features, and PromoBundle page with clubs and nationals"
 
 frontend:
+  - task: "Home Page - Champions League Stadium Background"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/Home.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "Comprehensive test completed successfully. Home page (data-testid='home-page') loaded correctly. Hero section (data-testid='hero-section') found with Champions League stadium background image properly configured (URL: https://customer-assets.emergentagent.com/job_change-maker-18/artifacts/c1cph1qg_champions-league-stadium-wallpaper-preview.jpg verified in style attribute). Background image displays correctly with proper overlay and hero content. All hero elements visible: Bundle 1+1 promo banner (⚡ BUNDLE 1+1 GRATIS - DOAR 250 RON ⚡), main heading, subtitle, and CTA button (data-testid='hero-cta'). Featured products section loaded with products displayed. No console errors. Feature is production-ready."
+
+  - task: "Products Page - Product Listing"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/Products.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "Products page tested successfully. Page loaded correctly (data-testid='products-page'). Found and displayed 90 products with product cards (data-testid='product-card-{id}'). All product cards showing correctly with images, team names, years, and prices. Product cards are clickable and navigate to product detail pages. Filters sidebar visible with category filters, year filter, and team search. All products displaying Real Madrid, Barcelona, and other teams. No console errors. No failed network requests. Feature is production-ready."
+
+  - task: "Product Detail Page - Full Feature Set"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/ProductDetail.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "Product detail page tested comprehensively. All requested features verified and working: (1) Page loaded successfully (data-testid='product-detail-page') for Real Madrid 2024/25 product, (2) Product image gallery displayed correctly with main image and thumbnail navigation, (3) Kit selector found with 3 options (First Kit, Second Kit, Third Kit) using data-testid='variant-{kit}' - Second Kit selected successfully with proper visual feedback (lime yellow #CCFF00 background), product image updated correctly, (4) Size selector working perfectly with 5 sizes (S, M, L, XL, XXL) using data-testid='size-{size}' - Size M selected successfully with black background indicating selection, (5) Customization section fully functional - enabled customization checkbox, filled name input (IONESCU), filled number input (7), (6) Version selector (FAN/PLAYER) working correctly - PLAYER version selected successfully with proper visual state (lime yellow background), (7) Patches section visible with 2 patches available (league and UCL patches based on product), (8) Add to Cart button (data-testid='add-to-cart-btn') found and clicked successfully - item added to cart. All interactive elements responsive and working. No console errors. Feature is production-ready."
+
+  - task: "PromoBundle Page - Clubs and Nationals"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/PromoBundle.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "PromoBundle page (/promotii) tested comprehensively with both club teams and national teams. All features verified: (1) Page loaded successfully (data-testid='promo-bundle-page') with bundle pricing (250 RON), (2) MAIN PRODUCT SELECTOR (TRICOU PRINCIPAL) working perfectly - dropdown (data-testid='main-team-select') opened showing 32 club team options GROUPED BY LEAGUES (verified league grouping structure), successfully selected Real Madrid from La Liga, (3) Season selector displayed with 2024, 2025, 2026 options - selected 2025 successfully (data-testid='year-2025'), (4) Kit selector appeared with 3 kit options - selected First Kit successfully (data-testid='kit-0') with proper visual feedback (lime yellow #CCFF00 background), (5) Jersey preview image loaded correctly for selected club team, (6) Customization inputs working (name, number), (7) Version selector (FAN/PLAYER) functional, (8) Patches section visible with 8 league patches (UCL, Europa League, Conference League, La Liga, Premier League, Serie A, Bundesliga, Ligue 1), (9) Main product size selector working - Size M selected (data-testid='main-size-M'), (10) FREE PRODUCT SELECTOR (TRICOU GRATUIT - nationals) working perfectly - dropdown (data-testid='free-team-select') opened showing 10 national teams, successfully selected România, jersey preview loaded correctly displaying 'România 2025/26 - First Kit', (11) Free product size selector working - Size L selected (data-testid='free-size-L') with proper green visual state, (12) Bundle Add to Cart button (data-testid='bundle-add-to-cart') found and clicked successfully. Both club teams (grouped by leagues) and national teams working perfectly. No console errors. Feature is production-ready."
+
   - task: "Free National Team Dropdown - PromoBundle Page"
     implemented: true
     working: true
@@ -119,6 +167,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "RETEST COMPLETED (User Request): Comprehensive testing of FREE PRODUCT selector (TRICOU GRATUIT) completed successfully. All features verified: (1) Dropdown (data-testid='free-team-select') opens correctly showing all 10 national teams in alphabetical order, (2) Successfully selected România - dropdown closed and displays selected team, (3) Romanian jersey preview image loaded successfully (/images/products/romania-2025-first.jpg) with proper display 'România 2025/26 - First Kit', (4) All 5 size buttons (S, M, L, XL, XXL) visible with data-testid='free-size-{size}', (5) Size selection working perfectly - each button clickable and shows proper selected state with green background (border-green-500 bg-green-500 text-white). Zero critical issues. Only non-critical Tailwind CDN warning in console. Feature is production-ready."
+        - working: true
+          agent: "testing"
+          comment: "RETEST COMPLETED (Full Website Test): Verified as part of comprehensive website testing. Free national team dropdown continues to work perfectly with all 10 national teams available, România selected successfully, jersey preview loaded, and size selection (L) working with proper green visual feedback. No issues detected."
 
   - task: "Main Product Selector (TRICOU PRINCIPAL) with League Groups"
     implemented: true
@@ -131,18 +182,24 @@ frontend:
         - working: true
           agent: "testing"
           comment: "Comprehensive test completed successfully. Main product dropdown (data-testid='main-team-select') opens correctly and displays club teams GROUPED BY LEAGUES (found all 5 leagues: Bundesliga, La Liga, Ligue 1, Premier League, Serie A, plus LIMITED EDITION group). Selected Real Madrid from La Liga successfully. Season selector appeared showing 2024, 2025, 2026 - all enabled. Selected 2025 season successfully with proper selected state. Kit selector appeared with First Kit, Second Kit, Third Kit options. Selected Second Kit successfully with proper visual feedback (lime yellow #CCFF00 background). Jersey image preview loaded successfully (/images/products/real-madrid-2025-second.jpg, 585px width). Customization inputs (name='POPESCU', number='10') working correctly. Version selector (FAN/PLAYER) visible and functional - Player version selected successfully. Patches section visible with all league patches (UCL, Europa League, Conference League, La Liga, Premier League, Serie A, Bundesliga, Ligue 1). Selected UCL and La Liga patches successfully with proper visual state. No console errors. No failed network requests. All functionality working perfectly."
+        - working: true
+          agent: "testing"
+          comment: "RETEST COMPLETED (Full Website Test): Verified as part of comprehensive website testing. Main product selector continues to work perfectly with 32 club teams grouped by leagues. Real Madrid selected from La Liga, season 2025 selected, First Kit selected, jersey preview loaded correctly, and size M selected. All functionality verified working. No issues detected."
 
 metadata:
   created_by: "testing_agent"
   version: "1.0"
-  test_sequence: 3
+  test_sequence: 4
   run_ui: true
 
 test_plan:
   current_focus:
-    - "Main Product Selector (TRICOU PRINCIPAL) with League Groups"
+    - "Home Page - Champions League Stadium Background"
+    - "Products Page - Product Listing"
+    - "Product Detail Page - Full Feature Set"
+    - "PromoBundle Page - Clubs and Nationals"
   stuck_tasks: []
-  test_all: false
+  test_all: true
   test_priority: "high_first"
 
 agent_communication:
@@ -152,3 +209,5 @@ agent_communication:
       message: "Completed comprehensive testing of TRICOU PRINCIPAL main product selector. All requested features verified and working: (1) Dropdown opens with league-grouped teams, (2) All 5 major leagues displayed (Bundesliga, La Liga, Ligue 1, Premier League, Serie A), (3) Team selection working (Real Madrid from La Liga tested), (4) Season selector appears and works (2024/2025/2026), (5) Kit selector appears with 3 options and Second Kit selection works, (6) Jersey image preview loads correctly, (7) Customization inputs functional, (8) Version selector (FAN/PLAYER) working, (9) Patches section visible with all league patches and selection works. Zero issues found. Feature is production-ready."
     - agent: "testing"
       message: "RETEST COMPLETED per user request: FREE PRODUCT selector (TRICOU GRATUIT) comprehensively tested and all functionality verified working perfectly. Dropdown displays all 10 national teams, selection works (România tested), jersey preview loads correctly, and all 5 size buttons (S/M/L/XL/XXL) are functional with proper visual feedback. Zero critical issues detected. Feature confirmed production-ready."
+    - agent: "testing"
+      message: "COMPREHENSIVE WEBSITE TEST COMPLETED: Tested entire AVO JERSEYS website as requested. All 4 major sections verified and working perfectly: (1) Home page - Champions League stadium background image loads correctly and displays properly, (2) Products page - 90 products loaded and displayed with proper cards, images, and navigation working, (3) ProductDetail page - All features tested and working including product images, kit selector (3 options), size selector (5 sizes), version selector (FAN/PLAYER), customization (name, number, patches), and Add to Cart functionality, (4) PromoBundle page - Both club teams (32 options grouped by leagues) and national teams (10 options) working perfectly with season selection, kit selection, size selection, and bundle Add to Cart. Zero critical issues found. All screenshots captured successfully. Website is production-ready."
