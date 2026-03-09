@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Truck, CreditCard, Shield, Heart } from 'lucide-react';
+import { ArrowRight, Truck, CreditCard, Shield, Heart, Sparkles } from 'lucide-react';
 import axios from 'axios';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useFavorites } from '../contexts/FavoritesContext';
@@ -39,55 +39,147 @@ export default function Home() {
           backgroundPosition: 'center'
         }}
       >
-        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
+        
+        {/* Animated particles effect */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-20 left-10 w-2 h-2 bg-[#CCFF00] rounded-full animate-pulse"></div>
+          <div className="absolute top-40 right-20 w-3 h-3 bg-[#CCFF00] rounded-full animate-ping"></div>
+          <div className="absolute bottom-40 left-1/4 w-2 h-2 bg-white rounded-full animate-pulse"></div>
+          <div className="absolute top-1/3 right-1/4 w-1 h-1 bg-[#CCFF00] rounded-full animate-ping"></div>
+        </div>
+        
         <div className="relative z-10 text-center text-white px-4">
-          {/* Price Banner */}
-          <div className="bg-[#CCFF00] text-black px-8 py-3 inline-block mb-6 font-bold text-lg tracking-wider shadow-lg">
+          {/* Price Banner with glow effect */}
+          <div className="bg-[#CCFF00] text-black px-8 py-3 inline-block mb-6 font-bold text-lg tracking-wider shadow-lg animate-pulse">
             ⚡ BUNDLE 1+1 GRATIS - DOAR 250 RON ⚡
           </div>
           
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 tracking-tighter">
-            TRICOURI DE FOTBAL<br />
-            PENTRU ADEVĂRAȚII FANI
+          <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black mb-6 tracking-tighter leading-none">
+            <span className="block">TRICOURI DE</span>
+            <span className="block text-[#CCFF00]">FOTBAL</span>
+            <span className="block text-3xl sm:text-4xl lg:text-5xl font-bold mt-2 text-neutral-300">PENTRU ADEVĂRAȚII FANI</span>
           </h1>
-          <p className="text-lg md:text-xl mb-8 text-neutral-200">
-            Colecție premium • Echipe de top • Design autentic
+          
+          <p className="text-lg md:text-xl mb-8 text-neutral-300 max-w-2xl mx-auto">
+            Colecție premium • Echipe de top • Design autentic • Livrare rapidă
           </p>
-          <Link 
-            to="/products"
-            data-testid="hero-cta"
-            className="inline-flex items-center space-x-2 bg-[#CCFF00] text-black px-8 py-4 font-bold uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
-          >
-            <span>Vezi Colecția</span>
-            <ArrowRight className="w-5 h-5" />
-          </Link>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link 
+              to="/products"
+              data-testid="hero-cta"
+              className="inline-flex items-center space-x-2 bg-[#CCFF00] text-black px-8 py-4 font-bold uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+            >
+              <span>Vezi Colecția</span>
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            
+            {/* Coming Soon Button */}
+            <button 
+              onClick={() => toast.info('🔥 DROP CASUAL - COMING SOON...')}
+              className="inline-flex items-center space-x-2 bg-transparent border-2 border-white text-white px-8 py-4 font-bold uppercase tracking-wider hover:bg-white hover:text-black transition-all"
+            >
+              <span>Drop Casual</span>
+              <Sparkles className="w-5 h-5" />
+            </button>
+          </div>
+          
+          {/* Stats */}
+          <div className="mt-12 flex flex-wrap justify-center gap-8 text-neutral-300">
+            <div className="text-center">
+              <div className="text-3xl font-black text-[#CCFF00]">500+</div>
+              <div className="text-sm">Modele</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-black text-[#CCFF00]">24h</div>
+              <div className="text-sm">Procesare</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-black text-[#CCFF00]">100%</div>
+              <div className="text-sm">Calitate</div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-white/50 rounded-full mt-2 animate-pulse"></div>
+          </div>
         </div>
       </section>
 
       {/* Categories */}
       <section className="py-16 md:py-24 px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
-        <h2 className="text-4xl sm:text-5xl font-bold text-center mb-12">CATEGORII</h2>
+        <h2 className="text-4xl sm:text-5xl font-bold text-center mb-4">CATEGORII</h2>
+        <p className="text-center text-neutral-500 mb-12">Alege stilul tău preferat</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {categories.map(category => (
-            <Link
-              key={category.id}
-              to={`/products?category=${category.slug}`}
-              data-testid={`category-${category.slug}`}
-              className="group relative h-80 overflow-hidden border border-neutral-200 hover:border-black transition-all"
-            >
-              <img 
-                src={category.image_url} 
-                alt={category.name}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-all"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <h3 className="text-3xl font-bold text-white uppercase tracking-tighter">
-                  {category.name}
-                </h3>
-              </div>
-            </Link>
-          ))}
+          {/* Echipe de Club - UCL Logo */}
+          <Link
+            to="/products?category=echipe-club"
+            data-testid="category-echipe-club"
+            className="group relative h-80 overflow-hidden border-2 border-neutral-200 hover:border-[#CCFF00] transition-all rounded-xl"
+          >
+            <img 
+              src="https://customer-assets.emergentagent.com/job_change-maker-18/artifacts/1yk9re80_c6nfDmk7nEFkdMpAQYzEK4-1000-80.jpg" 
+              alt="Echipe de Club"
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/90 transition-all"></div>
+            <div className="absolute inset-0 flex flex-col items-center justify-end pb-8">
+              <h3 className="text-3xl font-bold text-white uppercase tracking-tighter mb-2">
+                Echipe de Club
+              </h3>
+              <span className="text-[#CCFF00] text-sm font-bold opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                VEZI COLECȚIA →
+              </span>
+            </div>
+          </Link>
+
+          {/* Naționale - UNL Logo */}
+          <Link
+            to="/products?category=nationale"
+            data-testid="category-nationale"
+            className="group relative h-80 overflow-hidden border-2 border-neutral-200 hover:border-[#CCFF00] transition-all rounded-xl"
+          >
+            <img 
+              src="https://customer-assets.emergentagent.com/job_change-maker-18/artifacts/z1r6jhop_UNL_Press-release_150-dpi_Logo.avif" 
+              alt="Naționale"
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/90 transition-all"></div>
+            <div className="absolute inset-0 flex flex-col items-center justify-end pb-8">
+              <h3 className="text-3xl font-bold text-white uppercase tracking-tighter mb-2">
+                Naționale
+              </h3>
+              <span className="text-[#CCFF00] text-sm font-bold opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                VEZI COLECȚIA →
+              </span>
+            </div>
+          </Link>
+
+          {/* Retro - Black & White */}
+          <Link
+            to="/products?category=retro"
+            data-testid="category-retro"
+            className="group relative h-80 overflow-hidden border-2 border-neutral-200 hover:border-[#CCFF00] transition-all rounded-xl"
+          >
+            <img 
+              src="https://customer-assets.emergentagent.com/job_change-maker-18/artifacts/izlhyft1_black-white-horizontal-photo-soccer-600nw-2489059367.webp" 
+              alt="Retro"
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 grayscale"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/90 transition-all"></div>
+            <div className="absolute inset-0 flex flex-col items-center justify-end pb-8">
+              <h3 className="text-3xl font-bold text-white uppercase tracking-tighter mb-2">
+                Retro
+              </h3>
+              <span className="text-[#CCFF00] text-sm font-bold opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                VEZI COLECȚIA →
+              </span>
+            </div>
+          </Link>
         </div>
       </section>
 
