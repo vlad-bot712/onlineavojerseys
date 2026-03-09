@@ -640,6 +640,13 @@ export default function PromoBundle() {
           ADAUGA IN COS - 250 RON
         </button>
 
+        {/* Payment reminder for bundle */}
+        <div className="bg-amber-50 border-2 border-amber-400 rounded-lg p-3 mb-4">
+          <p className="text-xs text-amber-800 font-medium text-center">
+            ⚠️ BUNDLE-UL SE PLĂTEȘTE CU CARDUL (Card, Apple Pay, Google Pay, PayPal sau Transfer IBAN) DEOARECE CONȚINE OBIECTE PERSONALIZATE CARE NU POT FI VÂNDUTE ALTORA ÎN CAZUL REFUZĂRII COMENZII.
+          </p>
+        </div>
+
         {/* Trust */}
         <div className="grid grid-cols-3 gap-2 text-center text-xs">
           <div className="bg-white p-2 rounded-lg border border-neutral-200">

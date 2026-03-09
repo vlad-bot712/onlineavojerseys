@@ -110,6 +110,9 @@ export default function OrderSuccess() {
       'ramburs': { name: 'Ramburs (Plată la Livrare)', icon: Banknote, color: 'bg-green-500' },
       'card': { name: 'Card Bancar', icon: Package, color: 'bg-blue-500' },
       'stripe': { name: 'Card Bancar (Stripe)', icon: Package, color: 'bg-blue-500' },
+      'applepay': { name: 'Apple Pay', icon: Package, color: 'bg-gray-800' },
+      'googlepay': { name: 'Google Pay', icon: Package, color: 'bg-blue-600' },
+      'paypal': { name: 'PayPal', icon: Package, color: 'bg-blue-700' },
       'transfer': { name: 'Transfer Bancar', icon: Building2, color: 'bg-purple-500' },
       'skrill': { name: 'Skrill', icon: Package, color: 'bg-orange-500' },
       'paysafe': { name: 'Paysafecard', icon: Package, color: 'bg-pink-500' }
@@ -209,6 +212,22 @@ export default function OrderSuccess() {
             <p className="text-neutral-700">
               Vei plăti suma de <span className="font-bold">{order.total_ron} RON</span> curierului la primirea coletului.
             </p>
+          </div>
+        )}
+
+        {order.payment_method === 'paypal' && (
+          <div className="bg-blue-50 border-2 border-blue-500 p-6 mb-8">
+            <h3 className="text-xl font-bold mb-3 text-blue-700">INSTRUCȚIUNI PLATĂ PAYPAL</h3>
+            <div className="text-left space-y-2">
+              <p>Suma de plătit: <span className="font-bold">{order.total_ron} RON</span></p>
+              <p>Referință comandă: <span className="font-bold">{order.order_number}</span></p>
+              <p className="text-sm text-neutral-700 mt-3">
+                ℹ️ Vei primi un email cu link-ul de plată PayPal. După efectuarea plății, comanda va fi procesată în 24h.
+              </p>
+              <p className="text-xs text-neutral-500 mt-2">
+                * Dacă nu primești email-ul în 10 minute, verifică folderul Spam sau contactează-ne.
+              </p>
+            </div>
           </div>
         )}
 

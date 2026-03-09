@@ -338,6 +338,15 @@ export default function ProductDetail() {
                   <div className="bg-white border-2 border-black p-3">
                     <p className="text-xs font-bold">ℹ️ NOTĂ: Prețul rămâne {formatPrice(product.price_ron)} indiferent de customizare</p>
                   </div>
+
+                  {/* Payment restriction warning for customized products */}
+                  {(customization.name || customization.number) && (
+                    <div className="bg-amber-50 border-2 border-amber-400 p-3 rounded">
+                      <p className="text-xs text-amber-800 font-medium">
+                        ⚠️ PRODUSELE PERSONALIZATE (cu nume/număr) SE PLĂTESC CU CARDUL deoarece nu pot fi vândute altora în cazul refuzării comenzii. Opțiunea "Ramburs" nu va fi disponibilă.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
