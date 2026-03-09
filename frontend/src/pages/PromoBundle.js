@@ -16,6 +16,7 @@ function TeamPicker({ teams, selected, onSelect, label, placeholder, color = 'bl
   // Resolve display name from selected ID
   const displayName = useMemo(() => {
     if (!selected) return '';
+    if (!teams || teams.length === 0) return selected;
     if (typeof teams[0] === 'string') return selected;
     for (const g of teams) {
       const found = g.items?.find(i => i.id === selected);
@@ -23,6 +24,9 @@ function TeamPicker({ teams, selected, onSelect, label, placeholder, color = 'bl
     }
     return selected;
   }, [selected, teams]);
+
+  // Check if teams is array of strings or objects
+  const isStringArray = teams && teams.length > 0 && typeof teams[0] === 'string';
 
   return (
     <div className="mb-4">
@@ -41,10 +45,10 @@ function TeamPicker({ teams, selected, onSelect, label, placeholder, color = 'bl
         <ChevronDown className={`w-5 h-5 transition-transform ${open ? 'rotate-180' : ''} ${isGreen ? 'text-green-500' : 'text-neutral-400'}`} />
       </button>
 
-      {open && (
+      {open && teams && teams.length > 0 && (
         <div className={`mt-1 border-2 rounded-lg overflow-hidden ${isGreen ? 'border-green-300' : 'border-neutral-200'}`}>
           <div className="max-h-72 overflow-y-auto">
-            {typeof teams[0] === 'string' ? (
+            {isStringArray ? (
               teams.map(team => (
                 <button
                   key={team}
