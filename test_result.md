@@ -101,3 +101,35 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Test the PromoBundle page free national team dropdown functionality"
+
+frontend:
+  - task: "Free National Team Dropdown - PromoBundle Page"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/PromoBundle.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "Tested dropdown functionality for free national team selection. Dropdown opens correctly, displays 10 national teams (Anglia, Argentina, Brazilia, Franța, Germania, Italia, Olanda, Portugalia, România, Spania). Successfully selected România and verified the jersey preview image loads (/images/products/romania-2025-first.jpg). No console errors detected. Minor: Some analytics API calls fail (non-critical third-party services)."
+
+metadata:
+  created_by: "testing_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "Free National Team Dropdown - PromoBundle Page"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    - agent: "testing"
+      message: "Completed testing of PromoBundle page free team dropdown. All functionality working correctly: dropdown opens, shows list of 10 national teams, selection works properly, and preview image loads successfully. No critical issues found. Ready for production."
