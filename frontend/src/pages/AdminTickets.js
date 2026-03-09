@@ -435,26 +435,43 @@ export default function AdminTickets() {
 
                 {/* Messages */}
                 <div className="p-4 border-b border-neutral-100 max-h-[300px] overflow-y-auto">
-                  <label className="text-xs font-medium text-neutral-400 mb-2 block">CONVERSAȚIE</label>
-                  <div className="space-y-3">
+                  <label className="text-xs font-medium text-neutral-400 mb-3 block">CONVERSAȚIE</label>
+                  <div className="space-y-4">
                     {selectedTicket.messages?.map((msg, idx) => (
                       <div
                         key={idx}
-                        className={`p-3 rounded-xl text-sm ${
-                          msg.sender === 'admin'
-                            ? 'bg-[#CCFF00]/20 ml-4'
-                            : 'bg-neutral-100 mr-4'
-                        }`}
+                        className={`flex ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'}`}
                       >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-medium text-xs">
-                            {msg.sender === 'admin' ? 'Tu' : selectedTicket.name}
-                          </span>
-                          <span className="text-xs text-neutral-400">
-                            {formatDate(msg.created_at)}
-                          </span>
+                        <div
+                          className={`max-w-[85%] ${
+                            msg.sender === 'admin'
+                              ? 'bg-[#CCFF00] text-black rounded-2xl rounded-br-md'
+                              : 'bg-neutral-800 text-white rounded-2xl rounded-bl-md'
+                          }`}
+                        >
+                          <div className="px-4 py-3">
+                            <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.message}</p>
+                          </div>
+                          <div className={`px-4 pb-2 flex items-center gap-2 ${
+                            msg.sender === 'admin' ? 'justify-end' : 'justify-start'
+                          }`}>
+                            <span className={`text-[10px] ${
+                              msg.sender === 'admin' ? 'text-black/60' : 'text-white/60'
+                            }`}>
+                              {msg.sender === 'admin' ? 'Tu' : selectedTicket.name}
+                            </span>
+                            <span className={`text-[10px] ${
+                              msg.sender === 'admin' ? 'text-black/40' : 'text-white/40'
+                            }`}>
+                              •
+                            </span>
+                            <span className={`text-[10px] ${
+                              msg.sender === 'admin' ? 'text-black/40' : 'text-white/40'
+                            }`}>
+                              {formatDate(msg.created_at)}
+                            </span>
+                          </div>
                         </div>
-                        <p className="whitespace-pre-wrap">{msg.message}</p>
                       </div>
                     ))}
                   </div>

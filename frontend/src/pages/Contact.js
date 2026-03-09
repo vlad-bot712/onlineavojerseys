@@ -220,30 +220,42 @@ export default function Contact() {
           )}
 
           {/* Conversation */}
-          <div className="bg-neutral-50 rounded-2xl p-6 mb-6">
+          <div className="bg-neutral-50 rounded-2xl p-4 sm:p-6 mb-6">
             <h3 className="font-bold mb-4 flex items-center gap-2">
               <MessageSquare className="w-5 h-5" />
               Conversație
             </h3>
-            <div className="space-y-4 max-h-[400px] overflow-y-auto">
+            <div className="space-y-4 max-h-[400px] overflow-y-auto px-1">
               {selectedTicket.messages?.map((msg, idx) => (
                 <div
                   key={idx}
-                  className={`p-4 rounded-xl ${
-                    msg.sender === 'admin'
-                      ? 'bg-[#CCFF00]/20 ml-8 border-l-4 border-[#CCFF00]'
-                      : 'bg-white mr-8'
-                  }`}
+                  className={`flex ${msg.sender === 'admin' ? 'justify-start' : 'justify-end'}`}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-sm">
-                      {msg.sender === 'admin' ? 'Echipa AVO JERSEYS' : 'Tu'}
-                    </span>
-                    <span className="text-xs text-neutral-400">
-                      {formatDate(msg.created_at)}
-                    </span>
+                  <div
+                    className={`max-w-[85%] sm:max-w-[75%] ${
+                      msg.sender === 'admin'
+                        ? 'bg-[#CCFF00] text-black rounded-2xl rounded-bl-md'
+                        : 'bg-neutral-800 text-white rounded-2xl rounded-br-md'
+                    }`}
+                  >
+                    <div className="px-4 py-3">
+                      <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.message}</p>
+                    </div>
+                    <div className={`px-4 pb-2 flex items-center gap-2 ${
+                      msg.sender === 'admin' ? 'justify-start' : 'justify-end'
+                    }`}>
+                      <span className={`text-[10px] sm:text-xs font-medium ${
+                        msg.sender === 'admin' ? 'text-black/70' : 'text-white/70'
+                      }`}>
+                        {msg.sender === 'admin' ? '🛡️ Echipa AVO' : 'Tu'}
+                      </span>
+                      <span className={`text-[10px] sm:text-xs ${
+                        msg.sender === 'admin' ? 'text-black/40' : 'text-white/40'
+                      }`}>
+                        {formatDate(msg.created_at)}
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
                 </div>
               ))}
             </div>
