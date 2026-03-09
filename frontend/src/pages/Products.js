@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { Filter, Heart, Shirt, Ruler, Gift, ArrowRight } from 'lucide-react';
+import { Filter, Heart, Shirt, Ruler, Gift, ArrowRight, RotateCcw, ChevronDown, Check } from 'lucide-react';
 import axios from 'axios';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useFavorites } from '../contexts/FavoritesContext';
@@ -15,6 +15,7 @@ export default function Products() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showSizeChart, setShowSizeChart] = useState(false);
   const [showFanVsPlayer, setShowFanVsPlayer] = useState(false);
@@ -24,11 +25,32 @@ export default function Products() {
     year: ''
   });
 
+  // Preview 360 state
+  const [preview360, setPreview360] = useState({
+    expanded: true,
+    selectedTeam: '',
+    selectedYear: '',
+    selectedKit: 0,
+    customName: '',
+    customNumber: ''
+  });
+
   const isPromo = filters.category === 'promotie-1-1';
 
   useEffect(() => {
     if (!isPromo) loadProducts();
+    loadAllProducts();
   }, [filters]);
+
+  // Load all products for preview 360
+  const loadAllProducts = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/products?category=echipe-club`);
+      setAllProducts(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const loadProducts = async () => {
     setLoading(true);
@@ -63,6 +85,46 @@ export default function Products() {
 
   const years = getYearOptions();
 
+  // Preview 360 computed values
+  const previewTeams = useMemo(() => {
+    const teams = [...new Set(allProducts.map(p => p.team))].sort();
+    return teams;
+  }, [allProducts]);
+
+  const previewYears = useMemo(() => {
+    if (!preview360.selectedTeam) return [];
+    const years = [...new Set(
+      allProducts
+        .filter(p => p.team === preview360.selectedTeam)
+        .map(p => p.year)
+    )].sort();
+    return years;
+  }, [allProducts, preview360.selectedTeam]);
+
+  const previewProduct = useMemo(() => {
+    if (!preview360.selectedTeam || !preview360.selectedYear) return null;
+    return allProducts.find(
+      p => p.team === preview360.selectedTeam && p.year === parseInt(preview360.selectedYear)
+    );
+  }, [allProducts, preview360.selectedTeam, preview360.selectedYear]);
+
+  const previewImage = useMemo(() => {
+    if (!previewProduct) return null;
+    const variant = previewProduct.variants?.[preview360.selectedKit];
+    return variant?.images?.[0] || null;
+  }, [previewProduct, preview360.selectedKit]);
+
+  const previewLeague = previewProduct?.league || '';
+
+  const handlePreviewTeamChange = (team) => {
+    setPreview360(prev => ({
+      ...prev,
+      selectedTeam: team,
+      selectedYear: '',
+      selectedKit: 0
+    }));
+  };
+
   return (
     <div data-testid="products-page" className="pt-24 pb-16 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
@@ -89,6 +151,203 @@ export default function Products() {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Preview 360° Section */}
+        <div className="bg-gradient-to-br from-neutral-900 to-neutral-800 border-2 border-neutral-700 rounded-xl p-6 mb-8 shadow-2xl">
+          <div 
+            className="flex items-center justify-between cursor-pointer"
+            onClick={() => setPreview360(prev => ({ ...prev, expanded: !prev.expanded }))}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-[#CCFF00] rounded-full flex items-center justify-center">
+                <RotateCcw className="w-6 h-6 text-black" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white">PREVIEW 360°</h2>
+                <p className="text-neutral-400 text-sm">Personalizează și vizualizează tricoul tău</p>
+              </div>
+            </div>
+            <ChevronDown className={`w-6 h-6 text-[#CCFF00] transition-transform ${preview360.expanded ? 'rotate-180' : ''}`} />
+          </div>
+
+          {preview360.expanded && (
+            <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Controls */}
+              <div className="space-y-4">
+                {/* Team Selector */}
+                <div>
+                  <label className="block text-xs font-bold text-[#CCFF00] mb-2">ECHIPA</label>
+                  <select
+                    value={preview360.selectedTeam}
+                    onChange={(e) => handlePreviewTeamChange(e.target.value)}
+                    className="w-full bg-neutral-800 border-2 border-neutral-600 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#CCFF00] text-base"
+                  >
+                    <option value="">Selectează echipa...</option>
+                    {previewTeams.map(team => (
+                      <option key={team} value={team}>{team}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Year Selector */}
+                <div>
+                  <label className="block text-xs font-bold text-[#CCFF00] mb-2">SEZON</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[2024, 2025, 2026].map(year => {
+                      const available = previewYears.includes(year);
+                      const selected = preview360.selectedYear === String(year);
+                      return (
+                        <button
+                          key={year}
+                          disabled={!available}
+                          onClick={() => setPreview360(prev => ({ ...prev, selectedYear: String(year), selectedKit: 0 }))}
+                          className={`py-2.5 rounded-lg border-2 font-bold text-sm transition-all ${
+                            selected
+                              ? 'border-[#CCFF00] bg-[#CCFF00] text-black'
+                              : available 
+                                ? 'border-neutral-600 text-white hover:border-neutral-400' 
+                                : 'border-neutral-700 text-neutral-600 cursor-not-allowed'
+                          }`}
+                        >
+                          {year}/{String(year + 1).slice(-2)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Kit Selector */}
+                <div>
+                  <label className="block text-xs font-bold text-[#CCFF00] mb-2">KIT</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {['First Kit', 'Second Kit', 'Third Kit'].map((kit, idx) => {
+                      const available = previewProduct?.variants?.[idx];
+                      const selected = preview360.selectedKit === idx;
+                      return (
+                        <button
+                          key={kit}
+                          disabled={!available}
+                          onClick={() => setPreview360(prev => ({ ...prev, selectedKit: idx }))}
+                          className={`py-2.5 rounded-lg border-2 font-bold text-xs transition-all flex items-center justify-center gap-1 ${
+                            selected
+                              ? 'border-[#CCFF00] bg-[#CCFF00] text-black'
+                              : available 
+                                ? 'border-neutral-600 text-white hover:border-neutral-400' 
+                                : 'border-neutral-700 text-neutral-600 cursor-not-allowed'
+                          }`}
+                        >
+                          {selected && <Check className="w-3 h-3" />}
+                          {kit}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Customization */}
+                <div>
+                  <label className="block text-xs font-bold text-[#CCFF00] mb-2">PERSONALIZARE</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      value={preview360.customName}
+                      onChange={(e) => setPreview360(prev => ({ ...prev, customName: e.target.value.toUpperCase() }))}
+                      placeholder="NUME (ex: POPESCU)"
+                      maxLength={12}
+                      className="bg-neutral-800 border-2 border-neutral-600 text-white px-3 py-2.5 rounded-lg focus:outline-none focus:border-[#CCFF00] uppercase text-sm"
+                    />
+                    <input
+                      type="number"
+                      value={preview360.customNumber}
+                      onChange={(e) => setPreview360(prev => ({ ...prev, customNumber: e.target.value }))}
+                      placeholder="NR (ex: 10)"
+                      min="0"
+                      max="99"
+                      className="bg-neutral-800 border-2 border-neutral-600 text-white px-3 py-2.5 rounded-lg focus:outline-none focus:border-[#CCFF00] text-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Disclaimer */}
+                <div className="bg-neutral-800/50 border border-neutral-700 rounded-lg p-3 mt-4">
+                  <p className="text-xs text-neutral-400 leading-relaxed">
+                    <span className="text-[#CCFF00] font-bold">ℹ️ NOTĂ:</span> Fontul afișat nu este cel oficial, dar pe tricou va fi 
+                    <span className="text-white font-medium"> fontul original</span> specific ligii alese. 
+                    De exemplu, fontul La Liga diferă de cel UEFA Champions League. 
+                    Aceasta este o <span className="text-white font-medium">simulare</span> pentru a vedea plasarea numelui și numărului.
+                  </p>
+                </div>
+              </div>
+
+              {/* Preview Display */}
+              <div className="flex flex-col items-center justify-center">
+                {previewImage ? (
+                  <div className="relative w-full max-w-sm">
+                    {/* Jersey Image */}
+                    <div className="relative bg-neutral-800 rounded-xl overflow-hidden border-2 border-neutral-700">
+                      <img 
+                        src={previewImage} 
+                        alt={`${preview360.selectedTeam} Preview`}
+                        className="w-full aspect-[3/4] object-contain"
+                      />
+                      
+                      {/* Name overlay on back */}
+                      {preview360.customName && (
+                        <div className="absolute top-[18%] left-1/2 transform -translate-x-1/2 text-center">
+                          <span 
+                            className="text-white font-black tracking-wider drop-shadow-lg"
+                            style={{ 
+                              fontSize: preview360.customName.length > 8 ? '1.2rem' : '1.5rem',
+                              textShadow: '2px 2px 4px rgba(0,0,0,0.8), -1px -1px 2px rgba(0,0,0,0.5)',
+                              letterSpacing: '0.15em'
+                            }}
+                          >
+                            {preview360.customName}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Number overlay */}
+                      {preview360.customNumber && (
+                        <div className="absolute top-[28%] left-1/2 transform -translate-x-1/2 text-center">
+                          <span 
+                            className="text-white font-black drop-shadow-lg"
+                            style={{ 
+                              fontSize: '4rem',
+                              textShadow: '3px 3px 6px rgba(0,0,0,0.8), -2px -2px 4px rgba(0,0,0,0.5)',
+                              lineHeight: 1
+                            }}
+                          >
+                            {preview360.customNumber}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Info badge */}
+                    <div className="mt-4 text-center">
+                      <p className="text-white font-bold text-lg">{preview360.selectedTeam}</p>
+                      <p className="text-neutral-400 text-sm">
+                        {preview360.selectedYear}/{parseInt(preview360.selectedYear) + 1} • {previewProduct?.variants?.[preview360.selectedKit]?.name}
+                      </p>
+                      {previewLeague && (
+                        <span className="inline-block mt-2 bg-neutral-700 text-[#CCFF00] text-xs font-bold px-3 py-1 rounded-full">
+                          {previewLeague}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full max-w-sm aspect-[3/4] bg-neutral-800 rounded-xl border-2 border-dashed border-neutral-600 flex flex-col items-center justify-center text-neutral-500">
+                    <Shirt className="w-16 h-16 mb-4 opacity-50" />
+                    <p className="text-sm">Selectează echipa și sezonul</p>
+                    <p className="text-xs mt-1">pentru a vedea preview-ul</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">

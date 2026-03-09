@@ -186,10 +186,22 @@ frontend:
           agent: "testing"
           comment: "RETEST COMPLETED (Full Website Test): Verified as part of comprehensive website testing. Main product selector continues to work perfectly with 32 club teams grouped by leagues. Real Madrid selected from La Liga, season 2025 selected, First Kit selected, jersey preview loaded correctly, and size M selected. All functionality verified working. No issues detected."
 
+  - task: "Preview 360° Feature - Products Page"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/Products.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "Comprehensive test of NEW Preview 360° feature completed successfully. All requested features verified and working: (1) Preview 360° section found on Products page with dark background (bg-gradient-to-br from-neutral-900 to-neutral-800) and lime green accents (#CCFF00), found 8 lime green accent elements, (2) Promo popup closed successfully using data-testid='promo-popup-close', (3) ECHIPA dropdown working - selected 'Real Madrid' successfully (confirmed value: Real Madrid), (4) SEZON selector working - selected 2025/26 season button with proper lime yellow background visual feedback, (5) KIT selector working - selected 'Second Kit' button with lime yellow background, (6) PERSONALIZARE section working - typed 'RONALDO' in NUME field (confirmed value: RONALDO), typed '7' in NR field (confirmed value: 7), (7) Jersey preview image displays correctly (/images/products/real-madrid-2025-second.jpg) showing Real Madrid Second Kit, (8) Name overlay 'RONALDO' verified present on jersey at position (x=1179, y=586) with font-size: 24px in white color, (9) Number overlay '7' verified present on jersey, (10) Disclaimer text visible and contains all required mentions ('font', 'oficial', 'simulare'), (11) Team info 'Real Madrid' and season '2025/2026' displayed correctly below preview. Minor: Console shows React hydration warnings about span/select/option nesting (non-critical), analytics API calls failed (non-critical third-party). Zero critical issues. Feature is production-ready."
+
 metadata:
   created_by: "testing_agent"
   version: "1.0"
-  test_sequence: 4
+  test_sequence: 5
   run_ui: true
 
 test_plan:
@@ -198,6 +210,7 @@ test_plan:
     - "Products Page - Product Listing"
     - "Product Detail Page - Full Feature Set"
     - "PromoBundle Page - Clubs and Nationals"
+    - "Preview 360° Feature - Products Page"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
@@ -211,3 +224,5 @@ agent_communication:
       message: "RETEST COMPLETED per user request: FREE PRODUCT selector (TRICOU GRATUIT) comprehensively tested and all functionality verified working perfectly. Dropdown displays all 10 national teams, selection works (România tested), jersey preview loads correctly, and all 5 size buttons (S/M/L/XL/XXL) are functional with proper visual feedback. Zero critical issues detected. Feature confirmed production-ready."
     - agent: "testing"
       message: "COMPREHENSIVE WEBSITE TEST COMPLETED: Tested entire AVO JERSEYS website as requested. All 4 major sections verified and working perfectly: (1) Home page - Champions League stadium background image loads correctly and displays properly, (2) Products page - 90 products loaded and displayed with proper cards, images, and navigation working, (3) ProductDetail page - All features tested and working including product images, kit selector (3 options), size selector (5 sizes), version selector (FAN/PLAYER), customization (name, number, patches), and Add to Cart functionality, (4) PromoBundle page - Both club teams (32 options grouped by leagues) and national teams (10 options) working perfectly with season selection, kit selection, size selection, and bundle Add to Cart. Zero critical issues found. All screenshots captured successfully. Website is production-ready."
+    - agent: "testing"
+      message: "NEW FEATURE TEST COMPLETED - Preview 360° on Products Page: Comprehensive testing of the NEW Preview 360° feature completed successfully. All functionality verified and working perfectly: (1) Section displays with dark background and lime green (#CCFF00) accents as designed, (2) ECHIPA dropdown working - Real Madrid selected, (3) SEZON selector working - 2025 selected with proper visual feedback, (4) KIT selector working - Second Kit selected with lime yellow background, (5) NUME and NR fields working - RONALDO and 7 entered successfully, (6) Jersey preview image loads correctly (/images/products/real-madrid-2025-second.jpg), (7) Name overlay 'RONALDO' displayed on jersey at correct position with proper styling (24px white text with shadow), (8) Number overlay '7' displayed on jersey, (9) Disclaimer text visible with all required information about fonts. Minor: React hydration warnings (non-critical) and failed analytics calls (non-critical). Zero critical issues. Feature is production-ready and provides excellent user experience for customization preview."
