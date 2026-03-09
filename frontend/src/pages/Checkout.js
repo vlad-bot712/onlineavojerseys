@@ -262,12 +262,13 @@ export default function Checkout() {
         clearCart();
         window.location.href = paymentRes.data.url;
       } else if (formData.payment_method === 'paypal') {
-        // For PayPal - redirect to PayPal.me link with amount
-        const paypalEmail = 'crissopris80@gmail.com';
+        // For PayPal - redirect directly to PayPal.me link
+        const paypalUsername = 'cristiopris';
         const paypalAmount = finalTotal;
-        // Clear cart and redirect to success page with PayPal instructions
+        // Clear cart and redirect directly to PayPal.me
         clearCart();
-        window.location.href = `/order-success?order_id=${order.id}&payment_method=paypal&amount=${paypalAmount}&paypal_email=${encodeURIComponent(paypalEmail)}`;
+        // Open PayPal.me in same window
+        window.location.href = `https://www.paypal.com/paypalme/${paypalUsername}/${paypalAmount}`;
       } else {
         // For other payment methods (ramburs, transfer), go to success page
         clearCart();
@@ -286,11 +287,11 @@ export default function Checkout() {
     return null;
   }
 
-  // Check if cart contains only test products (free shipping)
-  const hasOnlyTestProducts = cart.every(item => item.product.category === 'test');
-
   const total = getCartTotal();
-  const shippingCost = hasOnlyTestProducts ? 0 : (formData.shipping_method === 'express' ? 40 : 20);
+  
+  // Free shipping for test orders (under 5 RON) or test category products
+  const isTestOrder = total < 5;
+  const shippingCost = isTestOrder ? 0 : (formData.shipping_method === 'express' ? 40 : 20);
   const finalTotal = total + shippingCost - couponDiscount;
 
   // Payment methods configuration
