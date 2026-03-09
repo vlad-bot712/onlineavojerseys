@@ -5,7 +5,7 @@
 ### Metoda 1: URL Direct
 Accesează acest link în browser:
 ```
-https://change-maker-18.preview.emergentagent.com/admin/orders
+https://clean-contact-page.preview.emergentagent.com/admin/orders
 ```
 
 ### Metoda 2: Din Site
@@ -237,9 +237,9 @@ mongod --dbpath /path/to/data
 ## 📞 SUPORT
 
 ### Link-uri Utile:
-- 🌐 Site Preview: https://change-maker-18.preview.emergentagent.com
-- 👨‍💼 Admin: https://change-maker-18.preview.emergentagent.com/admin/orders
-- 📦 Backend API: https://change-maker-18.preview.emergentagent.com/api/health
+- 🌐 Site Preview: https://clean-contact-page.preview.emergentagent.com
+- 👨‍💼 Admin: https://clean-contact-page.preview.emergentagent.com/admin/orders
+- 📦 Backend API: https://clean-contact-page.preview.emergentagent.com/api/health
 
 ### Resurse:
 - Emergent Docs: https://docs.emergentagent.com

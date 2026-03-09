@@ -188,7 +188,7 @@ export default function AdminOrderDetail() {
 
 ${statusMessages[formData.status] || statusMessages.pending}
 
-📦 DETALII COMANDĂ:
+DETALII COMANDĂ:
 ━━━━━━━━━━━━━━━━━━━━
 Număr comandă: #${order.order_number}
 Status: ${statusLabels[formData.status] || 'În Așteptare'}
@@ -202,7 +202,7 @@ ${order.customer_address}
 
 Cu stimă,
 Echipa AVO JERSEYS
-📧 avojerseys@gmail.com`;
+Email: avojerseys@gmail.com`;
                     
                     navigator.clipboard.writeText(template);
                     toast.success('Template copiat în clipboard!');

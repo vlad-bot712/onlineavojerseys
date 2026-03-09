@@ -258,7 +258,7 @@ export default function OrderTracking() {
                               ? 'bg-purple-500 text-white' 
                               : 'bg-blue-500 text-white'
                           }`}>
-                            {item.version === 'player' ? '⭐ PLAYER VERSION' : '👕 FAN VERSION'}
+                            {item.version === 'player' ? 'PLAYER VERSION' : 'FAN VERSION'}
                           </span>
                         </div>
                       )}
@@ -266,7 +266,7 @@ export default function OrderTracking() {
                       {/* Customization */}
                       {item.customization && (
                         <div className="bg-[#CCFF00]/30 border border-[#CCFF00] p-2 mt-2 space-y-0.5">
-                          <p className="text-xs font-bold">🎨 CUSTOMIZARE:</p>
+                          <p className="text-xs font-bold">CUSTOMIZARE:</p>
                           {item.customization.name && (
                             <p className="text-xs">• Nume: <span className="font-bold">{item.customization.name}</span></p>
                           )}
@@ -277,8 +277,8 @@ export default function OrderTracking() {
                             <p className="text-xs">
                               • Patch-uri: <span className="font-bold">
                                 {item.customization.patches.map(p => 
-                                  p === 'league' ? '🏆 Liga' : 
-                                  p === 'ucl' ? '⭐ UCL' : p
+                                  p === 'league' ? 'Liga' : 
+                                  p === 'ucl' ? 'UCL' : p
                                 ).join(', ')}
                               </span>
                             </p>

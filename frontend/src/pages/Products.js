@@ -79,17 +79,17 @@ export default function Products() {
               <Shirt className="w-8 h-8" />
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-xl mb-2">🌟 PRECOMANDĂ SPECIAL - ORICE TRICOU!</h3>
+              <h3 className="font-bold text-xl mb-2">PRECOMANDĂ SPECIAL — ORICE TRICOU!</h3>
               <p className="text-sm mb-3">
                 Nu găsești echipa sau sezonul dorit? Poți comanda <span className="font-bold">ORICE TRICOU</span> inclusiv ediții limitate (Limited Edition)!
               </p>
               <div className="bg-black text-white px-4 py-2 inline-block">
                 <p className="text-sm font-bold">
-                  📧 Trimite o poză la: <a href="mailto:avojerseys@gmail.com" className="underline hover:text-[#CCFF00]">avojerseys@gmail.com</a>
+                  Trimite o poză la: <a href="mailto:avojerseys@gmail.com" className="underline hover:text-[#CCFF00]">avojerseys@gmail.com</a>
                 </p>
               </div>
               <p className="text-xs mt-2 text-neutral-700">
-                ⚡ Vei primi răspuns rapid cu disponibilitate și preț!
+                Vei primi răspuns rapid cu disponibilitate și preț!
               </p>
             </div>
           </div>
@@ -161,7 +161,7 @@ export default function Products() {
                 <h3 className="font-bold mb-3 text-sm text-neutral-500 uppercase tracking-wider">Echipă</h3>
                 <input
                   type="text"
-                  placeholder="🔍 Caută echipă..."
+                  placeholder="Caută echipă..."
                   value={filters.team}
                   onChange={(e) => setFilters({ ...filters, team: e.target.value })}
                   className="w-full border-2 border-neutral-200 px-3 py-2.5 rounded-lg focus:outline-none focus:border-[#CCFF00] transition-colors"

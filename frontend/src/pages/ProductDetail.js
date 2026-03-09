@@ -96,12 +96,12 @@ export default function ProductDetail() {
     
     // League patch based on country
     if (product.league) {
-      patches.push({ id: 'league', name: `Patch ${product.league}`, icon: '🏆' });
+      patches.push({ id: 'league', name: `Patch ${product.league}`, icon: '' });
     }
     
     // UCL patch if team plays in Champions League
     if (product.plays_ucl) {
-      patches.push({ id: 'ucl', name: 'Patch UEFA Champions League', icon: '⭐' });
+      patches.push({ id: 'ucl', name: 'Patch UEFA Champions League', icon: '' });
     }
     
     return patches;

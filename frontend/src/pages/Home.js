@@ -54,7 +54,7 @@ export default function Home() {
         <div className="relative z-10 text-center text-white px-4">
           {/* Price Banner with glow effect */}
           <div className="bg-[#CCFF00] text-black px-8 py-3 inline-block mb-6 font-bold text-lg tracking-wider shadow-lg animate-pulse">
-            ⚡ BUNDLE 1+1 GRATIS - DOAR 250 RON ⚡
+            BUNDLE 1+1 GRATIS — DOAR 250 RON
           </div>
           
           <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black mb-6 tracking-tighter leading-none">

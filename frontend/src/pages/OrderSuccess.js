@@ -225,10 +225,10 @@ export default function OrderSuccess() {
               <p>Referință comandă: <span className="font-bold">{order.order_number}</span></p>
               
               <div className="bg-white border-2 border-blue-300 p-4 rounded-lg mt-4">
-                <p className="font-bold text-blue-800 mb-2">📧 Trimite plata la:</p>
+                <p className="font-bold text-blue-800 mb-2">Trimite plata la:</p>
                 <p className="text-xl font-mono bg-blue-100 p-2 rounded select-all">{paypalEmail || 'crissopris80@gmail.com'}</p>
                 <p className="text-sm text-neutral-600 mt-2">
-                  ⚠️ La descrierea plății, scrie: <span className="font-bold">Comanda {order.order_number}</span>
+                  La descrierea plății, scrie: <span className="font-bold">Comanda {order.order_number}</span>
                 </p>
               </div>
               
