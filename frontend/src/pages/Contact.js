@@ -27,11 +27,18 @@ export default function Contact() {
   };
 
   return (
-    <div data-testid="contact-page" className="pt-24 pb-16 min-h-screen bg-white">
-      <div className="max-w-6xl mx-auto px-4 md:px-8">
+    <div data-testid="contact-page" className="pt-24 pb-16 min-h-screen bg-white relative overflow-hidden">
+      {/* Decorative lime elements */}
+      <div className="absolute top-32 right-0 w-64 h-64 bg-[#CCFF00]/5 rounded-full translate-x-1/2"></div>
+      <div className="absolute bottom-20 left-0 w-48 h-48 bg-[#CCFF00]/5 rounded-full -translate-x-1/2"></div>
+      <div className="absolute top-1/3 left-10 w-2 h-2 bg-[#CCFF00] rounded-full"></div>
+      <div className="absolute bottom-1/3 right-20 w-1.5 h-1.5 bg-[#CCFF00] rounded-full"></div>
+      
+      <div className="max-w-6xl mx-auto px-4 md:px-8 relative">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl sm:text-5xl font-black mb-3">CONTACT</h1>
+          <span className="inline-block bg-[#CCFF00] text-black text-xs font-bold px-3 py-1 rounded-full mb-4">CONTACT</span>
+          <h1 className="text-4xl sm:text-5xl font-black mb-3">Hai să Vorbim</h1>
           <p className="text-neutral-500">Suntem aici să te ajutăm</p>
         </div>
 
@@ -41,9 +48,9 @@ export default function Contact() {
             {/* Email */}
             <a 
               href="mailto:avojerseys@gmail.com"
-              className="flex items-center gap-4 p-4 border border-neutral-200 hover:border-black transition-colors group"
+              className="flex items-center gap-4 p-5 bg-neutral-50 rounded-2xl hover:bg-[#CCFF00]/10 transition-all group"
             >
-              <div className="w-10 h-10 bg-black text-white flex items-center justify-center group-hover:bg-[#CCFF00] group-hover:text-black transition-colors">
+              <div className="w-12 h-12 bg-black text-white flex items-center justify-center rounded-xl group-hover:bg-[#CCFF00] group-hover:text-black transition-colors">
                 <Mail className="w-5 h-5" />
               </div>
               <div>
@@ -57,9 +64,9 @@ export default function Contact() {
               href="https://instagram.com/avojerseys"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-4 p-4 border border-neutral-200 hover:border-black transition-colors group"
+              className="flex items-center gap-4 p-5 bg-neutral-50 rounded-2xl hover:bg-[#CCFF00]/10 transition-all group"
             >
-              <div className="w-10 h-10 bg-black text-white flex items-center justify-center group-hover:bg-[#CCFF00] group-hover:text-black transition-colors">
+              <div className="w-12 h-12 bg-black text-white flex items-center justify-center rounded-xl group-hover:bg-[#CCFF00] group-hover:text-black transition-colors">
                 <Instagram className="w-5 h-5" />
               </div>
               <div>
@@ -69,8 +76,8 @@ export default function Contact() {
             </a>
 
             {/* Phone/WhatsApp */}
-            <div className="flex items-center gap-4 p-4 border border-neutral-200">
-              <div className="w-10 h-10 bg-black text-white flex items-center justify-center">
+            <div className="flex items-center gap-4 p-5 bg-neutral-50 rounded-2xl">
+              <div className="w-12 h-12 bg-black text-white flex items-center justify-center rounded-xl">
                 <Phone className="w-5 h-5" />
               </div>
               <div>
@@ -80,8 +87,8 @@ export default function Contact() {
             </div>
 
             {/* Location */}
-            <div className="flex items-center gap-4 p-4 border border-neutral-200">
-              <div className="w-10 h-10 bg-black text-white flex items-center justify-center">
+            <div className="flex items-center gap-4 p-5 bg-neutral-50 rounded-2xl">
+              <div className="w-12 h-12 bg-black text-white flex items-center justify-center rounded-xl">
                 <MapPin className="w-5 h-5" />
               </div>
               <div>
@@ -90,22 +97,25 @@ export default function Contact() {
               </div>
             </div>
 
-            {/* Response Time */}
-            <div className="bg-neutral-100 p-4 text-center">
-              <div className="text-2xl font-black">24h</div>
-              <div className="text-xs text-neutral-500 uppercase">Timp mediu răspuns</div>
+            {/* Response Time - Lime accent */}
+            <div className="bg-[#CCFF00] p-5 rounded-2xl text-center">
+              <div className="text-3xl font-black">24h</div>
+              <div className="text-xs text-black/70 uppercase font-medium">Timp mediu răspuns</div>
             </div>
           </div>
 
           {/* Contact Form - Right Side */}
           <div className="lg:col-span-3">
-            <form onSubmit={handleSubmit} className="border border-neutral-200 p-6">
-              <h2 className="text-xl font-bold mb-6">TRIMITE MESAJ</h2>
+            <form onSubmit={handleSubmit} className="bg-neutral-50 rounded-2xl p-8">
+              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <div className="w-1 h-6 bg-[#CCFF00] rounded-full"></div>
+                Trimite Mesaj
+              </h2>
               
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold mb-1 text-neutral-500">NUME</label>
+                    <label className="block text-xs font-bold mb-2 text-neutral-400 uppercase tracking-wider">Nume</label>
                     <input
                       type="text"
                       name="name"
@@ -113,11 +123,11 @@ export default function Contact() {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="w-full border border-neutral-200 px-3 py-2.5 focus:outline-none focus:border-black text-sm"
+                      className="w-full bg-white border-0 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#CCFF00] text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold mb-1 text-neutral-500">EMAIL</label>
+                    <label className="block text-xs font-bold mb-2 text-neutral-400 uppercase tracking-wider">Email</label>
                     <input
                       type="email"
                       name="email"
@@ -125,13 +135,13 @@ export default function Contact() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full border border-neutral-200 px-3 py-2.5 focus:outline-none focus:border-black text-sm"
+                      className="w-full bg-white border-0 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#CCFF00] text-sm"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold mb-1 text-neutral-500">SUBIECT</label>
+                  <label className="block text-xs font-bold mb-2 text-neutral-400 uppercase tracking-wider">Subiect</label>
                   <input
                     type="text"
                     name="subject"
@@ -139,12 +149,12 @@ export default function Contact() {
                     value={formData.subject}
                     onChange={handleChange}
                     required
-                    className="w-full border border-neutral-200 px-3 py-2.5 focus:outline-none focus:border-black text-sm"
+                    className="w-full bg-white border-0 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#CCFF00] text-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold mb-1 text-neutral-500">MESAJ</label>
+                  <label className="block text-xs font-bold mb-2 text-neutral-400 uppercase tracking-wider">Mesaj</label>
                   <textarea
                     name="message"
                     data-testid="contact-message"
@@ -152,7 +162,7 @@ export default function Contact() {
                     onChange={handleChange}
                     required
                     rows={5}
-                    className="w-full border border-neutral-200 px-3 py-2.5 focus:outline-none focus:border-black text-sm resize-none"
+                    className="w-full bg-white border-0 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#CCFF00] text-sm resize-none"
                   />
                 </div>
 
@@ -160,10 +170,10 @@ export default function Contact() {
                   type="submit"
                   data-testid="send-message-btn"
                   disabled={sending}
-                  className="w-full bg-black text-white py-3 font-bold text-sm uppercase tracking-wider hover:bg-neutral-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="w-full bg-black text-white py-4 font-bold text-sm uppercase tracking-wider rounded-xl hover:bg-[#CCFF00] hover:text-black transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   <Send className="w-4 h-4" />
-                  {sending ? 'SE TRIMITE...' : 'TRIMITE'}
+                  {sending ? 'SE TRIMITE...' : 'TRIMITE MESAJ'}
                 </button>
               </div>
             </form>

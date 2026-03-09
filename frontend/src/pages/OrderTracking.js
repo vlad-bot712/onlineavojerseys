@@ -180,47 +180,36 @@ export default function OrderTracking() {
               </div>
             </div>
 
-            {/* Invoice Section */}
+            {/* Invoice Section - Direct Image Display */}
             {order.invoice_image && (
-              <div className="mb-8 bg-green-50 border-2 border-green-200 p-6">
-                <h3 className="font-bold text-xl mb-4 flex items-center space-x-2">
-                  <FileText className="w-6 h-6 text-green-600" />
-                  <span>FACTURĂ</span>
+              <div className="mb-8 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-6">
+                <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                  <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-white" />
+                  </div>
+                  <span>Factura Ta</span>
                 </h3>
-                <p className="text-sm text-neutral-600 mb-4">Factura ta este disponibilă pentru descărcare.</p>
-                <button 
-                  onClick={() => {
-                    // Convert base64 to blob for mobile compatibility
-                    const base64Data = order.invoice_image;
-                    if (base64Data.startsWith('data:')) {
-                      const byteString = atob(base64Data.split(',')[1]);
-                      const mimeString = base64Data.split(',')[0].split(':')[1].split(';')[0];
-                      const ab = new ArrayBuffer(byteString.length);
-                      const ia = new Uint8Array(ab);
-                      for (let i = 0; i < byteString.length; i++) {
-                        ia[i] = byteString.charCodeAt(i);
+                
+                {/* Direct Invoice Image */}
+                <div className="bg-white rounded-xl p-2 shadow-sm mb-4">
+                  <img 
+                    src={order.invoice_image} 
+                    alt={`Factura ${order.order_number}`}
+                    className="w-full max-w-md mx-auto rounded-lg"
+                    onClick={() => {
+                      // Open full image on click
+                      if (order.invoice_image.startsWith('data:')) {
+                        const newWindow = window.open();
+                        newWindow.document.write(`<img src="${order.invoice_image}" style="max-width:100%;height:auto;"/>`);
+                      } else {
+                        window.open(order.invoice_image, '_blank');
                       }
-                      const blob = new Blob([ab], { type: mimeString });
-                      const url = URL.createObjectURL(blob);
-                      
-                      // Create link and trigger download
-                      const link = document.createElement('a');
-                      link.href = url;
-                      link.download = `factura-${order.order_number}.png`;
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                      URL.revokeObjectURL(url);
-                    } else {
-                      // Fallback for regular URLs
-                      window.open(order.invoice_image, '_blank');
-                    }
-                  }}
-                  className="inline-flex items-center space-x-2 bg-green-600 text-white px-6 py-3 font-bold uppercase text-sm hover:bg-green-700 transition-colors"
-                >
-                  <FileText className="w-5 h-5" />
-                  <span>Descarcă Factura</span>
-                </button>
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  />
+                </div>
+                
+                <p className="text-xs text-neutral-500 text-center">Apasă pe imagine pentru a o mări</p>
               </div>
             )}
 
