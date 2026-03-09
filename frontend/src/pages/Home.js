@@ -34,7 +34,7 @@ export default function Home() {
         data-testid="hero-section"
         className="relative h-[90vh] flex items-center justify-center overflow-hidden mt-20"
         style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1657957746418-6a38df9e1ea7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTV8MHwxfHNlYXJjaHwxfHxmb290YmFsbCUyMHBsYXllciUyMGFjdGlvbiUyMHN0YWRpdW18ZW58MHx8fHwxNzcxMTg2MTQxfDA&ixlib=rb-4.1.0&q=85)',
+          backgroundImage: 'url(https://customer-assets.emergentagent.com/job_change-maker-18/artifacts/kcems5cw_people-soccer-stadium_23-2151548540.avif)',
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
