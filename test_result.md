@@ -116,6 +116,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "Tested dropdown functionality for free national team selection. Dropdown opens correctly, displays 10 national teams (Anglia, Argentina, Brazilia, Franța, Germania, Italia, Olanda, Portugalia, România, Spania). Successfully selected România and verified the jersey preview image loads (/images/products/romania-2025-first.jpg). No console errors detected. Minor: Some analytics API calls fail (non-critical third-party services)."
+        - working: true
+          agent: "testing"
+          comment: "RETEST COMPLETED (User Request): Comprehensive testing of FREE PRODUCT selector (TRICOU GRATUIT) completed successfully. All features verified: (1) Dropdown (data-testid='free-team-select') opens correctly showing all 10 national teams in alphabetical order, (2) Successfully selected România - dropdown closed and displays selected team, (3) Romanian jersey preview image loaded successfully (/images/products/romania-2025-first.jpg) with proper display 'România 2025/26 - First Kit', (4) All 5 size buttons (S, M, L, XL, XXL) visible with data-testid='free-size-{size}', (5) Size selection working perfectly - each button clickable and shows proper selected state with green background (border-green-500 bg-green-500 text-white). Zero critical issues. Only non-critical Tailwind CDN warning in console. Feature is production-ready."
 
   - task: "Main Product Selector (TRICOU PRINCIPAL) with League Groups"
     implemented: true
@@ -132,7 +135,7 @@ frontend:
 metadata:
   created_by: "testing_agent"
   version: "1.0"
-  test_sequence: 2
+  test_sequence: 3
   run_ui: true
 
 test_plan:
@@ -147,3 +150,5 @@ agent_communication:
       message: "Completed testing of PromoBundle page free team dropdown. All functionality working correctly: dropdown opens, shows list of 10 national teams, selection works properly, and preview image loads successfully. No critical issues found. Ready for production."
     - agent: "testing"
       message: "Completed comprehensive testing of TRICOU PRINCIPAL main product selector. All requested features verified and working: (1) Dropdown opens with league-grouped teams, (2) All 5 major leagues displayed (Bundesliga, La Liga, Ligue 1, Premier League, Serie A), (3) Team selection working (Real Madrid from La Liga tested), (4) Season selector appears and works (2024/2025/2026), (5) Kit selector appears with 3 options and Second Kit selection works, (6) Jersey image preview loads correctly, (7) Customization inputs functional, (8) Version selector (FAN/PLAYER) working, (9) Patches section visible with all league patches and selection works. Zero issues found. Feature is production-ready."
+    - agent: "testing"
+      message: "RETEST COMPLETED per user request: FREE PRODUCT selector (TRICOU GRATUIT) comprehensively tested and all functionality verified working perfectly. Dropdown displays all 10 national teams, selection works (România tested), jersey preview loads correctly, and all 5 size buttons (S/M/L/XL/XXL) are functional with proper visual feedback. Zero critical issues detected. Feature confirmed production-ready."
