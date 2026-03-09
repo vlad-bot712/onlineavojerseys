@@ -83,26 +83,26 @@ export default function OrderTracking() {
   };
 
   return (
-    <div data-testid="tracking-page" className="pt-24 pb-16 min-h-screen">
+    <div data-testid="tracking-page" className="pt-20 sm:pt-24 pb-16 min-h-screen">
       <div className="max-w-4xl mx-auto px-4 md:px-8">
-        <h1 className="text-4xl sm:text-5xl font-bold text-center mb-8">URMĂREȘTE COMANDA</h1>
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-center mb-6 sm:mb-8">URMĂREȘTE COMANDA</h1>
 
         {/* Search Form */}
-        <div className="bg-white border-2 border-neutral-200 p-8 mb-8">
-          <form onSubmit={handleSearch} className="flex gap-4 mb-6">
+        <div className="bg-white border-2 border-neutral-200 p-4 sm:p-8 mb-8">
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
             <input
               type="text"
               data-testid="order-number-input"
               value={orderNumber}
               onChange={(e) => setOrderNumber(e.target.value)}
-              placeholder="Introdu numărul comenzii (ex: AVO00001)"
-              className="flex-1 border-2 border-neutral-200 px-4 py-3 focus:outline-none focus:border-black"
+              placeholder="Nr. comandă (ex: AVO00001)"
+              className="flex-1 border-2 border-neutral-200 px-4 py-3 focus:outline-none focus:border-black text-base"
             />
             <button
               type="submit"
               data-testid="search-order-btn"
               disabled={loading}
-              className="bg-black text-white px-8 py-3 font-bold uppercase hover:bg-neutral-800 transition-colors disabled:opacity-50 flex items-center space-x-2"
+              className="bg-black text-white px-6 sm:px-8 py-3 font-bold uppercase hover:bg-neutral-800 transition-colors disabled:opacity-50 flex items-center justify-center space-x-2 w-full sm:w-auto"
             >
               <Search className="w-5 h-5" />
               <span>Caută</span>
@@ -180,47 +180,36 @@ export default function OrderTracking() {
               </div>
             </div>
 
-            {/* Invoice Section */}
+            {/* Invoice Section - Direct Image Display */}
             {order.invoice_image && (
-              <div className="mb-8 bg-green-50 border-2 border-green-200 p-6">
-                <h3 className="font-bold text-xl mb-4 flex items-center space-x-2">
-                  <FileText className="w-6 h-6 text-green-600" />
-                  <span>FACTURĂ</span>
+              <div className="mb-8 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-6">
+                <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                  <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-white" />
+                  </div>
+                  <span>Factura Ta</span>
                 </h3>
-                <p className="text-sm text-neutral-600 mb-4">Factura ta este disponibilă pentru descărcare.</p>
-                <button 
-                  onClick={() => {
-                    // Convert base64 to blob for mobile compatibility
-                    const base64Data = order.invoice_image;
-                    if (base64Data.startsWith('data:')) {
-                      const byteString = atob(base64Data.split(',')[1]);
-                      const mimeString = base64Data.split(',')[0].split(':')[1].split(';')[0];
-                      const ab = new ArrayBuffer(byteString.length);
-                      const ia = new Uint8Array(ab);
-                      for (let i = 0; i < byteString.length; i++) {
-                        ia[i] = byteString.charCodeAt(i);
+                
+                {/* Direct Invoice Image */}
+                <div className="bg-white rounded-xl p-2 shadow-sm mb-4">
+                  <img 
+                    src={order.invoice_image} 
+                    alt={`Factura ${order.order_number}`}
+                    className="w-full max-w-md mx-auto rounded-lg"
+                    onClick={() => {
+                      // Open full image on click
+                      if (order.invoice_image.startsWith('data:')) {
+                        const newWindow = window.open();
+                        newWindow.document.write(`<img src="${order.invoice_image}" style="max-width:100%;height:auto;"/>`);
+                      } else {
+                        window.open(order.invoice_image, '_blank');
                       }
-                      const blob = new Blob([ab], { type: mimeString });
-                      const url = URL.createObjectURL(blob);
-                      
-                      // Create link and trigger download
-                      const link = document.createElement('a');
-                      link.href = url;
-                      link.download = `factura-${order.order_number}.png`;
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                      URL.revokeObjectURL(url);
-                    } else {
-                      // Fallback for regular URLs
-                      window.open(order.invoice_image, '_blank');
-                    }
-                  }}
-                  className="inline-flex items-center space-x-2 bg-green-600 text-white px-6 py-3 font-bold uppercase text-sm hover:bg-green-700 transition-colors"
-                >
-                  <FileText className="w-5 h-5" />
-                  <span>Descarcă Factura</span>
-                </button>
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  />
+                </div>
+                
+                <p className="text-xs text-neutral-500 text-center">Apasă pe imagine pentru a o mări</p>
               </div>
             )}
 
@@ -258,7 +247,7 @@ export default function OrderTracking() {
                               ? 'bg-purple-500 text-white' 
                               : 'bg-blue-500 text-white'
                           }`}>
-                            {item.version === 'player' ? '⭐ PLAYER VERSION' : '👕 FAN VERSION'}
+                            {item.version === 'player' ? 'PLAYER VERSION' : 'FAN VERSION'}
                           </span>
                         </div>
                       )}
@@ -266,7 +255,7 @@ export default function OrderTracking() {
                       {/* Customization */}
                       {item.customization && (
                         <div className="bg-[#CCFF00]/30 border border-[#CCFF00] p-2 mt-2 space-y-0.5">
-                          <p className="text-xs font-bold">🎨 CUSTOMIZARE:</p>
+                          <p className="text-xs font-bold">CUSTOMIZARE:</p>
                           {item.customization.name && (
                             <p className="text-xs">• Nume: <span className="font-bold">{item.customization.name}</span></p>
                           )}
@@ -277,8 +266,8 @@ export default function OrderTracking() {
                             <p className="text-xs">
                               • Patch-uri: <span className="font-bold">
                                 {item.customization.patches.map(p => 
-                                  p === 'league' ? '🏆 Liga' : 
-                                  p === 'ucl' ? '⭐ UCL' : p
+                                  p === 'league' ? 'Liga' : 
+                                  p === 'ucl' ? 'UCL' : p
                                 ).join(', ')}
                               </span>
                             </p>

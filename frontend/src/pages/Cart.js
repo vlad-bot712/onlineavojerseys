@@ -1,13 +1,50 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Trash2, Plus, Minus } from 'lucide-react';
+import { Trash2, Plus, Minus, AlertTriangle, CreditCard } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useCurrency } from '../contexts/CurrencyContext';
+
+// Payment icons
+const PAYMENT_ICONS = {
+  card: 'https://img.icons8.com/color/48/visa.png',
+  mastercard: 'https://img.icons8.com/color/48/mastercard.png',
+  applepay: 'https://img.icons8.com/ios-filled/50/apple-pay.png',
+  googlepay: 'https://img.icons8.com/color/48/google-pay.png',
+  paypal: 'https://img.icons8.com/color/48/paypal.png',
+  stripe: 'https://img.icons8.com/color/48/stripe.png',
+};
 
 export default function Cart() {
   const navigate = useNavigate();
   const { cart, removeFromCart, updateQuantity, getCartTotal } = useCart();
   const { formatPrice } = useCurrency();
+
+  // Check if cart contains bundles or customized products
+  const hasRestrictedItems = useMemo(() => {
+    return cart.some(item => {
+      if (item.product.isBundle) return true;
+      if (item.product.customization) {
+        const { name, number } = item.product.customization;
+        if (name || number) return true;
+      }
+      return false;
+    });
+  }, [cart]);
+
+  const hasBundles = useMemo(() => {
+    return cart.some(item => item.product.isBundle);
+  }, [cart]);
+
+  const hasCustomizedProducts = useMemo(() => {
+    return cart.some(item => {
+      if (item.product.isBundle) return false;
+      if (item.product.customization) {
+        const { name, number } = item.product.customization;
+        return name || number;
+      }
+      return false;
+    });
+  }, [cart]);
 
   if (cart.length === 0) {
     return (
@@ -153,6 +190,30 @@ export default function Cart() {
           <div className="lg:col-span-1">
             <div className="bg-white border border-neutral-200 p-6 sticky top-24">
               <h2 className="text-2xl font-bold mb-6">SUMAR COMANDĂ</h2>
+              
+              {/* Payment restriction warning */}
+              {hasRestrictedItems && (
+                <div className="mb-4 p-3 bg-amber-50 border-2 border-amber-400 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-amber-800 text-sm">
+                        {hasBundles && hasCustomizedProducts 
+                          ? 'Coș cu bundle și produse personalizate'
+                          : hasBundles 
+                            ? 'Coș cu bundle'
+                            : 'Coș cu produse personalizate'}
+                      </p>
+                      <p className="text-xs text-amber-700 mt-1">
+                        {hasBundles 
+                          ? 'Bundle-urile necesită plată cu cardul (nu ramburs).'
+                          : 'Produsele personalizate necesită plată cu cardul (nu ramburs).'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between">
                   <span className="text-neutral-600">Subtotal</span>
@@ -167,6 +228,22 @@ export default function Cart() {
                   <span className="font-bold">{formatPrice(getCartTotal())}</span>
                 </div>
               </div>
+
+              {/* Payment methods accepted */}
+              <div className="mb-4 p-3 bg-neutral-50 rounded-lg">
+                <p className="text-xs text-neutral-600 mb-2 font-medium">Metode de plată acceptate:</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <img src={PAYMENT_ICONS.card} alt="Visa" className="h-6 w-auto" />
+                  <img src={PAYMENT_ICONS.mastercard} alt="Mastercard" className="h-6 w-auto" />
+                  <img src={PAYMENT_ICONS.applepay} alt="Apple Pay" className="h-6 w-auto" />
+                  <img src={PAYMENT_ICONS.googlepay} alt="Google Pay" className="h-6 w-auto" />
+                  <img src={PAYMENT_ICONS.paypal} alt="PayPal" className="h-6 w-auto" />
+                  {!hasRestrictedItems && (
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">+ Ramburs</span>
+                  )}
+                </div>
+              </div>
+
               <button
                 onClick={() => navigate('/checkout')}
                 data-testid="checkout-btn"

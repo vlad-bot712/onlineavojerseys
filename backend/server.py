@@ -139,6 +139,51 @@ class PaymentTransaction(BaseModel):
         json_encoders = {datetime: lambda v: v.isoformat()}
 
 
+class ContactMessageRequest(BaseModel):
+    name: str
+    email: str
+    subject: str
+    message: str
+
+
+# Ticket System Models
+class TicketMessage(BaseModel):
+    id: Optional[str] = None
+    sender: str  # "customer" or "admin"
+    message: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class CreateTicketRequest(BaseModel):
+    name: str
+    email: str
+    subject: str
+    message: str
+    images: List[str] = []  # Base64 encoded images
+
+
+class TicketReplyRequest(BaseModel):
+    message: str
+
+
+class Ticket(BaseModel):
+    id: Optional[str] = None
+    ticket_number: str
+    name: str
+    email: str
+    subject: str
+    status: str = "open"  # open, in_progress, resolved, closed
+    priority: str = "normal"  # low, normal, high, urgent
+    messages: List[Dict] = []
+    images: List[str] = []
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    seen_by_admin: bool = False
+    
+    class Config:
+        json_encoders = {datetime: lambda v: v.isoformat()}
+
+
 # Helper function
 def serialize_doc(doc):
     if doc:
@@ -262,7 +307,14 @@ async def get_products(
 
 @app.get("/api/products/{product_id}")
 async def get_product(product_id: str):
-    product = await db.products.find_one({"_id": ObjectId(product_id)})
+    # Try to find by string ID first (UUID format)
+    product = await db.products.find_one({"_id": product_id})
+    if not product:
+        # Try with ObjectId if string search fails
+        try:
+            product = await db.products.find_one({"_id": ObjectId(product_id)})
+        except:
+            pass
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     return serialize_doc(product)
@@ -278,7 +330,11 @@ async def create_product(product: Product):
 @app.delete("/api/products/{product_id}")
 async def delete_product(product_id: str):
     try:
-        result = await db.products.delete_one({"_id": ObjectId(product_id)})
+        # Try string ID first
+        result = await db.products.delete_one({"_id": product_id})
+        if result.deleted_count == 0:
+            # Try ObjectId
+            result = await db.products.delete_one({"_id": ObjectId(product_id)})
         if result.deleted_count == 0:
             raise HTTPException(status_code=404, detail="Product not found")
         return {"message": "Product deleted successfully", "product_id": product_id}
@@ -922,3 +978,278 @@ async def send_order_email(order_id: str, request: Request):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
+
+
+# Contact form endpoint - send email to avojerseys@gmail.com
+@app.post("/api/contact")
+async def send_contact_message(data: ContactMessageRequest):
+    """Send contact message via email to avojerseys@gmail.com"""
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    
+    # Store message in database
+    contact_doc = {
+        "name": data.name,
+        "email": data.email,
+        "subject": data.subject,
+        "message": data.message,
+        "created_at": datetime.utcnow(),
+        "status": "new"
+    }
+    await db.contact_messages.insert_one(contact_doc)
+    
+    # Try to send email notification
+    try:
+        # Create email content
+        email_body = f"""
+Mesaj nou de pe site-ul AVO JERSEYS!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DE LA: {data.name}
+EMAIL: {data.email}
+SUBIECT: {data.subject}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MESAJ:
+{data.message}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Trimis automat de pe avojerseys.com
+        """
+        
+        # Try using Gmail SMTP if credentials are available
+        smtp_user = os.getenv("SMTP_USER")
+        smtp_pass = os.getenv("SMTP_PASS")
+        
+        if smtp_user and smtp_pass:
+            msg = MIMEMultipart()
+            msg['From'] = smtp_user
+            msg['To'] = "avojerseys@gmail.com"
+            msg['Subject'] = f"[AVO JERSEYS] {data.subject} - de la {data.name}"
+            msg['Reply-To'] = data.email
+            msg.attach(MIMEText(email_body, 'plain', 'utf-8'))
+            
+            with smtplib.SMTP('smtp.gmail.com', 587) as server:
+                server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+            
+            return {"status": "success", "message": "Mesajul a fost trimis cu succes!"}
+        else:
+            # No SMTP credentials - just store in database
+            return {"status": "success", "message": "Mesajul a fost înregistrat! Te vom contacta în curând."}
+            
+    except Exception as e:
+        print(f"Email send error: {e}")
+        # Even if email fails, message is stored in DB
+        return {"status": "success", "message": "Mesajul a fost înregistrat! Te vom contacta în curând."}
+
+
+# ==================== TICKET SYSTEM ====================
+
+def generate_ticket_number():
+    """Generate unique ticket number like TKT-20250309-XXXX"""
+    import random
+    import string
+    date_part = datetime.utcnow().strftime("%Y%m%d")
+    random_part = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+    return f"TKT-{date_part}-{random_part}"
+
+
+@app.post("/api/tickets")
+async def create_ticket(data: CreateTicketRequest):
+    """Create a new support ticket"""
+    ticket_number = generate_ticket_number()
+    
+    ticket_doc = {
+        "ticket_number": ticket_number,
+        "name": data.name,
+        "email": data.email,
+        "subject": data.subject,
+        "status": "open",
+        "priority": "normal",
+        "messages": [
+            {
+                "id": str(ObjectId()),
+                "sender": "customer",
+                "message": data.message,
+                "created_at": datetime.utcnow()
+            }
+        ],
+        "images": data.images,
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+        "seen_by_admin": False
+    }
+    
+    result = await db.tickets.insert_one(ticket_doc)
+    
+    return {
+        "status": "success",
+        "ticket_number": ticket_number,
+        "ticket_id": str(result.inserted_id),
+        "message": f"Ticketul #{ticket_number} a fost creat cu succes!"
+    }
+
+
+@app.get("/api/tickets")
+async def get_all_tickets(
+    status: Optional[str] = None,
+    priority: Optional[str] = None,
+    search: Optional[str] = None
+):
+    """Get all tickets with optional filters"""
+    query = {}
+    
+    if status:
+        query["status"] = status
+    if priority:
+        query["priority"] = priority
+    if search:
+        query["$or"] = [
+            {"ticket_number": {"$regex": search, "$options": "i"}},
+            {"name": {"$regex": search, "$options": "i"}},
+            {"email": {"$regex": search, "$options": "i"}},
+            {"subject": {"$regex": search, "$options": "i"}}
+        ]
+    
+    tickets = await db.tickets.find(query).sort("created_at", -1).to_list(length=500)
+    return [serialize_doc(t) for t in tickets]
+
+
+@app.get("/api/tickets/{ticket_id}")
+async def get_ticket(ticket_id: str):
+    """Get a single ticket by ID"""
+    ticket = await db.tickets.find_one({"_id": ObjectId(ticket_id)})
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    return serialize_doc(ticket)
+
+
+@app.get("/api/tickets/by-number/{ticket_number}")
+async def get_ticket_by_number(ticket_number: str):
+    """Get a ticket by ticket number (for customers)"""
+    ticket = await db.tickets.find_one({"ticket_number": ticket_number})
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    return serialize_doc(ticket)
+
+
+@app.patch("/api/tickets/{ticket_id}")
+async def update_ticket(ticket_id: str, request: Request):
+    """Update ticket status, priority, or other fields"""
+    data = await request.json()
+    
+    update_data = {"updated_at": datetime.utcnow()}
+    
+    if "status" in data:
+        update_data["status"] = data["status"]
+    if "priority" in data:
+        update_data["priority"] = data["priority"]
+    if "seen_by_admin" in data:
+        update_data["seen_by_admin"] = data["seen_by_admin"]
+    
+    result = await db.tickets.update_one(
+        {"_id": ObjectId(ticket_id)},
+        {"$set": update_data}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    
+    ticket = await db.tickets.find_one({"_id": ObjectId(ticket_id)})
+    return serialize_doc(ticket)
+
+
+@app.post("/api/tickets/{ticket_id}/reply")
+async def reply_to_ticket(ticket_id: str, data: TicketReplyRequest):
+    """Add admin reply to ticket"""
+    new_message = {
+        "id": str(ObjectId()),
+        "sender": "admin",
+        "message": data.message,
+        "created_at": datetime.utcnow()
+    }
+    
+    result = await db.tickets.update_one(
+        {"_id": ObjectId(ticket_id)},
+        {
+            "$push": {"messages": new_message},
+            "$set": {
+                "updated_at": datetime.utcnow(),
+                "status": "in_progress"
+            }
+        }
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    
+    ticket = await db.tickets.find_one({"_id": ObjectId(ticket_id)})
+    return serialize_doc(ticket)
+
+
+@app.post("/api/tickets/{ticket_id}/customer-reply")
+async def customer_reply_to_ticket(ticket_id: str, data: TicketReplyRequest):
+    """Add customer reply to ticket"""
+    new_message = {
+        "id": str(ObjectId()),
+        "sender": "customer",
+        "message": data.message,
+        "created_at": datetime.utcnow()
+    }
+    
+    result = await db.tickets.update_one(
+        {"_id": ObjectId(ticket_id)},
+        {
+            "$push": {"messages": new_message},
+            "$set": {
+                "updated_at": datetime.utcnow(),
+                "seen_by_admin": False
+            }
+        }
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    
+    ticket = await db.tickets.find_one({"_id": ObjectId(ticket_id)})
+    return serialize_doc(ticket)
+
+
+@app.delete("/api/tickets/{ticket_id}")
+async def delete_ticket(ticket_id: str):
+    """Delete a ticket"""
+    result = await db.tickets.delete_one({"_id": ObjectId(ticket_id)})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    
+    return {"status": "success", "message": "Ticket deleted successfully"}
+
+
+@app.get("/api/tickets/stats/summary")
+async def get_tickets_stats():
+    """Get ticket statistics"""
+    total = await db.tickets.count_documents({})
+    open_count = await db.tickets.count_documents({"status": "open"})
+    in_progress = await db.tickets.count_documents({"status": "in_progress"})
+    resolved = await db.tickets.count_documents({"status": "resolved"})
+    closed = await db.tickets.count_documents({"status": "closed"})
+    unseen = await db.tickets.count_documents({"seen_by_admin": False})
+    
+    # Priority counts
+    urgent = await db.tickets.count_documents({"priority": "urgent"})
+    high = await db.tickets.count_documents({"priority": "high"})
+    
+    return {
+        "total": total,
+        "open": open_count,
+        "in_progress": in_progress,
+        "resolved": resolved,
+        "closed": closed,
+        "unseen": unseen,
+        "urgent": urgent,
+        "high_priority": high
+    }

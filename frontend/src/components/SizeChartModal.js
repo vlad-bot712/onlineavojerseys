@@ -40,7 +40,7 @@ export default function SizeChartModal({ isOpen, onClose }) {
                 : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
             }`}
           >
-            👕 FAN VERSION
+            FAN VERSION
           </button>
           <button
             onClick={() => setActiveTab('player')}
@@ -50,7 +50,7 @@ export default function SizeChartModal({ isOpen, onClose }) {
                 : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
             }`}
           >
-            ⭐ PLAYER VERSION
+            PLAYER VERSION
           </button>
         </div>
 
@@ -90,7 +90,7 @@ export default function SizeChartModal({ isOpen, onClose }) {
                 </div>
 
                 <div className="bg-neutral-100 border-2 border-neutral-300 p-4">
-                  <h4 className="font-bold mb-2">👕 Caracteristici Fan Version:</h4>
+                  <h4 className="font-bold mb-2">Caracteristici Fan Version:</h4>
                   <ul className="text-sm space-y-1">
                     <li>• Material confortabil pentru purtare zilnică</li>
                     <li>• Croială regular fit (nu aderă la corp)</li>
@@ -168,7 +168,7 @@ export default function SizeChartModal({ isOpen, onClose }) {
                 <h3 className="text-xl font-bold border-b-2 border-[#CCFF00] pb-2">PLAYER VERSION - Informații</h3>
                 
                 <div className="bg-purple-50 border-2 border-purple-200 p-4">
-                  <h4 className="font-bold text-purple-800 mb-2">⚡ ATENȚIE - Fit diferit!</h4>
+                  <h4 className="font-bold text-purple-800 mb-2">ATENȚIE — Fit diferit!</h4>
                   <p className="text-sm text-purple-700">
                     Player Version are o croială <strong>mai strâmtă</strong> decât Fan Version. 
                     Dacă preferi un fit mai lejer, alege cu <strong>o mărime mai mare</strong>.
@@ -176,7 +176,7 @@ export default function SizeChartModal({ isOpen, onClose }) {
                 </div>
 
                 <div className="bg-neutral-100 border-2 border-neutral-300 p-4">
-                  <h4 className="font-bold mb-2">⭐ Caracteristici Player Version:</h4>
+                  <h4 className="font-bold mb-2">Caracteristici Player Version:</h4>
                   <ul className="text-sm space-y-1">
                     <li>• Material tehnic cu tehnologie Dri-FIT/ClimaCool</li>
                     <li>• Croială slim fit (aderă la corp)</li>

@@ -16,6 +16,7 @@ function TeamPicker({ teams, selected, onSelect, label, placeholder, color = 'bl
   // Resolve display name from selected ID
   const displayName = useMemo(() => {
     if (!selected) return '';
+    if (!teams || teams.length === 0) return selected;
     if (typeof teams[0] === 'string') return selected;
     for (const g of teams) {
       const found = g.items?.find(i => i.id === selected);
@@ -23,6 +24,9 @@ function TeamPicker({ teams, selected, onSelect, label, placeholder, color = 'bl
     }
     return selected;
   }, [selected, teams]);
+
+  // Check if teams is array of strings or objects
+  const isStringArray = teams && teams.length > 0 && typeof teams[0] === 'string';
 
   return (
     <div className="mb-4">
@@ -41,10 +45,10 @@ function TeamPicker({ teams, selected, onSelect, label, placeholder, color = 'bl
         <ChevronDown className={`w-5 h-5 transition-transform ${open ? 'rotate-180' : ''} ${isGreen ? 'text-green-500' : 'text-neutral-400'}`} />
       </button>
 
-      {open && (
+      {open && teams && teams.length > 0 && (
         <div className={`mt-1 border-2 rounded-lg overflow-hidden ${isGreen ? 'border-green-300' : 'border-neutral-200'}`}>
           <div className="max-h-72 overflow-y-auto">
-            {typeof teams[0] === 'string' ? (
+            {isStringArray ? (
               teams.map(team => (
                 <button
                   key={team}
@@ -639,6 +643,13 @@ export default function PromoBundle() {
           <ShoppingCart className="w-6 h-6" />
           ADAUGA IN COS - 250 RON
         </button>
+
+        {/* Payment reminder for bundle */}
+        <div className="bg-amber-50 border-2 border-amber-400 rounded-lg p-3 mb-4">
+          <p className="text-xs text-amber-800 font-medium text-center">
+            ⚠️ BUNDLE-UL SE PLĂTEȘTE CU CARDUL (Card, Apple Pay, Google Pay, PayPal sau Transfer IBAN) DEOARECE CONȚINE OBIECTE PERSONALIZATE CARE NU POT FI VÂNDUTE ALTORA ÎN CAZUL REFUZĂRII COMENZII.
+          </p>
+        </div>
 
         {/* Trust */}
         <div className="grid grid-cols-3 gap-2 text-center text-xs">

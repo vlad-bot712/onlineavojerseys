@@ -11,6 +11,8 @@ export default function OrderSuccess() {
   const sessionId = searchParams.get('session_id');
   const orderId = searchParams.get('order_id');
   const paymentMethod = searchParams.get('payment_method');
+  const paypalAmount = searchParams.get('amount');
+  const paypalEmail = searchParams.get('paypal_email');
   const [order, setOrder] = useState(null);
   const [checking, setChecking] = useState(true);
 
@@ -110,6 +112,9 @@ export default function OrderSuccess() {
       'ramburs': { name: 'Ramburs (Plată la Livrare)', icon: Banknote, color: 'bg-green-500' },
       'card': { name: 'Card Bancar', icon: Package, color: 'bg-blue-500' },
       'stripe': { name: 'Card Bancar (Stripe)', icon: Package, color: 'bg-blue-500' },
+      'applepay': { name: 'Apple Pay', icon: Package, color: 'bg-gray-800' },
+      'googlepay': { name: 'Google Pay', icon: Package, color: 'bg-blue-600' },
+      'paypal': { name: 'PayPal', icon: Package, color: 'bg-blue-700' },
       'transfer': { name: 'Transfer Bancar', icon: Building2, color: 'bg-purple-500' },
       'skrill': { name: 'Skrill', icon: Package, color: 'bg-orange-500' },
       'paysafe': { name: 'Paysafecard', icon: Package, color: 'bg-pink-500' }
@@ -209,6 +214,37 @@ export default function OrderSuccess() {
             <p className="text-neutral-700">
               Vei plăti suma de <span className="font-bold">{order.total_ron} RON</span> curierului la primirea coletului.
             </p>
+          </div>
+        )}
+
+        {order.payment_method === 'paypal' && (
+          <div className="bg-blue-50 border-2 border-blue-500 p-6 mb-8">
+            <h3 className="text-xl font-bold mb-3 text-blue-700">💳 PLATĂ PRIN PAYPAL</h3>
+            <div className="text-left space-y-3">
+              <p className="text-lg">Sumă de plătit: <span className="font-bold text-blue-700">{paypalAmount || order.total_ron} RON</span></p>
+              <p>Referință comandă: <span className="font-bold">{order.order_number}</span></p>
+              
+              <div className="bg-white border-2 border-blue-300 p-4 rounded-lg mt-4">
+                <p className="font-bold text-blue-800 mb-2">Trimite plata la:</p>
+                <p className="text-xl font-mono bg-blue-100 p-2 rounded select-all">{paypalEmail || 'crissopris80@gmail.com'}</p>
+                <p className="text-sm text-neutral-600 mt-2">
+                  La descrierea plății, scrie: <span className="font-bold">Comanda {order.order_number}</span>
+                </p>
+              </div>
+              
+              <a 
+                href={`https://www.paypal.com/paypalme/crissopris80/${paypalAmount || order.total_ron}RON`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-4 bg-[#0070BA] text-white px-6 py-3 rounded-lg font-bold hover:bg-[#003087] transition-colors"
+              >
+                🔗 Plătește cu PayPal
+              </a>
+              
+              <p className="text-xs text-neutral-500 mt-3">
+                * După efectuarea plății, comanda va fi procesată în maxim 24h.
+              </p>
+            </div>
           </div>
         )}
 
