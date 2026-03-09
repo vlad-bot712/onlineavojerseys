@@ -83,26 +83,26 @@ export default function OrderTracking() {
   };
 
   return (
-    <div data-testid="tracking-page" className="pt-24 pb-16 min-h-screen">
+    <div data-testid="tracking-page" className="pt-20 sm:pt-24 pb-16 min-h-screen">
       <div className="max-w-4xl mx-auto px-4 md:px-8">
-        <h1 className="text-4xl sm:text-5xl font-bold text-center mb-8">URMĂREȘTE COMANDA</h1>
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-center mb-6 sm:mb-8">URMĂREȘTE COMANDA</h1>
 
         {/* Search Form */}
-        <div className="bg-white border-2 border-neutral-200 p-8 mb-8">
-          <form onSubmit={handleSearch} className="flex gap-4 mb-6">
+        <div className="bg-white border-2 border-neutral-200 p-4 sm:p-8 mb-8">
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
             <input
               type="text"
               data-testid="order-number-input"
               value={orderNumber}
               onChange={(e) => setOrderNumber(e.target.value)}
-              placeholder="Introdu numărul comenzii (ex: AVO00001)"
-              className="flex-1 border-2 border-neutral-200 px-4 py-3 focus:outline-none focus:border-black"
+              placeholder="Nr. comandă (ex: AVO00001)"
+              className="flex-1 border-2 border-neutral-200 px-4 py-3 focus:outline-none focus:border-black text-base"
             />
             <button
               type="submit"
               data-testid="search-order-btn"
               disabled={loading}
-              className="bg-black text-white px-8 py-3 font-bold uppercase hover:bg-neutral-800 transition-colors disabled:opacity-50 flex items-center space-x-2"
+              className="bg-black text-white px-6 sm:px-8 py-3 font-bold uppercase hover:bg-neutral-800 transition-colors disabled:opacity-50 flex items-center justify-center space-x-2 w-full sm:w-auto"
             >
               <Search className="w-5 h-5" />
               <span>Caută</span>
