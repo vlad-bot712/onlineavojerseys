@@ -237,7 +237,7 @@ export default function Contact() {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-semibold text-sm">
-                      {msg.sender === 'admin' ? '🛡️ Echipa AVO JERSEYS' : '👤 Tu'}
+                      {msg.sender === 'admin' ? 'Echipa AVO JERSEYS' : 'Tu'}
                     </span>
                     <span className="text-xs text-neutral-400">
                       {formatDate(msg.created_at)}
