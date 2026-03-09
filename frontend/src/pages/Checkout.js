@@ -627,6 +627,9 @@ export default function Checkout() {
                         <p className="text-sm text-blue-700 mt-1">
                           După plasarea comenzii, vei primi instrucțiuni pentru plata prin PayPal.
                         </p>
+                        <p className="text-sm text-blue-700 mt-1">
+                          <strong>Email PayPal:</strong> crissopris80@gmail.com
+                        </p>
                         <p className="text-sm text-blue-700">
                           <strong>Sumă de plătit:</strong> {formatPrice(finalTotal)}
                         </p>
