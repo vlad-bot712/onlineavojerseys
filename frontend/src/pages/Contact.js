@@ -1,11 +1,25 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Instagram, Send, Upload, X, Ticket, CheckCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Instagram, Send, Upload, X, Ticket, CheckCircle, Search, ArrowLeft, Clock, MessageSquare, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || '';
 
+const statusLabels = {
+  open: 'Deschis',
+  in_progress: 'În Lucru',
+  resolved: 'Rezolvat',
+  closed: 'Închis'
+};
+
+const statusColors = {
+  open: 'bg-blue-100 text-blue-800',
+  in_progress: 'bg-yellow-100 text-yellow-800',
+  resolved: 'bg-green-100 text-green-800',
+  closed: 'bg-neutral-100 text-neutral-800'
+};
+
 export default function Contact() {
-  const [showTicketForm, setShowTicketForm] = useState(false);
+  const [view, setView] = useState('main'); // main, createTicket, myTickets, ticketDetail
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -15,6 +29,14 @@ export default function Contact() {
   const [images, setImages] = useState([]);
   const [sending, setSending] = useState(false);
   const [ticketCreated, setTicketCreated] = useState(null);
+  
+  // My Tickets state
+  const [searchEmail, setSearchEmail] = useState('');
+  const [myTickets, setMyTickets] = useState([]);
+  const [loadingTickets, setLoadingTickets] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [replyText, setReplyText] = useState('');
+  const [sendingReply, setSendingReply] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -77,8 +99,283 @@ export default function Contact() {
     setFormData({ name: '', email: '', subject: '', message: '' });
     setImages([]);
     setTicketCreated(null);
-    setShowTicketForm(false);
+    setView('main');
   };
+
+  const searchMyTickets = async () => {
+    if (!searchEmail.trim()) {
+      toast.error('Te rugăm introdu adresa de email');
+      return;
+    }
+    
+    setLoadingTickets(true);
+    try {
+      const response = await fetch(`${API_URL}/api/tickets?search=${encodeURIComponent(searchEmail)}`);
+      const data = await response.json();
+      // Filter only tickets that match the email exactly
+      const filtered = data.filter(t => t.email.toLowerCase() === searchEmail.toLowerCase());
+      setMyTickets(filtered);
+      if (filtered.length === 0) {
+        toast.info('Nu am găsit tickete pentru acest email');
+      }
+    } catch (error) {
+      console.error('Error fetching tickets:', error);
+      toast.error('Eroare la căutarea ticketelor');
+    } finally {
+      setLoadingTickets(false);
+    }
+  };
+
+  const openTicketDetail = async (ticket) => {
+    try {
+      const response = await fetch(`${API_URL}/api/tickets/${ticket.id}`);
+      const data = await response.json();
+      setSelectedTicket(data);
+      setView('ticketDetail');
+    } catch (error) {
+      console.error('Error fetching ticket:', error);
+      toast.error('Eroare la încărcarea ticketului');
+    }
+  };
+
+  const sendCustomerReply = async () => {
+    if (!replyText.trim()) return;
+    
+    setSendingReply(true);
+    try {
+      const response = await fetch(`${API_URL}/api/tickets/${selectedTicket.id}/customer-reply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: replyText })
+      });
+      const updatedTicket = await response.json();
+      setSelectedTicket(updatedTicket);
+      setReplyText('');
+      toast.success('Mesaj trimis!');
+    } catch (error) {
+      console.error('Error sending reply:', error);
+      toast.error('Eroare la trimiterea mesajului');
+    } finally {
+      setSendingReply(false);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleString('ro-RO', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  // Render ticket detail view
+  if (view === 'ticketDetail' && selectedTicket) {
+    return (
+      <div className="pt-24 pb-16 min-h-screen bg-white">
+        <div className="max-w-3xl mx-auto px-4 md:px-8">
+          {/* Back Button */}
+          <button
+            onClick={() => { setSelectedTicket(null); setView('myTickets'); }}
+            className="flex items-center gap-2 text-neutral-500 hover:text-black mb-6 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Înapoi la ticketele mele
+          </button>
+
+          {/* Ticket Header */}
+          <div className="bg-neutral-50 rounded-2xl p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <span className="font-mono text-sm text-neutral-400">{selectedTicket.ticket_number}</span>
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[selectedTicket.status]}`}>
+                {statusLabels[selectedTicket.status]}
+              </span>
+            </div>
+            <h1 className="text-2xl font-bold mb-2">{selectedTicket.subject}</h1>
+            <p className="text-neutral-500 text-sm">
+              Creat pe {formatDate(selectedTicket.created_at)}
+            </p>
+          </div>
+
+          {/* Attached Images */}
+          {selectedTicket.images?.length > 0 && (
+            <div className="bg-neutral-50 rounded-2xl p-6 mb-6">
+              <h3 className="font-bold mb-4 flex items-center gap-2">
+                <ImageIcon className="w-5 h-5" />
+                Poze Atașate
+              </h3>
+              <div className="grid grid-cols-3 gap-3">
+                {selectedTicket.images.map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={img}
+                    alt={`Attachment ${idx + 1}`}
+                    className="w-full aspect-square object-cover rounded-xl cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => window.open(img, '_blank')}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Conversation */}
+          <div className="bg-neutral-50 rounded-2xl p-6 mb-6">
+            <h3 className="font-bold mb-4 flex items-center gap-2">
+              <MessageSquare className="w-5 h-5" />
+              Conversație
+            </h3>
+            <div className="space-y-4 max-h-[400px] overflow-y-auto">
+              {selectedTicket.messages?.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`p-4 rounded-xl ${
+                    msg.sender === 'admin'
+                      ? 'bg-[#CCFF00]/20 ml-8 border-l-4 border-[#CCFF00]'
+                      : 'bg-white mr-8'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-semibold text-sm">
+                      {msg.sender === 'admin' ? '🛡️ Echipa AVO JERSEYS' : '👤 Tu'}
+                    </span>
+                    <span className="text-xs text-neutral-400">
+                      {formatDate(msg.created_at)}
+                    </span>
+                  </div>
+                  <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Reply Box - only if ticket is not closed */}
+          {selectedTicket.status !== 'closed' && (
+            <div className="bg-neutral-50 rounded-2xl p-6">
+              <h3 className="font-bold mb-4">Trimite un răspuns</h3>
+              <textarea
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder="Scrie mesajul tău aici..."
+                rows={4}
+                className="w-full bg-white border-0 rounded-xl p-4 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#CCFF00] mb-4"
+              />
+              <button
+                onClick={sendCustomerReply}
+                disabled={!replyText.trim() || sendingReply}
+                className="w-full bg-black text-white py-3 rounded-xl font-bold text-sm hover:bg-neutral-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                <Send className="w-4 h-4" />
+                {sendingReply ? 'Se trimite...' : 'Trimite Mesaj'}
+              </button>
+            </div>
+          )}
+
+          {selectedTicket.status === 'closed' && (
+            <div className="bg-neutral-100 rounded-2xl p-6 text-center text-neutral-500">
+              Acest ticket a fost închis. Pentru o nouă problemă, te rugăm să creezi un ticket nou.
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Render my tickets view
+  if (view === 'myTickets') {
+    return (
+      <div className="pt-24 pb-16 min-h-screen bg-white">
+        <div className="max-w-3xl mx-auto px-4 md:px-8">
+          {/* Back Button */}
+          <button
+            onClick={() => { setMyTickets([]); setSearchEmail(''); setView('main'); }}
+            className="flex items-center gap-2 text-neutral-500 hover:text-black mb-6 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Înapoi
+          </button>
+
+          {/* Header */}
+          <div className="text-center mb-8">
+            <span className="inline-block bg-[#CCFF00] text-black text-xs font-bold px-3 py-1 rounded-full mb-4">TICKETELE MELE</span>
+            <h1 className="text-3xl font-bold mb-2">Verifică Statusul</h1>
+            <p className="text-neutral-500">Introdu email-ul pentru a vedea ticketele tale</p>
+          </div>
+
+          {/* Search Box */}
+          <div className="bg-neutral-50 rounded-2xl p-6 mb-6">
+            <div className="flex gap-3">
+              <input
+                type="email"
+                value={searchEmail}
+                onChange={(e) => setSearchEmail(e.target.value)}
+                placeholder="Introdu adresa de email..."
+                className="flex-1 bg-white border-0 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#CCFF00]"
+                onKeyDown={(e) => e.key === 'Enter' && searchMyTickets()}
+              />
+              <button
+                onClick={searchMyTickets}
+                disabled={loadingTickets}
+                className="bg-black text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-neutral-800 transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                <Search className="w-4 h-4" />
+                {loadingTickets ? 'Se caută...' : 'Caută'}
+              </button>
+            </div>
+          </div>
+
+          {/* Tickets List */}
+          {myTickets.length > 0 && (
+            <div className="space-y-3">
+              {myTickets.map((ticket) => (
+                <div
+                  key={ticket.id}
+                  onClick={() => openTicketDetail(ticket)}
+                  className="bg-neutral-50 rounded-2xl p-5 cursor-pointer hover:bg-neutral-100 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-mono text-xs text-neutral-400">{ticket.ticket_number}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[ticket.status]}`}>
+                          {statusLabels[ticket.status]}
+                        </span>
+                      </div>
+                      <h3 className="font-bold mb-1">{ticket.subject}</h3>
+                      <div className="flex items-center gap-4 text-xs text-neutral-400">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {formatDate(ticket.created_at)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MessageSquare className="w-3 h-3" />
+                          {ticket.messages?.length || 0} mesaje
+                        </span>
+                        {ticket.images?.length > 0 && (
+                          <span className="flex items-center gap-1">
+                            <ImageIcon className="w-3 h-3" />
+                            {ticket.images.length} poze
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <ArrowLeft className="w-5 h-5 text-neutral-300 rotate-180" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {myTickets.length === 0 && searchEmail && !loadingTickets && (
+            <div className="bg-neutral-50 rounded-2xl p-8 text-center text-neutral-500">
+              <Ticket className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <p>Nu am găsit tickete pentru acest email</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div data-testid="contact-page" className="pt-24 pb-16 min-h-screen bg-white relative overflow-hidden">
@@ -158,25 +455,54 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Ticket Form - Right Side */}
+          {/* Ticket Section - Right Side */}
           <div className="lg:col-span-3">
-            {!showTicketForm && !ticketCreated ? (
-              /* Create Ticket Button */
-              <div className="bg-neutral-50 rounded-2xl p-8 text-center">
-                <div className="w-20 h-20 bg-[#CCFF00] rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <Ticket className="w-10 h-10" />
+            {view === 'main' && !ticketCreated ? (
+              /* Main View - Two Options */
+              <div className="space-y-4">
+                {/* Create Ticket Card */}
+                <div className="bg-neutral-50 rounded-2xl p-8">
+                  <div className="flex items-start gap-4">
+                    <div className="w-14 h-14 bg-[#CCFF00] rounded-2xl flex items-center justify-center flex-shrink-0">
+                      <Ticket className="w-7 h-7" />
+                    </div>
+                    <div className="flex-1">
+                      <h2 className="text-xl font-bold mb-2">Ai nevoie de ajutor?</h2>
+                      <p className="text-neutral-500 text-sm mb-4">
+                        Creează un ticket de suport și îți vom răspunde în cel mai scurt timp posibil.
+                      </p>
+                      <button
+                        onClick={() => setView('createTicket')}
+                        className="bg-black text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-neutral-800 transition-colors inline-flex items-center gap-2"
+                      >
+                        <Ticket className="w-4 h-4" />
+                        CREEAZĂ TICKET
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <h2 className="text-2xl font-bold mb-3">Ai nevoie de ajutor?</h2>
-                <p className="text-neutral-500 mb-6">
-                  Creează un ticket de suport și îți vom răspunde în cel mai scurt timp posibil.
-                </p>
-                <button
-                  onClick={() => setShowTicketForm(true)}
-                  className="bg-black text-white px-8 py-4 rounded-xl font-bold text-sm hover:bg-neutral-800 transition-colors inline-flex items-center gap-2"
-                >
-                  <Ticket className="w-5 h-5" />
-                  CREEAZĂ TICKET
-                </button>
+
+                {/* My Tickets Card */}
+                <div className="bg-neutral-50 rounded-2xl p-8">
+                  <div className="flex items-start gap-4">
+                    <div className="w-14 h-14 bg-white border-2 border-neutral-200 rounded-2xl flex items-center justify-center flex-shrink-0">
+                      <Search className="w-7 h-7 text-neutral-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h2 className="text-xl font-bold mb-2">Ai deja un ticket?</h2>
+                      <p className="text-neutral-500 text-sm mb-4">
+                        Verifică statusul ticketelor tale și vezi răspunsurile echipei noastre.
+                      </p>
+                      <button
+                        onClick={() => setView('myTickets')}
+                        className="bg-white text-black px-6 py-3 rounded-xl font-bold text-sm hover:bg-neutral-100 transition-colors inline-flex items-center gap-2 border-2 border-neutral-200"
+                      >
+                        <Search className="w-4 h-4" />
+                        TICKETELE MELE
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : ticketCreated ? (
               /* Success Message */
@@ -193,14 +519,22 @@ export default function Contact() {
                   <p className="text-2xl font-mono font-bold text-green-800">{ticketCreated.ticket_number}</p>
                   <p className="text-xs text-neutral-400 mt-2">Păstrează acest număr pentru referință</p>
                 </div>
-                <button
-                  onClick={resetForm}
-                  className="bg-black text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-neutral-800 transition-colors"
-                >
-                  Creează Alt Ticket
-                </button>
+                <div className="flex gap-3 justify-center">
+                  <button
+                    onClick={resetForm}
+                    className="bg-black text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-neutral-800 transition-colors"
+                  >
+                    Înapoi
+                  </button>
+                  <button
+                    onClick={() => { setSearchEmail(formData.email); setView('myTickets'); searchMyTickets(); }}
+                    className="bg-white text-black px-6 py-3 rounded-xl font-bold text-sm hover:bg-neutral-100 transition-colors border-2 border-neutral-200"
+                  >
+                    Vezi Ticketul
+                  </button>
+                </div>
               </div>
-            ) : (
+            ) : view === 'createTicket' ? (
               /* Ticket Form */
               <form onSubmit={handleSubmit} className="bg-neutral-50 rounded-2xl p-8">
                 <div className="flex items-center justify-between mb-6">
@@ -210,7 +544,7 @@ export default function Contact() {
                   </h2>
                   <button
                     type="button"
-                    onClick={() => setShowTicketForm(false)}
+                    onClick={() => setView('main')}
                     className="p-2 hover:bg-neutral-200 rounded-lg transition-colors"
                   >
                     <X className="w-5 h-5" />
@@ -327,7 +661,7 @@ export default function Contact() {
                   </button>
                 </div>
               </form>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
