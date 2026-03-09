@@ -155,7 +155,7 @@ class TestOrdersAPI:
                     "product_image": "/images/products/real-madrid-2025-first.jpg",
                     "size": "M",
                     "quantity": 1,
-                    "price_ron": 200,
+                    "price_ron": 250,
                     "customization": {"name": "TESTNAME", "number": "10", "patches": ["La Liga", "UCL"]},
                     "version": "fan",
                     "kit": "first",
@@ -185,14 +185,14 @@ class TestOrdersAPI:
             "customer_country": "România",
             "shipping_method": "standard",
             "payment_method": "ramburs",
-            "total_ron": 220,  # 200 + 20 shipping
+            "total_ron": 270,  # 250 + 20 shipping
             "currency": "RON",
             "coupon_code": None,
             "coupon_discount": 0
         }
         
         response = requests.post(f"{BASE_URL}/api/orders", json=order_data)
-        assert response.status_code == 200, f"Order creation failed: {response.text}"
+        assert response.status_code == 250, f"Order creation failed: {response.text}"
         
         order = response.json()
         assert 'id' in order
@@ -202,7 +202,7 @@ class TestOrdersAPI:
         
         # Verify main item
         main_item = order['items'][0]
-        assert main_item['price_ron'] == 200
+        assert main_item['price_ron'] == 250
         assert 'BUNDLE:' in main_item['product_name']
         
         # Verify free item

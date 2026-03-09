@@ -40,7 +40,7 @@ E-commerce website for premium football jerseys. Built with React, FastAPI, and 
 - All fields always visible (grayed out until applicable)
 - Main product: Team select → Season → Kit → **Inline image preview with caption** → Size
 - Free product: National team select → **Inline image preview with caption** → Size (year preset 25/26)
-- Price: 200 RON (save 100 RON)
+- Price: 250 RON (save 50 RON)
 - PromoPopup: bottom sheet on mobile, centered on desktop
 
 ### 6. Customer Order Tracking

@@ -51,7 +51,7 @@ export default function PromoPopup() {
 
           <div className="flex items-center justify-center gap-4 mb-4">
             <span className="text-neutral-500 line-through text-lg">300 RON</span>
-            <span className="text-3xl font-bold text-[#CCFF00]">200 RON</span>
+            <span className="text-3xl font-bold text-[#CCFF00]">250 RON</span>
           </div>
 
           <button

@@ -50,7 +50,7 @@ export default function Cart() {
                   {isBundle && (
                     <div className="flex items-center gap-2 mb-3 pb-3 border-b border-neutral-200">
                       <span className="bg-[#CCFF00] text-black text-xs font-bold px-2 py-1">BUNDLE 1+1</span>
-                      <span className="text-sm font-bold">200 RON</span>
+                      <span className="text-sm font-bold">250 RON</span>
                     </div>
                   )}
                   <div className="flex gap-4">

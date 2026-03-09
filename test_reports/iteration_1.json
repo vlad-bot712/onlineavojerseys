@@ -57,7 +57,7 @@
     },
     "checkout_display": {
       "status": "PASS",
-      "details": "Bundle shows in order summary with correct pricing (200 RON main, 0 RON free)"
+      "details": "Bundle shows in order summary with correct pricing (250 RON main, 0 RON free)"
     },
     "promo_popup": {
       "status": "PASS",

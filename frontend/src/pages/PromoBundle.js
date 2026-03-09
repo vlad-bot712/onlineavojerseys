@@ -268,7 +268,7 @@ export default function PromoBundle() {
       id: `bundle_${Date.now()}`,
       name: `Bundle: ${selectedTeamName} + ${freeTeam}`,
       isBundle: true,
-      price_ron: 200,
+      price_ron: 250,
       team: selectedTeamName,
       year: year,
       selectedKit: kitKey,
@@ -339,10 +339,10 @@ export default function PromoBundle() {
         <div className="bg-black text-white p-4 rounded-lg mb-6 flex items-center justify-between">
           <div className="flex items-baseline gap-3">
             <span className="text-neutral-500 line-through text-lg">300 RON</span>
-            <span className="text-3xl font-bold text-[#CCFF00]">200 RON</span>
+            <span className="text-3xl font-bold text-[#CCFF00]">250 RON</span>
           </div>
           <div className="bg-[#CCFF00] text-black px-3 py-1 rounded text-xs font-bold flex items-center gap-1">
-            <Star className="w-3 h-3" /> -100 RON
+            <Star className="w-3 h-3" /> -50 RON
           </div>
         </div>
 
@@ -637,22 +637,18 @@ export default function PromoBundle() {
           className="w-full bg-[#CCFF00] text-black py-4 font-bold text-lg uppercase flex items-center justify-center gap-2 border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all mb-4"
         >
           <ShoppingCart className="w-6 h-6" />
-          ADAUGA IN COS - 200 RON
+          ADAUGA IN COS - 250 RON
         </button>
 
         {/* Trust */}
         <div className="grid grid-cols-3 gap-2 text-center text-xs">
           <div className="bg-white p-2 rounded-lg border border-neutral-200">
             <p className="font-bold">Livrare</p>
-            <p className="text-neutral-500">2-4 zile</p>
+            <p className="text-neutral-500">1-3sapt</p>
           </div>
           <div className="bg-white p-2 rounded-lg border border-neutral-200">
             <p className="font-bold">Calitate</p>
             <p className="text-neutral-500">Premium</p>
-          </div>
-          <div className="bg-white p-2 rounded-lg border border-neutral-200">
-            <p className="font-bold">Retur</p>
-            <p className="text-neutral-500">14 zile</p>
           </div>
         </div>
       </div>
