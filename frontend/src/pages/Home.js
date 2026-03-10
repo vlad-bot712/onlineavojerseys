@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, ArrowLeft, Truck, CreditCard, Shield, Heart, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Truck, CreditCard, Shield, Heart, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import axios from 'axios';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useFavorites } from '../contexts/FavoritesContext';
@@ -9,6 +9,13 @@ import ReviewsSection from '../components/ReviewsSection';
 import CountdownModal from '../components/CountdownModal';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+const HERO_IMAGES = [
+  'https://customer-assets.emergentagent.com/job_change-maker-18/artifacts/p4urc78a_champions-league-stadium-wallpaper-preview%20%282%29.jpg',
+  'https://images.unsplash.com/photo-1604068769565-2c51b6c19830?w=2400&q=85',
+  'https://images.unsplash.com/photo-1573559055341-51c1ced2b864?w=2400&q=85',
+  'https://images.unsplash.com/photo-1767916732786-a83902ffc25c?w=2400&q=85',
+];
 
 const POPULAR_TEAMS = [
   { name: 'Real Madrid', logo: '/images/logos/real-madrid.png' },
@@ -29,55 +36,82 @@ const POPULAR_TEAMS = [
 
 function TeamsCarousel({ navigate }) {
   const scrollRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = useCallback(() => {
+    if (!scrollRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+    setCanScrollLeft(scrollLeft > 4);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) {
+      el.addEventListener('scroll', checkScroll);
+      checkScroll();
+      return () => el.removeEventListener('scroll', checkScroll);
+    }
+  }, [checkScroll]);
 
   const scroll = (dir) => {
     if (!scrollRef.current) return;
-    const amount = scrollRef.current.offsetWidth * 0.6;
+    const amount = scrollRef.current.offsetWidth * 0.55;
     scrollRef.current.scrollBy({ left: dir === 'left' ? -amount : amount, behavior: 'smooth' });
   };
 
   return (
-    <div className="relative group/carousel">
+    <div className="relative">
       {/* Left arrow */}
-      <button
-        onClick={() => scroll('left')}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black/80 hover:bg-[#CCFF00] text-white hover:text-black w-10 h-10 rounded-full flex items-center justify-center -ml-2 shadow-lg transition-all opacity-0 group-hover/carousel:opacity-100"
-      >
-        <ChevronLeft className="w-5 h-5" />
-      </button>
+      {canScrollLeft && (
+        <button
+          onClick={() => scroll('left')}
+          data-testid="carousel-arrow-left"
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black text-white rounded-full flex items-center justify-center -ml-1 shadow-lg hover:bg-[#CCFF00] hover:text-black transition-all"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+      )}
 
       {/* Scrollable row */}
       <div
         ref={scrollRef}
-        className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth px-2"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        className="flex gap-4 sm:gap-6 overflow-x-auto scroll-smooth px-6"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
       >
         {POPULAR_TEAMS.map(team => (
           <button
             key={team.name}
             data-testid={`popular-team-${team.name}`}
             onClick={() => navigate(`/products?category=echipe-club&team=${encodeURIComponent(team.name)}`)}
-            className="group flex-shrink-0 flex flex-col items-center w-24 sm:w-28"
+            className="group flex-shrink-0 flex flex-col items-center"
           >
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white border-2 border-neutral-200 group-hover:border-[#CCFF00] group-hover:shadow-[0_0_24px_rgba(204,255,0,0.4)] transition-all duration-300 flex items-center justify-center p-3 overflow-hidden">
+            <div className="w-[72px] h-[72px] sm:w-[88px] sm:h-[88px] bg-white rounded-2xl border border-neutral-200 flex items-center justify-center p-3 sm:p-4 transition-all duration-300 group-hover:border-[#CCFF00] group-hover:shadow-[0_0_16px_rgba(204,255,0,0.25)]">
               <img
                 src={team.logo}
                 alt={team.name}
-                className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300"
+                draggable={false}
+                className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
               />
             </div>
-            <p className="mt-2 text-xs font-bold text-center group-hover:text-[#CCFF00] transition-colors whitespace-nowrap">{team.name}</p>
+            <span className="mt-2.5 text-[11px] sm:text-xs font-semibold text-neutral-600 group-hover:text-black transition-colors text-center leading-tight max-w-[80px]">
+              {team.name}
+            </span>
           </button>
         ))}
       </div>
 
       {/* Right arrow */}
-      <button
-        onClick={() => scroll('right')}
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black/80 hover:bg-[#CCFF00] text-white hover:text-black w-10 h-10 rounded-full flex items-center justify-center -mr-2 shadow-lg transition-all opacity-0 group-hover/carousel:opacity-100"
-      >
-        <ChevronRight className="w-5 h-5" />
-      </button>
+      {canScrollRight && (
+        <button
+          onClick={() => scroll('right')}
+          data-testid="carousel-arrow-right"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black text-white rounded-full flex items-center justify-center -mr-1 shadow-lg hover:bg-[#CCFF00] hover:text-black transition-all"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 }
@@ -89,245 +123,285 @@ export default function Home() {
   const [categories, setCategories] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [showCountdown, setShowCountdown] = useState(false);
+  const [heroIdx, setHeroIdx] = useState(0);
 
   useEffect(() => {
-    // Load categories
     axios.get(`${API_URL}/api/categories`)
       .then(res => setCategories(res.data))
       .catch(err => console.error(err));
-
-    // Load featured products
     axios.get(`${API_URL}/api/products`)
       .then(res => setFeaturedProducts(res.data.slice(0, 4)))
       .catch(err => console.error(err));
   }, []);
 
+  // Hero slideshow
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHeroIdx(prev => (prev + 1) % HERO_IMAGES.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div data-testid="home-page">
-      {/* Hero Section */}
-      <section 
+      {/* ═══ HERO SECTION ═══ */}
+      <section
         data-testid="hero-section"
         className="relative h-[90vh] flex items-center justify-center overflow-hidden mt-20"
-        style={{
-          backgroundImage: 'url(https://customer-assets.emergentagent.com/job_change-maker-18/artifacts/p4urc78a_champions-league-stadium-wallpaper-preview%20%282%29.jpg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
-        
-        {/* Animated particles effect */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-10 w-2 h-2 bg-[#CCFF00] rounded-full animate-pulse"></div>
-          <div className="absolute top-40 right-20 w-3 h-3 bg-[#CCFF00] rounded-full animate-ping"></div>
-          <div className="absolute bottom-40 left-1/4 w-2 h-2 bg-white rounded-full animate-pulse"></div>
-          <div className="absolute top-1/3 right-1/4 w-1 h-1 bg-[#CCFF00] rounded-full animate-ping"></div>
+        {/* Slideshow backgrounds */}
+        {HERO_IMAGES.map((img, i) => (
+          <div
+            key={i}
+            className="absolute inset-0 transition-opacity duration-[1500ms] ease-in-out"
+            style={{
+              backgroundImage: `url(${img})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              opacity: i === heroIdx ? 1 : 0,
+            }}
+          />
+        ))}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
+
+        {/* Slideshow indicators */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex gap-2">
+          {HERO_IMAGES.map((_, i) => (
+            <button
+              key={i}
+              data-testid={`hero-dot-${i}`}
+              onClick={() => setHeroIdx(i)}
+              className={`h-[3px] rounded-full transition-all duration-500 ${
+                i === heroIdx ? 'w-8 bg-[#CCFF00]' : 'w-4 bg-white/30'
+              }`}
+            />
+          ))}
         </div>
-        
-        <div className="relative z-10 text-center text-white px-4">
-          {/* Price Banner with glow effect */}
-          <div className="bg-[#CCFF00] text-black px-8 py-3 inline-block mb-6 font-bold text-lg tracking-wider shadow-lg animate-pulse">
+
+        <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 bg-[#CCFF00] text-black px-5 py-2 mb-8 text-sm font-bold tracking-wider uppercase">
+            <span className="w-1.5 h-1.5 bg-black rounded-full" />
             BUNDLE 1+1 GRATIS — DOAR 250 RON
           </div>
-          
-          <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black mb-6 tracking-tighter leading-none">
-            <span className="block">TRICOURI DE</span>
-            <span className="block text-[#CCFF00]">FOTBAL</span>
-            <span className="block text-3xl sm:text-4xl lg:text-5xl font-bold mt-2 text-neutral-300">PENTRU ADEVĂRAȚII FANI</span>
+
+          <h1
+            className="mb-6 leading-[1.1]"
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+          >
+            <span className="block text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight">
+              TRICOURI DE
+            </span>
+            <span className="block text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-[#CCFF00] mt-1">
+              FOTBAL
+            </span>
+            <span className="block text-lg sm:text-xl lg:text-2xl font-medium mt-4 text-white/70 tracking-wide">
+              PENTRU ADEVĂRAȚII FANI
+            </span>
           </h1>
-          
-          <p className="text-lg md:text-xl mb-8 text-neutral-300 max-w-2xl mx-auto">
-            Colecție premium • Echipe de top • Design autentic • Livrare rapidă
+
+          <p className="text-base text-white/50 mb-10 max-w-xl mx-auto tracking-wide">
+            Colecție premium &middot; Echipe de top &middot; Design autentic &middot; Livrare rapidă
           </p>
-          
+
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link 
+            <Link
               to="/products"
               data-testid="hero-cta"
-              className="inline-flex items-center space-x-2 bg-[#CCFF00] text-black px-8 py-4 font-bold uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+              className="inline-flex items-center gap-3 bg-[#CCFF00] text-black px-8 py-4 font-bold uppercase tracking-wider hover:bg-white transition-colors"
             >
-              <span>Vezi Colecția</span>
+              Vezi Colecția
               <ArrowRight className="w-5 h-5" />
             </Link>
-            
-            {/* Coming Soon Button */}
-            <button 
+            <button
               onClick={() => setShowCountdown(true)}
-              className="inline-flex items-center space-x-2 bg-transparent border-2 border-white text-white px-8 py-4 font-bold uppercase tracking-wider hover:bg-white hover:text-black transition-all"
+              className="inline-flex items-center gap-3 border border-white/30 text-white px-8 py-4 font-bold uppercase tracking-wider hover:border-white hover:bg-white/5 transition-all"
             >
-              <span>Drop Casual</span>
+              Drop Casual
               <Sparkles className="w-5 h-5" />
             </button>
           </div>
-          
+
           {/* Stats */}
-          <div className="mt-12 flex flex-wrap justify-center gap-8 text-neutral-300">
+          <div className="mt-14 flex justify-center gap-12 text-white/60">
             <div className="text-center">
-              <div className="text-3xl font-black text-[#CCFF00]">250+</div>
-              <div className="text-sm">Modele</div>
+              <div className="text-2xl font-bold text-[#CCFF00]">250+</div>
+              <div className="text-xs uppercase tracking-widest mt-1">Modele</div>
             </div>
+            <div className="w-px h-10 bg-white/10" />
             <div className="text-center">
-              <div className="text-3xl font-black text-[#CCFF00]">24h</div>
-              <div className="text-sm">Procesare</div>
+              <div className="text-2xl font-bold text-[#CCFF00]">24h</div>
+              <div className="text-xs uppercase tracking-widest mt-1">Procesare</div>
             </div>
+            <div className="w-px h-10 bg-white/10" />
             <div className="text-center">
-              <div className="text-3xl font-black text-[#CCFF00]">100%</div>
-              <div className="text-sm">Calitate</div>
+              <div className="text-2xl font-bold text-[#CCFF00]">100%</div>
+              <div className="text-xs uppercase tracking-widest mt-1">Calitate</div>
             </div>
-          </div>
-        </div>
-        
-        {/* Scroll indicator - hidden on mobile to avoid overlap with stats */}
-        <div className="hidden md:block absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white/50 rounded-full mt-2 animate-pulse"></div>
           </div>
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="py-16 md:py-24 px-4 md:px-8 lg:px-12 max-w-7xl mx-auto relative">
-        {/* Decorative lime line */}
-        <div className="absolute left-1/2 top-0 w-px h-12 bg-gradient-to-b from-transparent via-[#CCFF00] to-transparent -translate-x-1/2"></div>
-        
-        <div className="text-center mb-12">
-          <span className="inline-block bg-[#CCFF00] text-black text-xs font-bold px-3 py-1 rounded-full mb-4">COLECȚII</span>
-          <h2 className="text-4xl sm:text-5xl font-bold">CATEGORII</h2>
-          <p className="text-neutral-500 mt-3">Alege stilul tău preferat</p>
+      {/* ═══ LIME DIVIDER ═══ */}
+      <div className="flex justify-center py-8">
+        <div className="w-12 h-[2px] bg-[#CCFF00]" />
+      </div>
+
+      {/* ═══ CATEGORIES ═══ */}
+      <section className="py-12 md:py-20 px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
+        <div className="mb-10">
+          <p className="text-xs font-bold text-[#CCFF00] uppercase tracking-[0.2em] mb-2">Colecții</p>
+          <h2 className="text-3xl sm:text-4xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            CATEGORII
+          </h2>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Echipe de Club - UCL Logo */}
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Echipe de Club */}
           <Link
             to="/products?category=echipe-club"
             data-testid="category-echipe-club"
-            className="group relative h-80 overflow-hidden border-2 border-neutral-200 hover:border-[#CCFF00] transition-all rounded-xl"
+            className="group relative h-72 overflow-hidden"
           >
-            <img 
-              src="https://customer-assets.emergentagent.com/job_change-maker-18/artifacts/1yk9re80_c6nfDmk7nEFkdMpAQYzEK4-1000-80.jpg" 
+            <img
+              src="https://customer-assets.emergentagent.com/job_change-maker-18/artifacts/1yk9re80_c6nfDmk7nEFkdMpAQYzEK4-1000-80.jpg"
               alt="Echipe de Club"
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/90 transition-all"></div>
-            <div className="absolute inset-0 flex flex-col items-center justify-end pb-8">
-              <h3 className="text-3xl font-bold text-white uppercase tracking-tighter mb-2">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-6">
+              <h3 className="text-2xl font-bold text-white tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                 Echipe de Club
               </h3>
-              <span className="text-[#CCFF00] text-sm font-bold opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                VEZI COLECȚIA →
-              </span>
+              <div className="mt-2 h-[2px] w-0 bg-[#CCFF00] group-hover:w-12 transition-all duration-500" />
             </div>
           </Link>
 
-          {/* Naționale - UNL Logo */}
+          {/* Naționale */}
           <Link
             to="/products?category=nationale"
             data-testid="category-nationale"
-            className="group relative h-80 overflow-hidden border-2 border-neutral-200 hover:border-[#CCFF00] transition-all rounded-xl"
+            className="group relative h-72 overflow-hidden"
           >
-            <img 
-              src="https://customer-assets.emergentagent.com/job_change-maker-18/artifacts/z1r6jhop_UNL_Press-release_150-dpi_Logo.avif" 
+            <img
+              src="https://customer-assets.emergentagent.com/job_change-maker-18/artifacts/z1r6jhop_UNL_Press-release_150-dpi_Logo.avif"
               alt="Naționale"
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/90 transition-all"></div>
-            <div className="absolute inset-0 flex flex-col items-center justify-end pb-8">
-              <h3 className="text-3xl font-bold text-white uppercase tracking-tighter mb-2">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-6">
+              <h3 className="text-2xl font-bold text-white tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                 Naționale
               </h3>
-              <span className="text-[#CCFF00] text-sm font-bold opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                VEZI COLECȚIA →
-              </span>
+              <div className="mt-2 h-[2px] w-0 bg-[#CCFF00] group-hover:w-12 transition-all duration-500" />
             </div>
           </Link>
 
-          {/* Retro - Black & White */}
+          {/* Retro */}
           <Link
             to="/products?category=retro"
             data-testid="category-retro"
-            className="group relative h-80 overflow-hidden border-2 border-neutral-200 hover:border-[#CCFF00] transition-all rounded-xl"
+            className="group relative h-72 overflow-hidden"
           >
-            <img 
-              src="https://customer-assets.emergentagent.com/job_change-maker-18/artifacts/izlhyft1_black-white-horizontal-photo-soccer-600nw-2489059367.webp" 
+            <img
+              src="https://customer-assets.emergentagent.com/job_change-maker-18/artifacts/izlhyft1_black-white-horizontal-photo-soccer-600nw-2489059367.webp"
               alt="Retro"
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 grayscale"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 grayscale"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/90 transition-all"></div>
-            <div className="absolute inset-0 flex flex-col items-center justify-end pb-8">
-              <h3 className="text-3xl font-bold text-white uppercase tracking-tighter mb-2">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-6">
+              <h3 className="text-2xl font-bold text-white tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                 Retro
               </h3>
-              <span className="text-[#CCFF00] text-sm font-bold opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                VEZI COLECȚIA →
-              </span>
+              <div className="mt-2 h-[2px] w-0 bg-[#CCFF00] group-hover:w-12 transition-all duration-500" />
             </div>
           </Link>
         </div>
       </section>
 
-      {/* Echipe Populare */}
-      <section className="py-16 md:py-20 px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
-        <div className="text-center mb-10">
-          <span className="inline-block bg-[#CCFF00] text-white text-xs font-bold px-4 py-1 rounded-full mb-4">ECHIPE</span>
-          <h2 className="text-3xl sm:text-4xl font-bold">ECHIPE POPULARE</h2>
-          <p className="text-neutral-500 mt-2">Click pe echipa preferata pentru a vedea toate tricourile</p>
+      {/* ═══ POPULAR TEAMS ═══ */}
+      <section className="py-12 md:py-16 px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
+        <div className="flex items-end justify-between mb-8">
+          <div>
+            <p className="text-xs font-bold text-[#CCFF00] uppercase tracking-[0.2em] mb-2">Echipe</p>
+            <h2 className="text-3xl sm:text-4xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              ECHIPE POPULARE
+            </h2>
+          </div>
+          <Link
+            to="/products?category=echipe-club"
+            className="hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-500 hover:text-black transition-colors"
+          >
+            Vezi toate
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
         <TeamsCarousel navigate={navigate} />
       </section>
 
-      {/* Featured Products */}
+      {/* ═══ LIME DIVIDER ═══ */}
+      <div className="flex justify-center py-6">
+        <div className="w-12 h-[2px] bg-[#CCFF00]" />
+      </div>
+
+      {/* ═══ FEATURED PRODUCTS ═══ */}
       {featuredProducts.length > 0 && (
-        <section className="py-16 md:py-24 px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
-          <h2 className="text-4xl sm:text-5xl font-bold text-center mb-12">PRODUSE POPULARE</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <section className="py-12 md:py-20 px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <p className="text-xs font-bold text-[#CCFF00] uppercase tracking-[0.2em] mb-2">Trending</p>
+              <h2 className="text-3xl sm:text-4xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                PRODUSE POPULARE
+              </h2>
+            </div>
+            <Link
+              to="/products"
+              className="hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-500 hover:text-black transition-colors"
+            >
+              Vezi toate
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {featuredProducts.map(product => {
-              // Get first image from first variant or fallback
-              const productImage = product.variants && product.variants.length > 0 && product.variants[0].images && product.variants[0].images.length > 0
-                ? product.variants[0].images[0]
-                : (product.images && product.images.length > 0 
-                  ? product.images[0] 
-                  : 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=400');
-              
+              const productImage = product.variants?.[0]?.images?.[0]
+                || product.images?.[0]
+                || 'https://images.unsplash.com/photo-1767163294492-4e6479cab8b4?w=400';
+
               return (
                 <div
                   key={product.id}
                   data-testid={`product-${product.id}`}
-                  className="group bg-white border border-neutral-100 hover:border-black hover:shadow-xl transition-all relative"
+                  className="group bg-white border border-neutral-100 hover:border-neutral-300 transition-all relative"
                 >
-                  {/* Favorite Heart */}
                   <button
                     onClick={(e) => {
                       e.preventDefault();
                       toggleFavorite(product);
                       toast.success(isFavorite(product.id) ? 'Șters din favorite' : 'Adăugat la favorite');
                     }}
-                    className="absolute top-3 right-3 z-10 w-10 h-10 bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-[#CCFF00] transition-all"
+                    className="absolute top-3 right-3 z-10 w-9 h-9 bg-white/90 backdrop-blur-sm flex items-center justify-center transition-colors hover:bg-[#CCFF00]"
                   >
-                    <Heart 
-                      className={`w-5 h-5 ${isFavorite(product.id) ? 'fill-red-500 text-red-500' : 'text-neutral-400'}`}
-                    />
+                    <Heart className={`w-4 h-4 ${isFavorite(product.id) ? 'fill-red-500 text-red-500' : 'text-neutral-400'}`} />
                   </button>
 
                   <Link to={`/products/${product.id}`}>
-                    <div className="aspect-square overflow-hidden">
-                      <img 
-                        src={productImage} 
+                    <div className="aspect-square overflow-hidden bg-neutral-50">
+                      <img
+                        src={productImage}
                         alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
                     <div className="p-4">
-                      <h3 className="font-bold text-lg mb-2">{product.name}</h3>
-                      <p className="text-sm text-neutral-500 mb-2">{product.team} • {product.year}</p>
+                      <h3 className="font-bold text-base mb-1 line-clamp-1">{product.name}</h3>
+                      <p className="text-xs text-neutral-400 mb-3">{product.team} &middot; {product.year}</p>
                       <div className="flex items-center justify-between">
-                        <p className="text-xl font-bold">{formatPrice(product.price_ron)}</p>
-                        {/* In Stock indicator */}
+                        <p className="text-lg font-bold">{formatPrice(product.price_ron)}</p>
                         <div className="flex items-center gap-1.5">
-                          <span className="relative flex h-2.5 w-2.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-                          </span>
-                          <span className="text-xs font-medium text-green-600">In Stock</span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#CCFF00]" />
+                          <span className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider">In Stock</span>
                         </div>
                       </div>
                     </div>
@@ -339,50 +413,45 @@ export default function Home() {
         </section>
       )}
 
-      {/* Benefits */}
-      <section className="py-16 md:py-24 px-4 md:px-8 lg:px-12 bg-neutral-50 relative overflow-hidden">
-        {/* Decorative lime elements */}
-        <div className="absolute top-0 left-0 w-32 h-32 bg-[#CCFF00]/10 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 right-0 w-48 h-48 bg-[#CCFF00]/10 rounded-full translate-x-1/4 translate-y-1/4"></div>
-        <div className="absolute top-1/2 right-10 w-2 h-2 bg-[#CCFF00] rounded-full"></div>
-        <div className="absolute top-20 left-1/4 w-1 h-1 bg-[#CCFF00] rounded-full"></div>
-        
-        <div className="max-w-7xl mx-auto relative">
-          {/* Section header with lime accent */}
-          <div className="text-center mb-12">
-            <span className="inline-block bg-[#CCFF00] text-black text-xs font-bold px-3 py-1 rounded-full mb-4">DE CE NOI</span>
-            <h2 className="text-3xl md:text-4xl font-bold">Servicii Premium</h2>
+      {/* ═══ BENEFITS ═══ */}
+      <section className="py-16 md:py-24 px-4 md:px-8 lg:px-12 bg-black text-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-xs font-bold text-[#CCFF00] uppercase tracking-[0.2em] mb-2">De ce noi</p>
+            <h2 className="text-3xl sm:text-4xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              SERVICII PREMIUM
+            </h2>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div data-testid="benefit-shipping" className="text-center group">
-              <div className="w-16 h-16 bg-black text-white flex items-center justify-center mx-auto mb-4 rounded-2xl group-hover:bg-[#CCFF00] group-hover:text-black transition-all duration-300">
-                <Truck className="w-8 h-8" />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
+            <div data-testid="benefit-shipping" className="text-center">
+              <div className="w-14 h-14 border border-[#CCFF00]/30 flex items-center justify-center mx-auto mb-5">
+                <Truck className="w-6 h-6 text-[#CCFF00]" />
               </div>
-              <h3 className="text-xl font-bold mb-2">LIVRARE RAPIDĂ</h3>
-              <p className="text-neutral-600">Livrare în 1-2 săpt, în toată țara</p>
+              <h3 className="text-base font-bold uppercase tracking-wider mb-2">Livrare Rapidă</h3>
+              <p className="text-sm text-white/40">Livrare în 1-2 săpt, în toată țara</p>
             </div>
-            <div data-testid="benefit-payment" className="text-center group">
-              <div className="w-16 h-16 bg-black text-white flex items-center justify-center mx-auto mb-4 rounded-2xl group-hover:bg-[#CCFF00] group-hover:text-black transition-all duration-300">
-                <CreditCard className="w-8 h-8" />
+            <div data-testid="benefit-payment" className="text-center">
+              <div className="w-14 h-14 border border-[#CCFF00]/30 flex items-center justify-center mx-auto mb-5">
+                <CreditCard className="w-6 h-6 text-[#CCFF00]" />
               </div>
-              <h3 className="text-xl font-bold mb-2">PLATĂ SECURIZATĂ</h3>
-              <p className="text-neutral-600">Tranzacții 100% sigure</p>
+              <h3 className="text-base font-bold uppercase tracking-wider mb-2">Plată Securizată</h3>
+              <p className="text-sm text-white/40">Tranzacții 100% sigure</p>
             </div>
-            <div data-testid="benefit-quality" className="text-center group">
-              <div className="w-16 h-16 bg-black text-white flex items-center justify-center mx-auto mb-4 rounded-2xl group-hover:bg-[#CCFF00] group-hover:text-black transition-all duration-300">
-                <Shield className="w-8 h-8" />
+            <div data-testid="benefit-quality" className="text-center">
+              <div className="w-14 h-14 border border-[#CCFF00]/30 flex items-center justify-center mx-auto mb-5">
+                <Shield className="w-6 h-6 text-[#CCFF00]" />
               </div>
-              <h3 className="text-xl font-bold mb-2">PRODUSE PREMIUM</h3>
-              <p className="text-neutral-600">Calitate garantată</p>
+              <h3 className="text-base font-bold uppercase tracking-wider mb-2">Produse Premium</h3>
+              <p className="text-sm text-white/40">Calitate garantată</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Reviews Section */}
+      {/* ═══ REVIEWS ═══ */}
       <ReviewsSection />
-      
+
       {/* Countdown Modal */}
       <CountdownModal isOpen={showCountdown} onClose={() => setShowCountdown(false)} />
     </div>

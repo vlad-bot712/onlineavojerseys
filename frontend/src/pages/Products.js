@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { Filter, Heart, Shirt, Ruler, Gift, ArrowRight, Eye, X, ShoppingCart, RotateCw } from 'lucide-react';
+import { Filter, Heart, Shirt, Ruler, Gift, ArrowRight, Eye, X, ShoppingCart } from 'lucide-react';
 import axios from 'axios';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { useCart } from '../contexts/CartContext';
 import { toast } from 'sonner';
 import SizeChartModal from '../components/SizeChartModal';
-import Jersey360Viewer from '../components/Jersey360Viewer';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -29,7 +28,6 @@ export default function Products() {
     team: searchParams.get('team') || '',
     year: ''
   });
-  const [show360, setShow360] = useState(false);
 
   const isPromo = filters.category === 'promotie-1-1';
 
@@ -75,8 +73,9 @@ export default function Products() {
       <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl sm:text-5xl font-black mb-2">PRODUSE</h1>
-          <p className="text-neutral-500">{products.length} tricouri disponibile</p>
+          <p className="text-xs font-bold text-[#CCFF00] uppercase tracking-[0.2em] mb-2">Catalog</p>
+          <h1 className="text-3xl sm:text-4xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>PRODUSE</h1>
+          <p className="text-neutral-400 text-sm mt-1">{products.length} tricouri disponibile</p>
         </div>
 
         {/* Preorder Banner */}
@@ -101,54 +100,6 @@ export default function Products() {
             </div>
           </div>
         </div>
-
-        {/* 360° Romania Preview Banner */}
-        <div
-          data-testid="360-preview-banner"
-          className="relative overflow-hidden mb-8 bg-neutral-950 rounded-xl border border-white/10 cursor-pointer group"
-          onClick={() => setShow360(true)}
-        >
-          <div className="flex flex-col sm:flex-row items-center">
-            <div className="sm:w-1/3 p-6 sm:p-8 flex flex-col justify-center">
-              <div className="flex items-center gap-2 mb-3">
-                <RotateCw className="w-5 h-5 text-[#CCFF00] animate-spin" style={{ animationDuration: '3s' }} />
-                <span className="text-[#CCFF00] text-xs font-bold uppercase tracking-widest">Nou</span>
-              </div>
-              <h3 className="text-white text-2xl sm:text-3xl font-black leading-tight mb-2">
-                PREVIEW 360°
-              </h3>
-              <p className="text-white/50 text-sm mb-4">
-                Rotește tricoul României și adaugă-ți numele și numărul pe spate — live preview!
-              </p>
-              <div className="inline-flex items-center gap-2 bg-[#CCFF00] text-black px-5 py-2.5 font-bold text-sm uppercase rounded-full group-hover:shadow-[0_0_20px_rgba(204,255,0,0.4)] transition-all">
-                <RotateCw className="w-4 h-4" />
-                Încearcă Acum
-              </div>
-            </div>
-            <div className="sm:w-2/3 h-48 sm:h-64 relative overflow-hidden">
-              <img
-                src="/images/preview360/romania-front.jpg"
-                alt="Romania 360"
-                className="absolute left-[10%] top-0 h-full object-contain opacity-60 group-hover:opacity-80 transition-opacity duration-500"
-              />
-              <img
-                src="/images/preview360/romania-back.jpg"
-                alt="Romania Back"
-                className="absolute right-[10%] top-0 h-full object-contain opacity-40 group-hover:opacity-70 transition-opacity duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-transparent to-neutral-950" />
-            </div>
-          </div>
-        </div>
-
-        {/* 360° Viewer Modal */}
-        {show360 && (
-          <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-0 sm:p-4">
-            <div className="w-full h-full sm:max-w-5xl sm:max-h-[85vh] sm:rounded-xl overflow-hidden flex flex-col">
-              <Jersey360Viewer onClose={() => setShow360(false)} />
-            </div>
-          </div>
-        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Filters Sidebar - Modern Design */}
@@ -310,7 +261,7 @@ export default function Products() {
                     <div
                       key={product.id}
                       data-testid={`product-card-${product.id}`}
-                      className="group bg-white border border-neutral-100 hover:border-black hover:shadow-xl transition-all relative"
+                      className="group bg-white border border-neutral-100 hover:border-neutral-300 transition-all relative"
                     >
                       {/* Favorite Heart */}
                       <button
@@ -349,13 +300,9 @@ export default function Products() {
                           <p className="text-sm text-neutral-500 mb-2">{product.team} • {product.year}</p>
                           <div className="flex items-center justify-between">
                             <p className="text-xl font-bold">{formatPrice(product.price_ron)}</p>
-                            {/* In Stock indicator with pulse effect */}
                             <div className="flex items-center gap-1.5">
-                              <span className="relative flex h-2.5 w-2.5">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-                              </span>
-                              <span className="text-xs font-medium text-green-600">In Stock</span>
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#CCFF00]" />
+                              <span className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider">In Stock</span>
                             </div>
                           </div>
                           {product.variants && product.variants.length > 0 && (
