@@ -3,7 +3,7 @@
 ## Overview
 E-commerce website for premium football jerseys. Built with React, FastAPI, and MongoDB.
 
-**Preview URL:** https://limited-edition-1.preview.emergentagent.com
+**Preview URL:** https://interactive-jersey.preview.emergentagent.com
 
 ## Core Features (Implemented)
 

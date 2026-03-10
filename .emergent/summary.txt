@@ -1,88 +1,225 @@
-<analysis>Análise da sessão e resumo de transferência
+<analysis>**original_problem_statement:**
+The user requested the creation of a modern e-commerce website for selling football jerseys. The project's scope has expanded significantly over time to include a wide range of features such as a coupon system, invoice generation, traffic analytics panel, customer reviews, a Limited Edition product category, and a promotional bundle configurator.
 
-**original_problem_statement:**
-O utilizador solicitou a criação de um website de e-commerce moderno para venda de camisolas de futebol. Os requisitos evoluíram significativamente, incluindo a adição de funcionalidades como um sistema de cupões, geração de faturas, um painel de análise de tráfego, um sistema de avaliações de clientes, uma categoria de Edição Limitada e, mais recentemente, um configurador de pacotes promocionais.
+Recently, the user requested a major overhaul by merging the entire codebase from a public GitHub repository (), while preserving the existing database. Following the merge, the user asked for further design enhancements, including a Popular Teams carousel and a Quick View modal. The latest and most significant feature request is to build a 360-degree interactive product preview, starting with a specific jersey.
 
 **PRODUCT REQUIREMENTS:**
-- **Design:** Moderno, premium, minimalista.
-- **Categorias de Produtos:** Clubes, Seleções, Retro, e uma categoria especial Edição Limitada (acessível apenas através de filtros).
-- **Funcionalidades do Produto:** Variantes (kit), versões (Player/Fan), personalização (nome, número, patches), tabela de tamanhos.
-- **Fluxo de E-commerce:** Catálogo, detalhe do produto, carrinho, checkout, rastreamento de pedido.
-- **Pagamentos:** Múltiplos métodos (fachada), sistema de cupões de desconto ( para -10 RON,  para -20 RON).
-- **Painel de Administração ():**
-    - Visualização de estatísticas e lista de pedidos.
-    - Ações por pedido: ver detalhes, atualizar estado, adicionar AWB, eliminar.
-    - **Geração de Faturas:** Botão para gerar uma imagem A4 da fatura e anexá-la ao pedido.
-    - **Análise de Tráfego:** Modal com estatísticas de visitas ao site (visitantes atuais, diários, totais) e um botão para redefinir os dados.
-    - **Sistema de Email:** Botões para abrir um link  para o email do cliente e para copiar um template de email baseado no estado atual do pedido.
-- **Sistema de Avaliações:** Na página inicial, uma secção para os clientes deixarem avaliações com texto, classificação por estrelas e upload de imagem.
-- **Ordenação de Produtos:** Os produtos devem ser ordenados por liga (Espanha, Inglaterra, etc.), depois por equipa e por ano.
-- **Pacote Promocional:** Um configurador para os clientes criarem pacotes de produtos com desconto.
+- **Core:** A full-stack e-commerce application based on the  repository codebase.
+- **Database:** Must preserve all existing data (orders, reviews, products) from before the codebase merge.
+- **Homepage Enhancements:**
+    - A Popular Teams section implemented as a horizontal carousel displaying team logos, with navigation arrows.
+- **Product Page Enhancements:**
+    - A Quick View modal to allow users to see product details without leaving the product list page.
+    - A **360-degree product preview** for specific items (starting with the Romania jersey). This should be interactive (drag-to-rotate) and allow for on-the-fly customization (adding name/number to the back view).
+- **Admin Panel:** Must correctly display all order details, including new customization options like Fan/Player version and handle new timezone requirements.
+- **Mobile Responsiveness:** All features, especially new interactive ones, must be fully functional and visually appealing on mobile devices, particularly iOS/Safari.
 
 **User's preferred language**: Romanian (O próximo agente DEVE responder em romeno.)
 
 **what currently exists?**
-Uma aplicação full-stack funcional com React, FastAPI e MongoDB. A maioria das funcionalidades principais e adicionais foi implementada, incluindo a correção de bugs críticos (como a exibição de imagens de variantes), o sistema de cupões, a geração de faturas, análise de tráfego, sistema de avaliações e a criação de 18 produtos de Edição Limitada. A ordenação de produtos foi ajustada conforme solicitado. Um mecanismo de seeding foi implementado para tentar resolver discrepâncias de dados entre os ambientes de preview e deploy.
+A full-stack application (React, FastAPI, MongoDB) whose codebase was recently entirely replaced by cloning the user-provided  GitHub repository. The migration was successful, and the existing database containing 10 orders, 3 reviews, and 98 products was preserved.
+
+Recent feature implementations include:
+- A Quick View modal on the product list page.
+- An initial, partially complete implementation of a Popular Teams carousel on the homepage.
+- Numerous enhancements to the Promo Bundle configurator, including support for Retro/Limited Edition products and advanced customization (name, number, version, patches).
+- Backend fixes to handle Romanian timezone for timestamps and display new order details in the admin panel.
 
 **Last working item**:
-- **Last item agent was working:** Implementação de um configurador de Pacote Promocional. O agente começou a criar a infraestrutura para esta funcionalidade.
-    - Foram descarregadas imagens promocionais.
-    - Foi criado o componente da página .
-    - Foi criado o componente do popup .
-    - O agente estava prestes a modificar  para adicionar a nova rota e integrar o popup.
+- **Last item agent was working:** Implementing the Popular Teams section on the homepage as a horizontal logo carousel with navigation arrows, based on user feedback. The agent downloaded the necessary logos and wrote the  component inside .
 - **Status:** IN PROGRESS
-- **Agent Testing Done:** N
-- **Which testing method agent to use?** Frontend testing agent (para testar o fluxo completo de configuração do pacote e adição ao carrinho quando a funcionalidade estiver concluída).
+- **Agent Testing Done:** N (The code was compiled, but no visual test, such as a screenshot, was performed to verify the final appearance and functionality of the carousel).
+- **Which testing method agent to use?** screenshot tool (to verify the carousel's visual design and that the arrows are functional).
 - **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- **Issue 1: Produtos e Ordenação Incorretos no Deploy (P0).** O utilizador reportou que os produtos Limited Edition não aparecem e a ordenação personalizada não funciona no ambiente de deploy (produção), embora funcionem corretamente no ambiente de preview. Esta é a questão mais crítica.
+- **Issue 1: Backend Fails Due to Missing  Dependency (P0 - CRITICAL BLOCKER)**
 
 **Issues Detail:**
-- **Issue 1: Produtos e Ordenação Incorretos no Deploy**
-    - **Attempted fixes:** O agente implementou um mecanismo de seeding no backend () que verifica e (re)cria os 18 produtos de Edição Limitada no arranque do servidor se a contagem estiver incorreta. A lógica de ordenação também foi adicionada ao endpoint . No entanto, o último feedback do utilizador indica que o problema persiste no ambiente de deploy.
+- **Issue 1: Backend Fails Due to Missing  Dependency**
+    - **Attempted fixes:** The agent added  to  to handle Romanian timezones and restarted the server. However, the agent **forgot to install the package** into the environment.
     - **Next debug checklist:**
-        1.  Rever a lógica de seeding em . A condição  pode ser frágil. Considerar uma abordagem mais robusta, talvez forçando sempre a sincronização no arranque em ambientes de não desenvolvimento.
-        2.  Verificar os logs do servidor de deploy imediatamente após um novo deploy para confirmar se o código de seeding está a ser executado e se encontra algum erro.
-        3.  Confirmar que a lógica de ordenação (, ) em  está a ser aplicada corretamente e não é substituída por nenhuma outra lógica no frontend.
-        4.  Fazer uma chamada  diretamente ao endpoint  do ambiente de **deploy** para inspecionar os dados brutos e a sua ordenação, isolando o problema (backend vs. frontend).
-    - **Why fix this issue and what will be achieved with the fix?** Para garantir que as funcionalidades principais do catálogo de produtos funcionam como esperado no site público, resolvendo uma grande inconsistência entre o desenvolvimento e a produção.
-    - **Status:** USER VERIFICATION PENDING
-    - **Is recurring issue?** Y
-    - **Should Test frontend/backend/both after fix?** Backend (verificando os dados e a ordenação na produção).
-    - **Blocked on other issue:** None. Este é um problema de bloqueio.
+        1. Run Looking in indexes: https://pypi.org/simple, https://d33sy5i8bnduwe.cloudfront.net/simple/
+Requirement already satisfied: aiohappyeyeballs==2.6.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 1)) (2.6.1)
+Requirement already satisfied: aiohttp==3.13.3 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 2)) (3.13.3)
+Requirement already satisfied: aiosignal==1.4.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 3)) (1.4.0)
+Requirement already satisfied: annotated-types==0.7.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 4)) (0.7.0)
+Requirement already satisfied: anyio==4.12.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 5)) (4.12.1)
+Requirement already satisfied: attrs==25.4.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 6)) (25.4.0)
+Requirement already satisfied: bcrypt==4.1.3 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 7)) (4.1.3)
+Requirement already satisfied: black==26.1.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 8)) (26.1.0)
+Requirement already satisfied: boto3==1.42.42 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 9)) (1.42.42)
+Requirement already satisfied: botocore==1.42.42 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 10)) (1.42.42)
+Requirement already satisfied: certifi==2026.1.4 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 11)) (2026.1.4)
+Requirement already satisfied: cffi==2.0.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 12)) (2.0.0)
+Requirement already satisfied: charset-normalizer==3.4.4 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 13)) (3.4.4)
+Requirement already satisfied: click==8.3.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 14)) (8.3.1)
+Requirement already satisfied: cryptography==46.0.4 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 15)) (46.0.4)
+Requirement already satisfied: distro==1.9.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 16)) (1.9.0)
+Requirement already satisfied: dnspython==2.8.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 17)) (2.8.0)
+Requirement already satisfied: ecdsa==0.19.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 18)) (0.19.1)
+Requirement already satisfied: email-validator==2.3.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 19)) (2.3.0)
+Requirement already satisfied: emergentintegrations==0.1.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 20)) (0.1.0)
+Requirement already satisfied: fastapi==0.110.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 21)) (0.110.1)
+Requirement already satisfied: fastuuid==0.14.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 22)) (0.14.0)
+Requirement already satisfied: filelock==3.20.3 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 23)) (3.20.3)
+Requirement already satisfied: flake8==7.3.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 24)) (7.3.0)
+Requirement already satisfied: frozenlist==1.8.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 25)) (1.8.0)
+Requirement already satisfied: fsspec==2026.1.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 26)) (2026.1.0)
+Requirement already satisfied: google-ai-generativelanguage==0.6.15 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 27)) (0.6.15)
+Requirement already satisfied: google-api-core==2.29.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 28)) (2.29.0)
+Requirement already satisfied: google-api-python-client==2.189.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 29)) (2.189.0)
+Requirement already satisfied: google-auth==2.49.0.dev0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 30)) (2.49.0.dev0)
+Requirement already satisfied: google-auth-httplib2==0.3.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 31)) (0.3.0)
+Requirement already satisfied: google-genai==1.62.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 32)) (1.62.0)
+Requirement already satisfied: google-generativeai==0.8.6 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 33)) (0.8.6)
+Requirement already satisfied: googleapis-common-protos==1.72.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 34)) (1.72.0)
+Requirement already satisfied: grpcio==1.76.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 35)) (1.76.0)
+Requirement already satisfied: grpcio-status==1.71.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 36)) (1.71.2)
+Requirement already satisfied: h11==0.16.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 37)) (0.16.0)
+Requirement already satisfied: hf-xet==1.2.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 38)) (1.2.0)
+Requirement already satisfied: httpcore==1.0.9 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 39)) (1.0.9)
+Requirement already satisfied: httplib2==0.31.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 40)) (0.31.2)
+Requirement already satisfied: httpx==0.28.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 41)) (0.28.1)
+Requirement already satisfied: huggingface_hub==1.4.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 42)) (1.4.0)
+Requirement already satisfied: idna==3.11 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 43)) (3.11)
+Requirement already satisfied: importlib_metadata==8.7.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 44)) (8.7.1)
+Requirement already satisfied: iniconfig==2.3.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 45)) (2.3.0)
+Requirement already satisfied: isort==7.0.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 46)) (7.0.0)
+Requirement already satisfied: Jinja2==3.1.6 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 47)) (3.1.6)
+Requirement already satisfied: jiter==0.13.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 48)) (0.13.0)
+Requirement already satisfied: jmespath==1.1.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 49)) (1.1.0)
+Requirement already satisfied: jq==1.11.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 50)) (1.11.0)
+Requirement already satisfied: jsonschema==4.26.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 51)) (4.26.0)
+Requirement already satisfied: jsonschema-specifications==2025.9.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 52)) (2025.9.1)
+Requirement already satisfied: librt==0.7.8 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 53)) (0.7.8)
+Requirement already satisfied: litellm==1.80.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 54)) (1.80.0)
+Requirement already satisfied: markdown-it-py==4.0.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 55)) (4.0.0)
+Requirement already satisfied: MarkupSafe==3.0.3 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 56)) (3.0.3)
+Requirement already satisfied: mccabe==0.7.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 57)) (0.7.0)
+Requirement already satisfied: mdurl==0.1.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 58)) (0.1.2)
+Requirement already satisfied: motor==3.3.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 59)) (3.3.1)
+Requirement already satisfied: multidict==6.7.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 60)) (6.7.1)
+Requirement already satisfied: mypy==1.19.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 61)) (1.19.1)
+Requirement already satisfied: mypy_extensions==1.1.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 62)) (1.1.0)
+Requirement already satisfied: numpy==2.4.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 63)) (2.4.2)
+Requirement already satisfied: oauthlib==3.3.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 64)) (3.3.1)
+Requirement already satisfied: openai==1.99.9 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 65)) (1.99.9)
+Requirement already satisfied: packaging==26.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 66)) (26.0)
+Requirement already satisfied: pandas==3.0.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 67)) (3.0.0)
+Requirement already satisfied: passlib==1.7.4 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 68)) (1.7.4)
+Requirement already satisfied: pathspec==1.0.4 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 69)) (1.0.4)
+Requirement already satisfied: pillow==12.1.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 70)) (12.1.0)
+Requirement already satisfied: platformdirs==4.5.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 71)) (4.5.1)
+Requirement already satisfied: pluggy==1.6.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 72)) (1.6.0)
+Requirement already satisfied: propcache==0.4.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 73)) (0.4.1)
+Requirement already satisfied: proto-plus==1.27.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 74)) (1.27.1)
+Requirement already satisfied: protobuf==5.29.6 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 75)) (5.29.6)
+Requirement already satisfied: pyasn1==0.6.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 76)) (0.6.2)
+Requirement already satisfied: pyasn1_modules==0.4.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 77)) (0.4.2)
+Requirement already satisfied: pycodestyle==2.14.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 78)) (2.14.0)
+Requirement already satisfied: pycparser==3.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 79)) (3.0)
+Requirement already satisfied: pydantic==2.12.5 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 80)) (2.12.5)
+Requirement already satisfied: pydantic_core==2.41.5 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 81)) (2.41.5)
+Requirement already satisfied: pyflakes==3.4.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 82)) (3.4.0)
+Requirement already satisfied: Pygments==2.19.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 83)) (2.19.2)
+Requirement already satisfied: PyJWT==2.11.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 84)) (2.11.0)
+Requirement already satisfied: pymongo==4.5.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 85)) (4.5.0)
+Requirement already satisfied: pyparsing==3.3.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 86)) (3.3.2)
+Requirement already satisfied: pytest==9.0.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 87)) (9.0.2)
+Requirement already satisfied: python-dateutil==2.9.0.post0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 88)) (2.9.0.post0)
+Requirement already satisfied: python-dotenv==1.2.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 89)) (1.2.1)
+Requirement already satisfied: python-jose==3.5.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 90)) (3.5.0)
+Requirement already satisfied: python-multipart==0.0.22 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 91)) (0.0.22)
+Requirement already satisfied: pytokens==0.4.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 92)) (0.4.1)
+Requirement already satisfied: PyYAML==6.0.3 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 93)) (6.0.3)
+Requirement already satisfied: referencing==0.37.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 94)) (0.37.0)
+Requirement already satisfied: regex==2026.1.15 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 95)) (2026.1.15)
+Requirement already satisfied: requests==2.32.5 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 96)) (2.32.5)
+Requirement already satisfied: requests-oauthlib==2.0.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 97)) (2.0.0)
+Requirement already satisfied: rich==14.3.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 98)) (14.3.2)
+Requirement already satisfied: rpds-py==0.30.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 99)) (0.30.0)
+Requirement already satisfied: rsa==4.9.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 100)) (4.9.1)
+Requirement already satisfied: s3transfer==0.16.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 101)) (0.16.0)
+Requirement already satisfied: s5cmd==0.2.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 102)) (0.2.0)
+Requirement already satisfied: shellingham==1.5.4 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 103)) (1.5.4)
+Requirement already satisfied: six==1.17.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 104)) (1.17.0)
+Requirement already satisfied: sniffio==1.3.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 105)) (1.3.1)
+Requirement already satisfied: starlette==0.37.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 106)) (0.37.2)
+Requirement already satisfied: stripe==14.3.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 107)) (14.3.0)
+Requirement already satisfied: tenacity==9.1.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 108)) (9.1.2)
+Requirement already satisfied: tiktoken==0.12.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 109)) (0.12.0)
+Requirement already satisfied: tokenizers==0.22.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 110)) (0.22.2)
+Requirement already satisfied: tqdm==4.67.3 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 111)) (4.67.3)
+Requirement already satisfied: typer==0.21.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 112)) (0.21.1)
+Requirement already satisfied: typer-slim==0.21.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 113)) (0.21.1)
+Requirement already satisfied: typing-inspection==0.4.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 114)) (0.4.2)
+Requirement already satisfied: typing_extensions==4.15.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 115)) (4.15.0)
+Requirement already satisfied: tzdata==2025.3 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 116)) (2025.3)
+Requirement already satisfied: uritemplate==4.2.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 117)) (4.2.0)
+Requirement already satisfied: urllib3==2.6.3 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 118)) (2.6.3)
+Requirement already satisfied: uvicorn==0.25.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 119)) (0.25.0)
+Requirement already satisfied: watchfiles==1.1.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 120)) (1.1.1)
+Requirement already satisfied: websockets==15.0.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 121)) (15.0.1)
+Requirement already satisfied: yarl==1.22.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 122)) (1.22.0)
+Requirement already satisfied: zipp==3.23.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 123)) (3.23.0) to install the missing dependency.
+        2. Run backend: stopped
+backend: started to apply the changes.
+        3. Check backend logs (==> /var/log/supervisor/backend.err.log <==
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [83]
+INFO:     Stopping reloader process [42]
+INFO:     Will watch for changes in these directories: ['/app/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     Started reloader process [219] using WatchFiles
+INFO:     Started server process [221]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+
+==> /var/log/supervisor/backend.out.log <==
+✓ Limited Edition products OK: 18) to confirm there are no startup errors.
+        4. Test by creating a new order to ensure the timestamp logic works correctly.
+    - **Why fix this issue and what will be achieved with the fix?** This is a critical blocker. The backend will crash on any operation that involves creating a new timestamp (e.g., placing orders, leaving reviews), making core functionalities of the application unusable.
+    - **Status:** NOT STARTED
+    - **Is recurring issue?** N
+    - **Should Test frontend/backend/both after fix?** Backend
+    - **Blocked on other issue:** None. This issue blocks other backend-dependent tasks.
 
 **In progress Task List**:
-- **Task 1: Concluir o Configurador de Pacote Promocional (P1)**
-    - **Where to resume:** Modificar  para adicionar a rota  e integrar o  para aparecer em certas condições (ex: na primeira visita). Depois, construir a lógica da página  para permitir a seleção de produtos e a sua adição ao carrinho como um pacote.
-    - **What will be achieved with this?** Implementará uma nova funcionalidade de marketing solicitada pelo utilizador.
+- **Task 1: Finalize Popular Teams Carousel (P1)**
+    - **Where to resume:** The code for the  in  is already written. The next step is to perform a visual test (e.g., using the screenshot tool) to ensure it matches the user's request: a single-row, scrollable carousel of team logos with navigation arrows and correctly styled badges (white text on a lime background).
+    - **What will be achieved with this?** This will complete a key design enhancement requested by the user for the homepage.
     - **Status:** IN PROGRESS
-    - **Should Test frontend/backend/both after fix?** Both
-    - **Blocked on something:** Não, mas a resolução do Issue 1 (deploy) é de maior prioridade.
+    - **Should Test frontend/backend/both after fix?** Frontend
+    - **Blocked on something:** Blocked by **Issue 1**, as testing the full user flow (clicking a team and navigating) requires a functional backend.
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
-    - **(P2) Implementar gateways de pagamento reais:** A implementação atual é uma fachada. Será necessário usar o  para integrar Stripe, PayPal, etc.
-    - **(P3) Implementar eliminação de pedidos pelo cliente:** Na página Urmareste Comanda, adicionar um botão para os clientes removerem pedidos do seu histórico local.
+    - **(P2) Implement 360-degree Product Preview:** This is the next major feature.
+        - **File & Method:** A new component, likely in , to be placed on the  page.
+        - **Requirements:** Use the provided images and fonts for the Romania jersey to create an interactive 360-degree view. Allow click-and-drag rotation. When the jersey is rotated to the back, show inputs for name/number and render the text onto the jersey image. This will likely require a new JavaScript library for the 360-degree view and CSS for custom font rendering.
 - **Future Tasks:**
-    - **(Backlog) Painel de gestão de produtos:** O utilizador manifestou interesse num painel de administração mais avançado para gerir produtos (criar, editar, eliminar) diretamente da interface de administração, em vez de depender do agente para o fazer através de scripts.
+    - **(Backlog) Verify New Features from Merged Repo:** The  repository introduced several new pages and components (, , , , ). Their functionality and integration should be reviewed and tested.
+    - **(Backlog) Implement Real Payment Gateways:** The current payment system is a UI facade. A real integration (e.g., Stripe) is needed.
+    - **(Backlog) Advanced Admin Product Management:** Create a UI for admins to create, edit, and delete products directly from the admin panel.
 
 **Completed work in this session**
-- **Correção de Exibição de Imagens:** Resolvido o bug onde as imagens das variantes (Second/Third Kit) não apareciam corretamente no carrinho, checkout e painel de administração.
-- **Sistema de Cupões:** Implementado e corrigido o sistema de cupões para  e .
-- **Geração de Faturas:** Criada funcionalidade para gerar e anexar faturas a partir do painel de administração.
-- **Análise de Tráfego:** Adicionado um modal de análise de tráfego no painel de administração com estatísticas e um botão de reset.
-- **Sistema de Email (Admin):** Adicionados botões no detalhe do pedido para  e para copiar templates de email.
-- **Sistema de Avaliações de Clientes:** Implementada uma secção de avaliações na página inicial.
-- **Tabela de Tamanhos:** Criado um modal com uma tabela de tamanhos detalhada, com separadores para as versões Fan e Player.
-- **Gestão de Produtos:** Adicionados endpoints e lógica para eliminar/atualizar produtos e foi criada a categoria Limited Edition com 18 produtos.
-- **Ordenação de Produtos:** Implementada uma lógica de ordenação personalizada por ligas e categorias.
-- **Melhorias na UI:** Adicionado o logótipo ao rodapé, atualizada a página inicial para mostrar 3 categorias e garantido que o texto completo das avaliações é visível.
-- **Atualização de Preços:** Os custos de envio e os preços dos produtos de Edição Limitada foram ajustados conforme solicitado.
+- **Full Codebase Migration:** Replaced the entire application's code with the content from the user's  GitHub repository, while successfully preserving the existing MongoDB database.
+- **Promo Bundle Configurator Overhaul:** Significantly enhanced the bundle creator with support for all product types (Club, National, Retro, Limited Edition), conditional logic, advanced customization (name, number, fan/player, patches), and a mobile-friendly custom picker to fix iOS compatibility issues.
+- **UI/UX Enhancements:**
+    - Added a Promotie 1+1 filter on the product list page that links to the bundle configurator.
+    - Implemented a Quick View modal on product cards.
+    - Created a Fan vs. Player info modal accessible from the product list page.
+- **Backend Fixes:**
+    - Modified all timestamp creation to use the Romanian timezone ().
+    - Ensured all customization details from the bundle are correctly saved in the order and displayed in the admin panel.
+    - Disabled the promo popup from appearing on admin-related pages.
 
 **Known issue recurrence from previous fork**
-- **Issue recurrence in previous fork:** Exibição incorreta da imagem da variante do produto.
-- **Recurrence count:** 1 (resolvido com sucesso nesta sessão).
+- **Issue recurrence in previous fork:** None. The previous issue regarding incorrect variant images was resolved, and the codebase has since been completely replaced.
+- **Recurrence count:** 0
 - **Status:** RESOLVED
 
 **Code Architecture**
@@ -90,70 +227,315 @@ Uma aplicação full-stack funcional com React, FastAPI e MongoDB. A maioria das
 
 **Key Technical Concepts**
 - **Frontend:** React, React Router, Tailwind CSS, Context API
-- **Backend:** FastAPI (Python)
+- **Backend:** FastAPI, Python
 - **Database:** MongoDB
-- **Geração de Imagens:**  para faturas no frontend.
-- **Mecanismo de Seeding:** Lógica no  para popular a base de dados no arranque.
+- **Timezone Handling:**  library in the backend.
+- **Code Migration:**  and  to merge a new codebase.
 
 **key DB schema**
 - **products:** 
 - **orders:** 
-- **reviews:**  (Nova coleção)
-- **analytics_visits:**  (Nova coleção)
+- **reviews:** 
+- **analytics_visits:** 
 
 **All files of reference**
-- : Ficheiro crítico. Contém toda a lógica da API, incluindo a ordenação de produtos e o seeding da Edição Limitada.
-- : Contém a lógica de filtragem e exibição de produtos.
-- : Componente da nova funcionalidade em progresso.
-- : Onde a rota do pacote promocional e o popup serão adicionados.
-- : Onde o modal de análise foi adicionado.
-- : Onde a lógica dos cupões foi corrigida.
-- : A nova secção de avaliações.
+- : The monolithic backend file. Contains the broken timezone logic due to the missing  installation.
+- : Was updated to include .
+- : Contains the new, in-progress  component.
+- : Was updated to include the Quick View modal and the Fan vs Player button.
+- : The heavily modified bundle configurator.
+- : The custom dropdown replacement created to solve iOS issues.
+- : The temporary directory where the new repo was cloned from.
 
 **Areas that need refactoring**:
-- O ficheiro  tem agora mais de 900 linhas e é um monólito. Precisa urgentemente de ser refatorado em múltiplos ficheiros de router (ex: , ) para melhorar a manutenção e a escalabilidade.
+- The  file is a large monolith. It should be broken down into separate router files (e.g., , ) to improve maintainability.
 
 **key api endpoints**
-- : Obtém produtos com a nova lógica de ordenação.
-- : Cria um produto.
-- : Elimina um produto.
--  |  | : Endpoints para o sistema de avaliações.
--  |  | : Endpoints para o sistema de análise.
-- : Anexa uma fatura a um pedido.
+- : Creates a new order (Currently **BROKEN** due to missing ).
+- : Creates a new review (Currently **BROKEN**).
+- : Fetches all products.
+- : Fetches all orders for the admin panel.
 
 **Critical Info for New Agent**
-- **A inconsistência de dados entre o deploy e o preview é o bloqueador mais crítico.** O mecanismo de seeding foi uma tentativa de correção, mas o feedback do utilizador sugere que falhou ou não foi suficiente. A prioridade máxima é diagnosticar e resolver isto de forma robusta.
-- O utilizador está muito atento e testa as funcionalidades. É crucial testar minuciosamente qualquer correção, especialmente no que diz respeito à sincronização de dados no deploy.
-- A funcionalidade Pacote Promocional está a meio da implementação e é a tarefa seguinte depois de resolver o problema do deploy.
+- **Fix the Backend First:** The absolute first action must be to install the  dependency (Looking in indexes: https://pypi.org/simple, https://d33sy5i8bnduwe.cloudfront.net/simple/
+Requirement already satisfied: aiohappyeyeballs==2.6.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 1)) (2.6.1)
+Requirement already satisfied: aiohttp==3.13.3 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 2)) (3.13.3)
+Requirement already satisfied: aiosignal==1.4.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 3)) (1.4.0)
+Requirement already satisfied: annotated-types==0.7.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 4)) (0.7.0)
+Requirement already satisfied: anyio==4.12.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 5)) (4.12.1)
+Requirement already satisfied: attrs==25.4.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 6)) (25.4.0)
+Requirement already satisfied: bcrypt==4.1.3 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 7)) (4.1.3)
+Requirement already satisfied: black==26.1.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 8)) (26.1.0)
+Requirement already satisfied: boto3==1.42.42 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 9)) (1.42.42)
+Requirement already satisfied: botocore==1.42.42 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 10)) (1.42.42)
+Requirement already satisfied: certifi==2026.1.4 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 11)) (2026.1.4)
+Requirement already satisfied: cffi==2.0.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 12)) (2.0.0)
+Requirement already satisfied: charset-normalizer==3.4.4 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 13)) (3.4.4)
+Requirement already satisfied: click==8.3.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 14)) (8.3.1)
+Requirement already satisfied: cryptography==46.0.4 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 15)) (46.0.4)
+Requirement already satisfied: distro==1.9.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 16)) (1.9.0)
+Requirement already satisfied: dnspython==2.8.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 17)) (2.8.0)
+Requirement already satisfied: ecdsa==0.19.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 18)) (0.19.1)
+Requirement already satisfied: email-validator==2.3.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 19)) (2.3.0)
+Requirement already satisfied: emergentintegrations==0.1.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 20)) (0.1.0)
+Requirement already satisfied: fastapi==0.110.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 21)) (0.110.1)
+Requirement already satisfied: fastuuid==0.14.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 22)) (0.14.0)
+Requirement already satisfied: filelock==3.20.3 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 23)) (3.20.3)
+Requirement already satisfied: flake8==7.3.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 24)) (7.3.0)
+Requirement already satisfied: frozenlist==1.8.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 25)) (1.8.0)
+Requirement already satisfied: fsspec==2026.1.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 26)) (2026.1.0)
+Requirement already satisfied: google-ai-generativelanguage==0.6.15 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 27)) (0.6.15)
+Requirement already satisfied: google-api-core==2.29.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 28)) (2.29.0)
+Requirement already satisfied: google-api-python-client==2.189.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 29)) (2.189.0)
+Requirement already satisfied: google-auth==2.49.0.dev0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 30)) (2.49.0.dev0)
+Requirement already satisfied: google-auth-httplib2==0.3.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 31)) (0.3.0)
+Requirement already satisfied: google-genai==1.62.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 32)) (1.62.0)
+Requirement already satisfied: google-generativeai==0.8.6 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 33)) (0.8.6)
+Requirement already satisfied: googleapis-common-protos==1.72.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 34)) (1.72.0)
+Requirement already satisfied: grpcio==1.76.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 35)) (1.76.0)
+Requirement already satisfied: grpcio-status==1.71.2 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 36)) (1.71.2)
+Requirement already satisfied: h11==0.16.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 37)) (0.16.0)
+Requirement already satisfied: hf-xet==1.2.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 38)) (1.2.0)
+Requirement already satisfied: httpcore==1.0.9 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 39)) (1.0.9)
+Requirement already satisfied: httplib2==0.31.2 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 40)) (0.31.2)
+Requirement already satisfied: httpx==0.28.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 41)) (0.28.1)
+Requirement already satisfied: huggingface_hub==1.4.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 42)) (1.4.0)
+Requirement already satisfied: idna==3.11 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 43)) (3.11)
+Requirement already satisfied: importlib_metadata==8.7.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 44)) (8.7.1)
+Requirement already satisfied: iniconfig==2.3.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 45)) (2.3.0)
+Requirement already satisfied: isort==7.0.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 46)) (7.0.0)
+Requirement already satisfied: Jinja2==3.1.6 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 47)) (3.1.6)
+Requirement already satisfied: jiter==0.13.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 48)) (0.13.0)
+Requirement already satisfied: jmespath==1.1.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 49)) (1.1.0)
+Requirement already satisfied: jq==1.11.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 50)) (1.11.0)
+Requirement already satisfied: jsonschema==4.26.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 51)) (4.26.0)
+Requirement already satisfied: jsonschema-specifications==2025.9.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 52)) (2025.9.1)
+Requirement already satisfied: librt==0.7.8 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 53)) (0.7.8)
+Requirement already satisfied: litellm==1.80.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 54)) (1.80.0)
+Requirement already satisfied: markdown-it-py==4.0.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 55)) (4.0.0)
+Requirement already satisfied: MarkupSafe==3.0.3 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 56)) (3.0.3)
+Requirement already satisfied: mccabe==0.7.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 57)) (0.7.0)
+Requirement already satisfied: mdurl==0.1.2 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 58)) (0.1.2)
+Requirement already satisfied: motor==3.3.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 59)) (3.3.1)
+Requirement already satisfied: multidict==6.7.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 60)) (6.7.1)
+Requirement already satisfied: mypy==1.19.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 61)) (1.19.1)
+Requirement already satisfied: mypy_extensions==1.1.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 62)) (1.1.0)
+Requirement already satisfied: numpy==2.4.2 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 63)) (2.4.2)
+Requirement already satisfied: oauthlib==3.3.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 64)) (3.3.1)
+Requirement already satisfied: openai==1.99.9 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 65)) (1.99.9)
+Requirement already satisfied: packaging==26.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 66)) (26.0)
+Requirement already satisfied: pandas==3.0.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 67)) (3.0.0)
+Requirement already satisfied: passlib==1.7.4 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 68)) (1.7.4)
+Requirement already satisfied: pathspec==1.0.4 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 69)) (1.0.4)
+Requirement already satisfied: pillow==12.1.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 70)) (12.1.0)
+Requirement already satisfied: platformdirs==4.5.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 71)) (4.5.1)
+Requirement already satisfied: pluggy==1.6.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 72)) (1.6.0)
+Requirement already satisfied: propcache==0.4.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 73)) (0.4.1)
+Requirement already satisfied: proto-plus==1.27.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 74)) (1.27.1)
+Requirement already satisfied: protobuf==5.29.6 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 75)) (5.29.6)
+Requirement already satisfied: pyasn1==0.6.2 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 76)) (0.6.2)
+Requirement already satisfied: pyasn1_modules==0.4.2 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 77)) (0.4.2)
+Requirement already satisfied: pycodestyle==2.14.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 78)) (2.14.0)
+Requirement already satisfied: pycparser==3.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 79)) (3.0)
+Requirement already satisfied: pydantic==2.12.5 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 80)) (2.12.5)
+Requirement already satisfied: pydantic_core==2.41.5 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 81)) (2.41.5)
+Requirement already satisfied: pyflakes==3.4.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 82)) (3.4.0)
+Requirement already satisfied: Pygments==2.19.2 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 83)) (2.19.2)
+Requirement already satisfied: PyJWT==2.11.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 84)) (2.11.0)
+Requirement already satisfied: pymongo==4.5.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 85)) (4.5.0)
+Requirement already satisfied: pyparsing==3.3.2 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 86)) (3.3.2)
+Requirement already satisfied: pytest==9.0.2 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 87)) (9.0.2)
+Requirement already satisfied: python-dateutil==2.9.0.post0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 88)) (2.9.0.post0)
+Requirement already satisfied: python-dotenv==1.2.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 89)) (1.2.1)
+Requirement already satisfied: python-jose==3.5.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 90)) (3.5.0)
+Requirement already satisfied: python-multipart==0.0.22 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 91)) (0.0.22)
+Requirement already satisfied: pytokens==0.4.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 92)) (0.4.1)
+Requirement already satisfied: PyYAML==6.0.3 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 93)) (6.0.3)
+Requirement already satisfied: referencing==0.37.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 94)) (0.37.0)
+Requirement already satisfied: regex==2026.1.15 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 95)) (2026.1.15)
+Requirement already satisfied: requests==2.32.5 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 96)) (2.32.5)
+Requirement already satisfied: requests-oauthlib==2.0.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 97)) (2.0.0)
+Requirement already satisfied: rich==14.3.2 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 98)) (14.3.2)
+Requirement already satisfied: rpds-py==0.30.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 99)) (0.30.0)
+Requirement already satisfied: rsa==4.9.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 100)) (4.9.1)
+Requirement already satisfied: s3transfer==0.16.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 101)) (0.16.0)
+Requirement already satisfied: s5cmd==0.2.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 102)) (0.2.0)
+Requirement already satisfied: shellingham==1.5.4 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 103)) (1.5.4)
+Requirement already satisfied: six==1.17.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 104)) (1.17.0)
+Requirement already satisfied: sniffio==1.3.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 105)) (1.3.1)
+Requirement already satisfied: starlette==0.37.2 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 106)) (0.37.2)
+Requirement already satisfied: stripe==14.3.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 107)) (14.3.0)
+Requirement already satisfied: tenacity==9.1.2 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 108)) (9.1.2)
+Requirement already satisfied: tiktoken==0.12.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 109)) (0.12.0)
+Requirement already satisfied: tokenizers==0.22.2 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 110)) (0.22.2)
+Requirement already satisfied: tqdm==4.67.3 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 111)) (4.67.3)
+Requirement already satisfied: typer==0.21.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 112)) (0.21.1)
+Requirement already satisfied: typer-slim==0.21.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 113)) (0.21.1)
+Requirement already satisfied: typing-inspection==0.4.2 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 114)) (0.4.2)
+Requirement already satisfied: typing_extensions==4.15.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 115)) (4.15.0)
+Requirement already satisfied: tzdata==2025.3 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 116)) (2025.3)
+Requirement already satisfied: uritemplate==4.2.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 117)) (4.2.0)
+Requirement already satisfied: urllib3==2.6.3 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 118)) (2.6.3)
+Requirement already satisfied: uvicorn==0.25.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 119)) (0.25.0)
+Requirement already satisfied: watchfiles==1.1.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 120)) (1.1.1)
+Requirement already satisfied: websockets==15.0.1 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 121)) (15.0.1)
+Requirement already satisfied: yarl==1.22.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 122)) (1.22.0)
+Requirement already satisfied: zipp==3.23.0 in /root/.venv/lib/python3.11/site-packages (from -r backend/requirements.txt (line 123)) (3.23.0)) and restart the backend. The application's core functionality (creating orders, reviews) is currently broken.
+- **Codebase is New:** Be aware that the entire frontend and backend code was replaced from an external repository. While the database is intact, the application logic is entirely new and may contain unknown behaviors or bugs.
+- **User's Next Focus:** After fixing the backend, the user wants to see the Popular Teams carousel on the homepage completed, followed by the complex 360-degree product preview feature.
 
 **documents and test reports created in this job**
-- 
-- 
+-  (updated)
+- Multiple test reports in  were generated during the session, validating features before the final codebase merge.
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User:** Pede para adicionar mais 1 slot para Limited Edition. (Concluído)
-2.  **User:** Reporta um bug na exibição do cupão AVO20. (Concluído)
-3.  **User:** Reporta que os novos produtos e a ordenação não estão corretos no site público (host), apenas no local/preview. (Pendente de resolução final)
-4.  **User:** Pede para implementar um configurador de pacotes promocionais. (Em progresso)
-5.  **User:** Pede ao agente para continuar com o que foi solicitado.
-6.  **User:** Pede para reordenar os produtos por liga, adicionar mais 5 slots Limited Edition e um novo cupão . (Concluído)
-7.  **User:** Pede para adicionar mais 1 slot Limited Edition. (Concluído)
-8.  **User:** Reporta novamente o bug no cupão AVO20. (Concluído)
-9.  **User:** Reitera que as alterações não estão no site principal e a ordenação está errada, pedindo para que fique igual ao ambiente local. (Pendente de resolução final)
-10. **User:** (Mensagem que iniciou a última tarefa) Pede um configurador de pacotes promocionais. (Em progresso)
+1. **User:** Asks for design elements for the home and product pages. (Agent proposed options).
+2. **User:** Chooses Variant 2 (Popular Teams carousel and Quick View).
+3. **User:** Provides feedback on the first implementation of Popular Teams: wants logos instead of jerseys, a single-row carousel with arrows, and specific badge styling.
+4. **User:** Initiates the request for the 360-degree preview, providing a reference image.
+5. **User:** Provides details for the 360-preview: 2 font files.
+6. **User:** Specifies placement for the 360-preview (on Products page) and customization details (name/number on the back).
+7. **User:** Specifies the first product for the 360-preview is the Romania jersey.
+8. **User:** Confirms to start with the 360-preview system, and will fork later. (This is the last active instruction).
+9. **User:** (from an earlier thread) Wants to add customization (name/number) to the bundle. (Completed).
+10. **User:** (from an earlier thread) Reports an issue with the admin order view and incorrect timestamps. (Completed).
 
 **Project Health Check:**
-- **Broken:** A funcionalidade Limited Edition e a ordenação de produtos no ambiente de **deploy**. Os dados não são sincronizados corretamente a partir do ambiente de preview, apesar das tentativas de correção com um mecanismo de seeding.
-- **Mocked:** As integrações de gateway de pagamento (Stripe, PayPal, etc.) continuam a ser apenas uma fachada na UI.
+- **Broken:** The backend's ability to create new orders and reviews is broken due to the missing  package. This is a critical failure.
+- **Mocked:** Payment gateway integrations remain a UI facade.
 
 **3rd Party Integrations**
--  (v.1.4.1): Instalado no frontend para gerar imagens de faturas.
+-  (v1.4.1): Used for invoice generation.
+- : Added to backend for timezone handling, but **not yet installed**.
 
 **Testing status**
-- **Testing agent used after significant changes:** YES (mas o resultado não foi processado antes de novas solicitações do utilizador).
+- **Testing agent used after significant changes:** YES (multiple times throughout the session before the repo merge).
 - **Troubleshoot agent used after agent stuck in loop:** NO
 - **Test files created:** []
-- **Known regressions:** A sincronização de dados entre o ambiente de preview e o de deploy é uma regressão funcional ou uma falha de processo.
+- **Known regressions:** Core backend functionality for creating new data with timestamps is currently in a regression state.
 
 **What agent forgot to execute**
-- O agente não processou os resultados da chamada ao  (mensagem 73), pois o utilizador interveio imediatamente com novos pedidos. Isto pode ter deixado bugs por resolver.</analysis>
+- The agent critically forgot to run Looking in indexes: https://pypi.org/simple, https://d33sy5i8bnduwe.cloudfront.net/simple/
+Requirement already satisfied: aiohappyeyeballs==2.6.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 1)) (2.6.1)
+Requirement already satisfied: aiohttp==3.13.3 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 2)) (3.13.3)
+Requirement already satisfied: aiosignal==1.4.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 3)) (1.4.0)
+Requirement already satisfied: annotated-types==0.7.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 4)) (0.7.0)
+Requirement already satisfied: anyio==4.12.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 5)) (4.12.1)
+Requirement already satisfied: attrs==25.4.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 6)) (25.4.0)
+Requirement already satisfied: bcrypt==4.1.3 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 7)) (4.1.3)
+Requirement already satisfied: black==26.1.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 8)) (26.1.0)
+Requirement already satisfied: boto3==1.42.42 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 9)) (1.42.42)
+Requirement already satisfied: botocore==1.42.42 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 10)) (1.42.42)
+Requirement already satisfied: certifi==2026.1.4 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 11)) (2026.1.4)
+Requirement already satisfied: cffi==2.0.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 12)) (2.0.0)
+Requirement already satisfied: charset-normalizer==3.4.4 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 13)) (3.4.4)
+Requirement already satisfied: click==8.3.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 14)) (8.3.1)
+Requirement already satisfied: cryptography==46.0.4 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 15)) (46.0.4)
+Requirement already satisfied: distro==1.9.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 16)) (1.9.0)
+Requirement already satisfied: dnspython==2.8.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 17)) (2.8.0)
+Requirement already satisfied: ecdsa==0.19.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 18)) (0.19.1)
+Requirement already satisfied: email-validator==2.3.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 19)) (2.3.0)
+Requirement already satisfied: emergentintegrations==0.1.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 20)) (0.1.0)
+Requirement already satisfied: fastapi==0.110.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 21)) (0.110.1)
+Requirement already satisfied: fastuuid==0.14.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 22)) (0.14.0)
+Requirement already satisfied: filelock==3.20.3 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 23)) (3.20.3)
+Requirement already satisfied: flake8==7.3.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 24)) (7.3.0)
+Requirement already satisfied: frozenlist==1.8.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 25)) (1.8.0)
+Requirement already satisfied: fsspec==2026.1.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 26)) (2026.1.0)
+Requirement already satisfied: google-ai-generativelanguage==0.6.15 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 27)) (0.6.15)
+Requirement already satisfied: google-api-core==2.29.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 28)) (2.29.0)
+Requirement already satisfied: google-api-python-client==2.189.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 29)) (2.189.0)
+Requirement already satisfied: google-auth==2.49.0.dev0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 30)) (2.49.0.dev0)
+Requirement already satisfied: google-auth-httplib2==0.3.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 31)) (0.3.0)
+Requirement already satisfied: google-genai==1.62.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 32)) (1.62.0)
+Requirement already satisfied: google-generativeai==0.8.6 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 33)) (0.8.6)
+Requirement already satisfied: googleapis-common-protos==1.72.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 34)) (1.72.0)
+Requirement already satisfied: grpcio==1.76.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 35)) (1.76.0)
+Requirement already satisfied: grpcio-status==1.71.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 36)) (1.71.2)
+Requirement already satisfied: h11==0.16.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 37)) (0.16.0)
+Requirement already satisfied: hf-xet==1.2.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 38)) (1.2.0)
+Requirement already satisfied: httpcore==1.0.9 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 39)) (1.0.9)
+Requirement already satisfied: httplib2==0.31.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 40)) (0.31.2)
+Requirement already satisfied: httpx==0.28.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 41)) (0.28.1)
+Requirement already satisfied: huggingface_hub==1.4.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 42)) (1.4.0)
+Requirement already satisfied: idna==3.11 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 43)) (3.11)
+Requirement already satisfied: importlib_metadata==8.7.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 44)) (8.7.1)
+Requirement already satisfied: iniconfig==2.3.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 45)) (2.3.0)
+Requirement already satisfied: isort==7.0.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 46)) (7.0.0)
+Requirement already satisfied: Jinja2==3.1.6 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 47)) (3.1.6)
+Requirement already satisfied: jiter==0.13.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 48)) (0.13.0)
+Requirement already satisfied: jmespath==1.1.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 49)) (1.1.0)
+Requirement already satisfied: jq==1.11.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 50)) (1.11.0)
+Requirement already satisfied: jsonschema==4.26.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 51)) (4.26.0)
+Requirement already satisfied: jsonschema-specifications==2025.9.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 52)) (2025.9.1)
+Requirement already satisfied: librt==0.7.8 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 53)) (0.7.8)
+Requirement already satisfied: litellm==1.80.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 54)) (1.80.0)
+Requirement already satisfied: markdown-it-py==4.0.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 55)) (4.0.0)
+Requirement already satisfied: MarkupSafe==3.0.3 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 56)) (3.0.3)
+Requirement already satisfied: mccabe==0.7.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 57)) (0.7.0)
+Requirement already satisfied: mdurl==0.1.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 58)) (0.1.2)
+Requirement already satisfied: motor==3.3.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 59)) (3.3.1)
+Requirement already satisfied: multidict==6.7.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 60)) (6.7.1)
+Requirement already satisfied: mypy==1.19.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 61)) (1.19.1)
+Requirement already satisfied: mypy_extensions==1.1.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 62)) (1.1.0)
+Requirement already satisfied: numpy==2.4.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 63)) (2.4.2)
+Requirement already satisfied: oauthlib==3.3.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 64)) (3.3.1)
+Requirement already satisfied: openai==1.99.9 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 65)) (1.99.9)
+Requirement already satisfied: packaging==26.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 66)) (26.0)
+Requirement already satisfied: pandas==3.0.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 67)) (3.0.0)
+Requirement already satisfied: passlib==1.7.4 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 68)) (1.7.4)
+Requirement already satisfied: pathspec==1.0.4 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 69)) (1.0.4)
+Requirement already satisfied: pillow==12.1.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 70)) (12.1.0)
+Requirement already satisfied: platformdirs==4.5.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 71)) (4.5.1)
+Requirement already satisfied: pluggy==1.6.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 72)) (1.6.0)
+Requirement already satisfied: propcache==0.4.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 73)) (0.4.1)
+Requirement already satisfied: proto-plus==1.27.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 74)) (1.27.1)
+Requirement already satisfied: protobuf==5.29.6 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 75)) (5.29.6)
+Requirement already satisfied: pyasn1==0.6.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 76)) (0.6.2)
+Requirement already satisfied: pyasn1_modules==0.4.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 77)) (0.4.2)
+Requirement already satisfied: pycodestyle==2.14.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 78)) (2.14.0)
+Requirement already satisfied: pycparser==3.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 79)) (3.0)
+Requirement already satisfied: pydantic==2.12.5 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 80)) (2.12.5)
+Requirement already satisfied: pydantic_core==2.41.5 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 81)) (2.41.5)
+Requirement already satisfied: pyflakes==3.4.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 82)) (3.4.0)
+Requirement already satisfied: Pygments==2.19.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 83)) (2.19.2)
+Requirement already satisfied: PyJWT==2.11.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 84)) (2.11.0)
+Requirement already satisfied: pymongo==4.5.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 85)) (4.5.0)
+Requirement already satisfied: pyparsing==3.3.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 86)) (3.3.2)
+Requirement already satisfied: pytest==9.0.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 87)) (9.0.2)
+Requirement already satisfied: python-dateutil==2.9.0.post0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 88)) (2.9.0.post0)
+Requirement already satisfied: python-dotenv==1.2.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 89)) (1.2.1)
+Requirement already satisfied: python-jose==3.5.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 90)) (3.5.0)
+Requirement already satisfied: python-multipart==0.0.22 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 91)) (0.0.22)
+Requirement already satisfied: pytokens==0.4.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 92)) (0.4.1)
+Requirement already satisfied: PyYAML==6.0.3 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 93)) (6.0.3)
+Requirement already satisfied: referencing==0.37.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 94)) (0.37.0)
+Requirement already satisfied: regex==2026.1.15 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 95)) (2026.1.15)
+Requirement already satisfied: requests==2.32.5 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 96)) (2.32.5)
+Requirement already satisfied: requests-oauthlib==2.0.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 97)) (2.0.0)
+Requirement already satisfied: rich==14.3.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 98)) (14.3.2)
+Requirement already satisfied: rpds-py==0.30.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 99)) (0.30.0)
+Requirement already satisfied: rsa==4.9.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 100)) (4.9.1)
+Requirement already satisfied: s3transfer==0.16.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 101)) (0.16.0)
+Requirement already satisfied: s5cmd==0.2.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 102)) (0.2.0)
+Requirement already satisfied: shellingham==1.5.4 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 103)) (1.5.4)
+Requirement already satisfied: six==1.17.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 104)) (1.17.0)
+Requirement already satisfied: sniffio==1.3.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 105)) (1.3.1)
+Requirement already satisfied: starlette==0.37.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 106)) (0.37.2)
+Requirement already satisfied: stripe==14.3.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 107)) (14.3.0)
+Requirement already satisfied: tenacity==9.1.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 108)) (9.1.2)
+Requirement already satisfied: tiktoken==0.12.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 109)) (0.12.0)
+Requirement already satisfied: tokenizers==0.22.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 110)) (0.22.2)
+Requirement already satisfied: tqdm==4.67.3 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 111)) (4.67.3)
+Requirement already satisfied: typer==0.21.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 112)) (0.21.1)
+Requirement already satisfied: typer-slim==0.21.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 113)) (0.21.1)
+Requirement already satisfied: typing-inspection==0.4.2 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 114)) (0.4.2)
+Requirement already satisfied: typing_extensions==4.15.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 115)) (4.15.0)
+Requirement already satisfied: tzdata==2025.3 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 116)) (2025.3)
+Requirement already satisfied: uritemplate==4.2.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 117)) (4.2.0)
+Requirement already satisfied: urllib3==2.6.3 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 118)) (2.6.3)
+Requirement already satisfied: uvicorn==0.25.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 119)) (0.25.0)
+Requirement already satisfied: watchfiles==1.1.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 120)) (1.1.1)
+Requirement already satisfied: websockets==15.0.1 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 121)) (15.0.1)
+Requirement already satisfied: yarl==1.22.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 122)) (1.22.0)
+Requirement already satisfied: zipp==3.23.0 in /root/.venv/lib/python3.11/site-packages (from -r /app/backend/requirements.txt (line 123)) (3.23.0) after adding the  dependency to . This has broken the backend.</analysis>

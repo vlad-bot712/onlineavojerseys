@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Truck, CreditCard, Shield, Heart, Sparkles } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, ArrowLeft, Truck, CreditCard, Shield, Heart, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import axios from 'axios';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useFavorites } from '../contexts/FavoritesContext';
@@ -10,9 +10,82 @@ import CountdownModal from '../components/CountdownModal';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
+const POPULAR_TEAMS = [
+  { name: 'Real Madrid', logo: '/images/logos/real-madrid.png' },
+  { name: 'Barcelona', logo: '/images/logos/barcelona.png' },
+  { name: 'Manchester United', logo: '/images/logos/manchester-united.png' },
+  { name: 'Liverpool', logo: '/images/logos/liverpool.png' },
+  { name: 'PSG', logo: '/images/logos/psg.png' },
+  { name: 'Bayern Munich', logo: '/images/logos/bayern-munich.png' },
+  { name: 'Juventus', logo: '/images/logos/juventus.png' },
+  { name: 'AC Milan', logo: '/images/logos/ac-milan.png' },
+  { name: 'Arsenal', logo: '/images/logos/arsenal.png' },
+  { name: 'Chelsea', logo: '/images/logos/chelsea.png' },
+  { name: 'Manchester City', logo: '/images/logos/manchester-city.png' },
+  { name: 'Inter Milan', logo: '/images/logos/inter-milan.png' },
+  { name: 'Atletico Madrid', logo: '/images/logos/atletico-madrid.png' },
+  { name: 'Borussia Dortmund', logo: '/images/logos/borussia-dortmund.png' },
+];
+
+function TeamsCarousel({ navigate }) {
+  const scrollRef = useRef(null);
+
+  const scroll = (dir) => {
+    if (!scrollRef.current) return;
+    const amount = scrollRef.current.offsetWidth * 0.6;
+    scrollRef.current.scrollBy({ left: dir === 'left' ? -amount : amount, behavior: 'smooth' });
+  };
+
+  return (
+    <div className="relative group/carousel">
+      {/* Left arrow */}
+      <button
+        onClick={() => scroll('left')}
+        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black/80 hover:bg-[#CCFF00] text-white hover:text-black w-10 h-10 rounded-full flex items-center justify-center -ml-2 shadow-lg transition-all opacity-0 group-hover/carousel:opacity-100"
+      >
+        <ChevronLeft className="w-5 h-5" />
+      </button>
+
+      {/* Scrollable row */}
+      <div
+        ref={scrollRef}
+        className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth px-2"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {POPULAR_TEAMS.map(team => (
+          <button
+            key={team.name}
+            data-testid={`popular-team-${team.name}`}
+            onClick={() => navigate(`/products?category=echipe-club&team=${encodeURIComponent(team.name)}`)}
+            className="group flex-shrink-0 flex flex-col items-center w-24 sm:w-28"
+          >
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white border-2 border-neutral-200 group-hover:border-[#CCFF00] group-hover:shadow-[0_0_24px_rgba(204,255,0,0.4)] transition-all duration-300 flex items-center justify-center p-3 overflow-hidden">
+              <img
+                src={team.logo}
+                alt={team.name}
+                className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300"
+              />
+            </div>
+            <p className="mt-2 text-xs font-bold text-center group-hover:text-[#CCFF00] transition-colors whitespace-nowrap">{team.name}</p>
+          </button>
+        ))}
+      </div>
+
+      {/* Right arrow */}
+      <button
+        onClick={() => scroll('right')}
+        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black/80 hover:bg-[#CCFF00] text-white hover:text-black w-10 h-10 rounded-full flex items-center justify-center -mr-2 shadow-lg transition-all opacity-0 group-hover/carousel:opacity-100"
+      >
+        <ChevronRight className="w-5 h-5" />
+      </button>
+    </div>
+  );
+}
+
 export default function Home() {
   const { formatPrice } = useCurrency();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [showCountdown, setShowCountdown] = useState(false);
@@ -190,6 +263,16 @@ export default function Home() {
             </div>
           </Link>
         </div>
+      </section>
+
+      {/* Echipe Populare */}
+      <section className="py-16 md:py-20 px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
+        <div className="text-center mb-10">
+          <span className="inline-block bg-[#CCFF00] text-white text-xs font-bold px-4 py-1 rounded-full mb-4">ECHIPE</span>
+          <h2 className="text-3xl sm:text-4xl font-bold">ECHIPE POPULARE</h2>
+          <p className="text-neutral-500 mt-2">Click pe echipa preferata pentru a vedea toate tricourile</p>
+        </div>
+        <TeamsCarousel navigate={navigate} />
       </section>
 
       {/* Featured Products */}

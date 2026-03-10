@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { Filter, Heart, Shirt, Ruler, Gift, ArrowRight } from 'lucide-react';
+import { Filter, Heart, Shirt, Ruler, Gift, ArrowRight, Eye, X, ShoppingCart } from 'lucide-react';
 import axios from 'axios';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useFavorites } from '../contexts/FavoritesContext';
+import { useCart } from '../contexts/CartContext';
 import { toast } from 'sonner';
 import SizeChartModal from '../components/SizeChartModal';
 
@@ -12,15 +13,19 @@ const API_URL = process.env.REACT_APP_BACKEND_URL;
 export default function Products() {
   const { formatPrice } = useCurrency();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { addToCart } = useCart();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showSizeChart, setShowSizeChart] = useState(false);
   const [showFanVsPlayer, setShowFanVsPlayer] = useState(false);
+  const [quickView, setQuickView] = useState(null);
+  const [qvSize, setQvSize] = useState('');
+  const [qvVariant, setQvVariant] = useState(0);
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
-    team: '',
+    team: searchParams.get('team') || '',
     year: ''
   });
 
@@ -273,12 +278,21 @@ export default function Products() {
                       </button>
 
                       <Link to={`/products/${product.id}`}>
-                        <div className="aspect-square overflow-hidden">
+                        <div className="aspect-square overflow-hidden relative">
                           <img 
                             src={productImage} 
                             alt={product.name}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                           />
+                          {/* Quick View Button */}
+                          <button
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuickView(product); setQvSize(''); setQvVariant(0); }}
+                            data-testid={`quick-view-${product.id}`}
+                            className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/90 text-white px-4 py-2 text-xs font-bold uppercase flex items-center gap-1.5 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-200 hover:bg-[#CCFF00] hover:text-black rounded-full backdrop-blur-sm"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            Quick View
+                          </button>
                         </div>
                         <div className="p-4">
                           <h3 className="font-bold text-lg mb-2 line-clamp-1">{product.name}</h3>
@@ -343,6 +357,99 @@ export default function Products() {
                     <li>- Embleme cusute/termoadezive</li>
                     <li>- Identic cu cel de pe teren</li>
                   </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick View Modal */}
+      {quickView && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setQuickView(null)} />
+          <div className="relative bg-white w-full sm:max-w-2xl sm:rounded-xl rounded-t-2xl max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setQuickView(null)}
+              data-testid="quick-view-close"
+              className="absolute top-3 right-3 z-10 bg-black/10 hover:bg-black/20 p-2 rounded-full"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="sm:flex">
+              <div className="sm:w-1/2 aspect-square overflow-hidden bg-neutral-50">
+                <img
+                  src={quickView.variants?.[qvVariant]?.images?.[0] || quickView.variants?.[0]?.images?.[0] || ''}
+                  alt={quickView.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="sm:w-1/2 p-5">
+                <p className="text-xs text-neutral-500 mb-1">{quickView.team} - {quickView.year}</p>
+                <h3 className="font-bold text-xl mb-2">{quickView.name}</h3>
+                <p className="text-2xl font-bold mb-4">{formatPrice(quickView.price_ron)}</p>
+                {quickView.variants?.length > 1 && (
+                  <div className="mb-4">
+                    <p className="text-xs font-bold text-neutral-500 mb-1">KIT</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {quickView.variants.map((v, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setQvVariant(i)}
+                          className={`px-3 py-1.5 text-xs font-bold rounded-lg border-2 transition-all ${
+                            qvVariant === i ? 'border-black bg-[#CCFF00]' : 'border-neutral-200'
+                          }`}
+                        >
+                          {v.name || `Kit ${i + 1}`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div className="mb-4">
+                  <p className="text-xs font-bold text-neutral-500 mb-1">MARIME</p>
+                  <div className="flex gap-2 flex-wrap">
+                    {['S', 'M', 'L', 'XL', 'XXL'].map(s => (
+                      <button
+                        key={s}
+                        onClick={() => setQvSize(s)}
+                        className={`w-10 h-10 rounded-lg border-2 font-bold text-sm transition-all ${
+                          qvSize === s ? 'border-black bg-black text-white' : 'border-neutral-200'
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => {
+                      if (!qvSize) return toast.error('Selecteaza marimea!');
+                      const variant = quickView.variants?.[qvVariant];
+                      addToCart({
+                        ...quickView,
+                        selectedKit: variant?.kit || 'first',
+                        selectedKitName: variant?.name || 'First Kit',
+                        selectedVariantImage: variant?.images?.[0] || '',
+                        selectedVersion: 'fan'
+                      }, qvSize);
+                      toast.success('Adaugat in cos!');
+                      setQuickView(null);
+                    }}
+                    className="w-full bg-[#CCFF00] text-black py-3 font-bold uppercase flex items-center justify-center gap-2 border-2 border-black rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1.5px] hover:translate-y-[1.5px] transition-all"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    Adauga in Cos
+                  </button>
+                  <Link
+                    to={`/products/${quickView.id}`}
+                    onClick={() => setQuickView(null)}
+                    className="w-full bg-black text-white py-3 font-bold uppercase flex items-center justify-center gap-2 rounded-lg hover:bg-neutral-800 transition-all"
+                  >
+                    Vezi Detalii Complete
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </div>
               </div>
             </div>
