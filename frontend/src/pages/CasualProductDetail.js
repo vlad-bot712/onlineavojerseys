@@ -22,6 +22,7 @@ export default function CasualProductDetail() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedColor, setSelectedColor] = useState(0);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState('');
   const [showSizeHelper, setShowSizeHelper] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -32,6 +33,12 @@ export default function CasualProductDetail() {
       .then(res => { setProduct(res.data); setLoading(false); })
       .catch(() => { setLoading(false); navigate('/casual'); });
   }, [id, navigate]);
+
+  // Reset image index when color changes
+  useEffect(() => {
+    setSelectedImageIndex(0);
+    setImgError(false);
+  }, [selectedColor]);
 
   if (loading) {
     return (
@@ -44,22 +51,33 @@ export default function CasualProductDetail() {
   if (!product) return null;
 
   const currentColor = product.colors[selectedColor];
-  const imgSrc = imgError ? currentColor.image + '.svg' : resolveImage(currentColor.image);
+  const colorImages = currentColor.images || [currentColor.image];
+  const currentImage = colorImages[selectedImageIndex] || colorImages[0];
+  const imgSrc = imgError ? currentImage + '.svg' : resolveImage(currentImage);
 
   const handleAddToCart = () => {
     if (!selectedSize) {
       toast.error('Selectează o mărime!');
       return;
     }
-    addToCart({
-      product_id: product.id,
-      product_name: product.name,
-      product_image: resolveImage(currentColor.image),
-      size: selectedSize,
-      quantity: 1,
-      price_ron: product.price_ron,
+    // Use sale price if available
+    const finalPrice = product.sale_price_ron && product.sale_price_ron < product.price_ron 
+      ? product.sale_price_ron 
+      : product.price_ron;
+    
+    // Build product object in the format CartContext expects
+    const cartProduct = {
+      id: product.id,
+      name: product.name,
+      price_ron: finalPrice,
+      original_price_ron: product.price_ron,
+      images: [resolveImage(currentColor.image)],
+      selectedVariantImage: resolveImage(currentColor.image),
       customization: { color: currentColor.name },
-    });
+      isCasual: true, // Mark as casual product
+      category: product.category,
+    };
+    addToCart(cartProduct, selectedSize);
     setAdded(true);
     toast.success('Adăugat în coș!');
     setTimeout(() => setAdded(false), 2000);
@@ -70,7 +88,13 @@ export default function CasualProductDetail() {
     'pantaloni-lungi': 'Pantaloni Lungi',
     'vesta': 'Vestă',
     'tricouri': 'Tricouri',
+    'geaca': 'Geacă',
+    'hanorac': 'Hanorac',
+    'papuci': 'Papuci',
+    'papuci-fotbal': 'Papuci de Fotbal',
   };
+
+  const hasDiscount = product.sale_price_ron && product.sale_price_ron < product.price_ron;
 
   return (
     <div data-testid="casual-product-detail" className="pt-24 pb-16 min-h-screen">
@@ -86,7 +110,7 @@ export default function CasualProductDetail() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-          {/* Left - Image */}
+          {/* Left - Image Gallery */}
           <div>
             <div className="aspect-square bg-neutral-50 overflow-hidden relative">
               <img
@@ -96,26 +120,63 @@ export default function CasualProductDetail() {
                 onError={() => setImgError(true)}
               />
             </div>
-            {/* Color thumbnails */}
-            {product.colors.length > 1 && (
-              <div className="flex gap-2 mt-3">
-                {product.colors.map((c, i) => {
-                  const thumbSrc = c.image + '.jpg';
-                  return (
-                    <button
-                      key={c.slug}
-                      data-testid={`detail-thumb-${c.slug}`}
-                      onClick={() => { setSelectedColor(i); setImgError(false); }}
-                      className={`w-16 h-16 overflow-hidden border-2 transition-all ${
-                        i === selectedColor ? 'border-black' : 'border-neutral-200 hover:border-neutral-400'
-                      }`}
-                    >
-                      <img src={thumbSrc} alt={c.name} className="w-full h-full object-cover" onError={(e) => { e.target.src = c.image + '.svg'; }} />
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+            
+            {/* Gallery thumbnails - all images for current color */}
+            {(() => {
+              const hasMultipleImages = colorImages.length > 1 || product.colors.length > 1;
+              
+              if (!hasMultipleImages) return null;
+              
+              return (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {/* Show all images for current color */}
+                  {colorImages.map((img, imgIdx) => {
+                    const thumbSrc = (img.startsWith('/') ? img : img) + '.jpg';
+                    const isActive = imgIdx === selectedImageIndex;
+                    return (
+                      <button
+                        key={`${currentColor.slug}-${imgIdx}`}
+                        onClick={() => {
+                          setSelectedImageIndex(imgIdx);
+                          setImgError(false);
+                        }}
+                        className={`w-16 h-16 overflow-hidden border-2 transition-all ${
+                          isActive ? 'border-black' : 'border-neutral-200 hover:border-neutral-400'
+                        }`}
+                      >
+                        <img 
+                          src={thumbSrc} 
+                          alt={`${currentColor.name} ${imgIdx + 1}`} 
+                          className="w-full h-full object-cover" 
+                          onError={(e) => { e.target.src = img + '.svg'; }} 
+                        />
+                      </button>
+                    );
+                  })}
+                  
+                  {/* Color separator if multiple colors */}
+                  {product.colors.length > 1 && colorImages.length > 1 && (
+                    <div className="w-px h-16 bg-neutral-200 mx-1" />
+                  )}
+                  
+                  {/* Other colors */}
+                  {product.colors.length > 1 && product.colors.map((c, i) => {
+                    if (i === selectedColor) return null;
+                    const thumbSrc = c.image + '.jpg';
+                    return (
+                      <button
+                        key={c.slug}
+                        data-testid={`detail-thumb-${c.slug}`}
+                        onClick={() => { setSelectedColor(i); setImgError(false); }}
+                        className="w-16 h-16 overflow-hidden border-2 border-neutral-200 hover:border-neutral-400 transition-all opacity-60 hover:opacity-100"
+                      >
+                        <img src={thumbSrc} alt={c.name} className="w-full h-full object-cover" onError={(e) => { e.target.src = c.image + '.svg'; }} />
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
 
           {/* Right - Details */}
@@ -133,8 +194,24 @@ export default function CasualProductDetail() {
             <p className="text-neutral-500 text-sm mb-6">{product.description}</p>
 
             {/* Price */}
-            <div data-testid="detail-price" className="text-3xl font-bold mb-8">
-              {formatPrice(product.price_ron)}
+            <div data-testid="detail-price" className="mb-8">
+              {hasDiscount ? (
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl font-bold text-red-500">
+                    {formatPrice(product.sale_price_ron)}
+                  </span>
+                  <span className="text-xl text-neutral-400 line-through">
+                    {formatPrice(product.price_ron)}
+                  </span>
+                  <span className="bg-red-500 text-white px-2 py-1 text-sm font-bold">
+                    -{Math.round(100 - (product.sale_price_ron / product.price_ron * 100))}%
+                  </span>
+                </div>
+              ) : (
+                <span className="text-3xl font-bold">
+                  {formatPrice(product.price_ron)}
+                </span>
+              )}
             </div>
 
             {/* Divider */}

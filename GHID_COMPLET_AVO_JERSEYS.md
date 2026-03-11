@@ -5,7 +5,7 @@
 ### Metoda 1: URL Direct
 Accesează acest link în browser:
 ```
-https://interactive-jersey.preview.emergentagent.com/admin/orders
+https://casual-products.preview.emergentagent.com/admin/orders
 ```
 
 ### Metoda 2: Din Site
@@ -237,9 +237,9 @@ mongod --dbpath /path/to/data
 ## 📞 SUPORT
 
 ### Link-uri Utile:
-- 🌐 Site Preview: https://interactive-jersey.preview.emergentagent.com
-- 👨‍💼 Admin: https://interactive-jersey.preview.emergentagent.com/admin/orders
-- 📦 Backend API: https://interactive-jersey.preview.emergentagent.com/api/health
+- 🌐 Site Preview: https://casual-products.preview.emergentagent.com
+- 👨‍💼 Admin: https://casual-products.preview.emergentagent.com/admin/orders
+- 📦 Backend API: https://casual-products.preview.emergentagent.com/api/health
 
 ### Resurse:
 - Emergent Docs: https://docs.emergentagent.com

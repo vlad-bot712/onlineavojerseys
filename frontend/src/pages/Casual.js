@@ -19,6 +19,7 @@ function ProductCard({ product }) {
   const [imgError, setImgError] = useState(false);
   const firstColor = product.colors[0];
   const imgSrc = imgError ? firstColor.image + '.svg' : firstColor.image + '.jpg';
+  const hasDiscount = product.sale_price_ron && product.sale_price_ron < product.price_ron;
 
   return (
     <Link
@@ -33,9 +34,35 @@ function ProductCard({ product }) {
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           onError={() => setImgError(true)}
         />
-        <div className="absolute top-3 right-3 bg-black text-white px-3 py-1 text-sm font-bold">
-          {formatPrice(product.price_ron)}
+        {/* Price badges */}
+        <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
+          {hasDiscount ? (
+            <>
+              <span className="bg-red-500 text-white px-3 py-1 text-sm font-bold">
+                {formatPrice(product.sale_price_ron)}
+              </span>
+              <span className="bg-neutral-600 text-white px-2 py-0.5 text-xs line-through">
+                {formatPrice(product.price_ron)}
+              </span>
+            </>
+          ) : (
+            <span className="bg-black text-white px-3 py-1 text-sm font-bold">
+              {formatPrice(product.price_ron)}
+            </span>
+          )}
         </div>
+        {/* Discount badge */}
+        {hasDiscount && (
+          <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 text-xs font-bold">
+            -{Math.round(100 - (product.sale_price_ron / product.price_ron * 100))}%
+          </div>
+        )}
+        {/* Out of stock */}
+        {product.in_stock === false && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <span className="bg-red-500 text-white px-4 py-2 font-bold">STOC EPUIZAT</span>
+          </div>
+        )}
       </div>
       <div className="p-4">
         <h3 className="font-bold text-base mb-1 line-clamp-1">{product.name}</h3>
