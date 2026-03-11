@@ -590,7 +590,7 @@ export default function AdminCasualProducts() {
   const [editProduct, setEditProduct] = useState(null);
   const [casualVisible, setCasualVisible] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const [reorderMode, setReorderMode] = useState(false);
+  const [reorderMode, setReorderMode] = useState(true); // ACTIV IMPLICIT
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [savingOrder, setSavingOrder] = useState(false);
 
