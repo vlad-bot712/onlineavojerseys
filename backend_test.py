@@ -1,350 +1,279 @@
 #!/usr/bin/env python3
 """
-Backend API Testing Suite for Casual Products Checkout Flow
-Tests the complete casual products checkout flow:
-1. Settings API - casual visibility toggle
-2. Casual Products API - listing and individual product fetch
-3. Orders API - creating orders with casual products
+Comprehensive Backend Testing for AVO Jerseys - Admin CRUD endpoints for casual products
+Testing POST, PUT, DELETE operations and image upload functionality
 """
 
 import requests
 import json
+import base64
 import os
 from datetime import datetime
-import sys
 
-# Get backend URL from frontend .env
-def get_backend_url():
-    try:
-        with open('/app/frontend/.env', 'r') as f:
-            content = f.read()
-            for line in content.splitlines():
-                if line.startswith('REACT_APP_BACKEND_URL='):
-                    return line.split('=', 1)[1].strip()
-    except FileNotFoundError:
-        pass
-    return "http://localhost:8001"
+# Configuration
+BACKEND_URL = "https://casual-products.preview.emergentagent.com/api"
+TEST_RESULTS = []
 
-BASE_URL = get_backend_url()
-print(f"Testing backend at: {BASE_URL}")
-
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    RESET = '\033[0m'
-    BOLD = '\033[1m'
-
-def log_success(message):
-    print(f"{Colors.GREEN}✅ {message}{Colors.RESET}")
-
-def log_error(message):
-    print(f"{Colors.RED}❌ {message}{Colors.RESET}")
-
-def log_warning(message):
-    print(f"{Colors.YELLOW}⚠️ {message}{Colors.RESET}")
-
-def log_info(message):
-    print(f"{Colors.BLUE}ℹ️ {message}{Colors.RESET}")
-
-def make_request(method, endpoint, **kwargs):
-    """Helper to make HTTP requests with error handling"""
-    url = f"{BASE_URL}{endpoint}"
-    try:
-        response = requests.request(method, url, timeout=10, **kwargs)
-        return response
-    except requests.exceptions.ConnectionError:
-        log_error(f"Connection failed to {url}")
-        return None
-    except requests.exceptions.Timeout:
-        log_error(f"Request timeout to {url}")
-        return None
-    except Exception as e:
-        log_error(f"Request failed to {url}: {str(e)}")
-        return None
-
-def test_health_check():
-    """Test if backend is running"""
-    print(f"\n{Colors.BOLD}=== Backend Health Check ==={Colors.RESET}")
-    
-    response = make_request("GET", "/api/health")
-    if not response:
-        log_error("Backend is not running or not accessible")
-        return False
-    
-    if response.status_code == 200:
-        log_success("Backend is running")
-        return True
-    else:
-        log_error(f"Health check failed: {response.status_code}")
-        return False
-
-def test_casual_settings():
-    """Test GET and PATCH /api/settings/casual"""
-    print(f"\n{Colors.BOLD}=== Testing Casual Settings API ==={Colors.RESET}")
-    
-    # Test GET /api/settings/casual
-    log_info("Testing GET /api/settings/casual")
-    response = make_request("GET", "/api/settings/casual")
-    if not response:
-        return False
-    
-    if response.status_code != 200:
-        log_error(f"GET /api/settings/casual failed: {response.status_code}")
-        return False
-    
-    try:
-        data = response.json()
-        if "casual_visible" not in data:
-            log_error("Response missing 'casual_visible' field")
-            return False
-        
-        initial_value = data["casual_visible"]
-        log_success(f"GET /api/settings/casual - casual_visible: {initial_value}")
-        
-        # Test PATCH /api/settings/casual (toggle)
-        log_info("Testing PATCH /api/settings/casual (toggle)")
-        response = make_request("PATCH", "/api/settings/casual")
-        if not response or response.status_code != 200:
-            log_error(f"PATCH /api/settings/casual failed: {response.status_code if response else 'No response'}")
-            return False
-        
-        toggled_data = response.json()
-        toggled_value = toggled_data.get("casual_visible")
-        
-        if toggled_value == initial_value:
-            log_error("PATCH did not toggle the value")
-            return False
-        
-        log_success(f"PATCH /api/settings/casual - toggled to: {toggled_value}")
-        
-        # Toggle back to original state
-        make_request("PATCH", "/api/settings/casual")
-        log_info("Restored original casual_visible setting")
-        
-        return True
-        
-    except json.JSONDecodeError:
-        log_error("Invalid JSON response")
-        return False
-
-def test_casual_products_api():
-    """Test GET /api/casual-products and /api/casual-products/{id}"""
-    print(f"\n{Colors.BOLD}=== Testing Casual Products API ==={Colors.RESET}")
-    
-    # Test GET /api/casual-products (force=true to ensure we get products)
-    log_info("Testing GET /api/casual-products?force=true")
-    response = make_request("GET", "/api/casual-products?force=true")
-    if not response:
-        return False, None
-    
-    if response.status_code != 200:
-        log_error(f"GET /api/casual-products failed: {response.status_code}")
-        return False, None
-    
-    try:
-        products = response.json()
-        if not isinstance(products, list):
-            log_error("Response is not a list")
-            return False, None
-        
-        if len(products) == 0:
-            log_error("No casual products found")
-            return False, None
-        
-        log_success(f"GET /api/casual-products - found {len(products)} products")
-        
-        # Verify product structure
-        first_product = products[0]
-        required_fields = ["id", "name", "category", "price_ron", "colors", "sizes"]
-        for field in required_fields:
-            if field not in first_product:
-                log_error(f"Product missing required field: {field}")
-                return False, None
-        
-        log_success("Product structure validation passed")
-        
-        # Test individual product fetch
-        product_id = first_product["id"]
-        log_info(f"Testing GET /api/casual-products/{product_id}")
-        response = make_request("GET", f"/api/casual-products/{product_id}")
-        if not response:
-            return False, None
-        
-        if response.status_code != 200:
-            log_error(f"GET /api/casual-products/{product_id} failed: {response.status_code}")
-            return False, None
-        
-        single_product = response.json()
-        if single_product["id"] != product_id:
-            log_error("Single product fetch returned wrong product")
-            return False, None
-        
-        log_success(f"GET /api/casual-products/{product_id} - product fetch successful")
-        
-        return True, products
-        
-    except json.JSONDecodeError:
-        log_error("Invalid JSON response")
-        return False, None
-
-def test_orders_api_with_casual_products(products):
-    """Test POST /api/orders with casual product data"""
-    print(f"\n{Colors.BOLD}=== Testing Orders API with Casual Products ==={Colors.RESET}")
-    
-    if not products or len(products) == 0:
-        log_error("No products available for testing orders")
-        return False
-    
-    # Select first product for testing
-    test_product = products[0]
-    
-    # Get first available color and size
-    first_color = test_product["colors"][0] if test_product["colors"] else {"name": "Default", "slug": "default"}
-    first_size = test_product["sizes"][0] if test_product["sizes"] else "M"
-    
-    # Create order data matching the format from review request
-    order_data = {
-        "items": [
-            {
-                "product_id": test_product["id"],
-                "product_name": test_product["name"],
-                "product_image": first_color.get("image", "/images/casual/test/default.jpg"),
-                "size": first_size,
-                "quantity": 1,
-                "price_ron": test_product["price_ron"],
-                "customization": {"color": first_color["name"]},
-                "version": "fan",
-                "kit": None,
-                "kit_name": None
-            }
-        ],
-        "customer_name": "Alex Popescu",
-        "customer_email": "alex.popescu@test.com",
-        "customer_phone": "+40733123456",
-        "customer_address": "Strada Victoriei 15, București",
-        "customer_street": "Strada Victoriei 15",
-        "customer_city": "București",
-        "customer_county": "București",
-        "customer_zip": "010101",
-        "customer_country": "România",
-        "shipping_method": "standard",
-        "payment_method": "ramburs",
-        "total_ron": test_product["price_ron"] + 20,  # Add 20 RON shipping
-        "currency": "RON",
-        "coupon_code": None,
-        "coupon_discount": 0
+def log_test(test_name, success, message, response_data=None):
+    """Log test result"""
+    result = {
+        "test": test_name,
+        "success": success,
+        "message": message,
+        "timestamp": datetime.now().isoformat()
     }
+    if response_data:
+        result["response_data"] = response_data
+    TEST_RESULTS.append(result)
+    print(f"{'✅' if success else '❌'} {test_name}: {message}")
+
+def test_admin_casual_products_crud():
+    """Test Admin CRUD endpoints for casual products"""
+    print("\n🔄 TESTING: Admin CRUD endpoints for casual products")
+    print("=" * 60)
     
-    log_info("Testing POST /api/orders with casual product")
-    log_info(f"Order data: {json.dumps(order_data, indent=2, ensure_ascii=False)}")
-    
-    response = make_request("POST", "/api/orders", 
-                           json=order_data,
-                           headers={"Content-Type": "application/json"})
-    
-    if not response:
-        return False
-    
-    if response.status_code not in [200, 201]:
-        log_error(f"POST /api/orders failed: {response.status_code}")
-        try:
-            error_detail = response.json()
-            log_error(f"Error detail: {error_detail}")
-        except:
-            log_error(f"Response text: {response.text}")
-        return False
+    created_product_id = None
     
     try:
-        created_order = response.json()
+        # Test 1: POST /api/admin/casual-products - Create a new casual product
+        print("\n1️⃣ Testing: POST /api/admin/casual-products")
         
-        # Verify order was created correctly
-        required_order_fields = ["id", "order_number", "items", "customer_name", "total_ron", "status"]
-        for field in required_order_fields:
-            if field not in created_order:
-                log_error(f"Created order missing field: {field}")
-                return False
+        test_product = {
+            "name": "Test Admin Product",
+            "category": "tricouri",
+            "price_ron": 199,
+            "sale_price_ron": 149,
+            "description": "Test product created via admin",
+            "sizes": ["S", "M", "L", "XL"],
+            "colors": [
+                {"name": "Negru", "slug": "negru", "image": "/images/casual/test-admin-product/negru"},
+                {"name": "Alb", "slug": "alb", "image": "/images/casual/test-admin-product/alb"}
+            ],
+            "in_stock": True
+        }
         
-        log_success(f"Order created successfully: #{created_order['order_number']}")
-        log_success(f"Order ID: {created_order['id']}")
-        log_success(f"Order status: {created_order['status']}")
-        log_success(f"Payment status: {created_order.get('payment_status', 'N/A')}")
+        response = requests.post(f"{BACKEND_URL}/admin/casual-products", json=test_product, timeout=10)
         
-        # Verify order items
-        order_items = created_order["items"]
-        if len(order_items) != 1:
-            log_error(f"Expected 1 item, got {len(order_items)}")
-            return False
-        
-        order_item = order_items[0]
-        if order_item["product_id"] != test_product["id"]:
-            log_error("Order item product_id mismatch")
-            return False
-        
-        if order_item["product_name"] != test_product["name"]:
-            log_error("Order item product_name mismatch")
-            return False
-        
-        log_success("Order item validation passed")
-        
-        # Test fetching the created order
-        order_id = created_order["id"]
-        log_info(f"Testing GET /api/orders/{order_id}")
-        
-        fetch_response = make_request("GET", f"/api/orders/{order_id}")
-        if not fetch_response or fetch_response.status_code != 200:
-            log_warning("Could not fetch created order")
-        else:
-            fetched_order = fetch_response.json()
-            if fetched_order["id"] == order_id:
-                log_success("Order fetch verification passed")
+        if response.status_code == 200:
+            data = response.json()
+            created_product_id = data.get("id")
+            
+            # Verify response includes all required fields
+            required_fields = ["id", "slug", "garment_type", "created_at", "updated_at"]
+            missing_fields = [field for field in required_fields if field not in data]
+            
+            if missing_fields:
+                log_test("POST /api/admin/casual-products", False, f"Missing fields in response: {missing_fields}")
             else:
-                log_error("Fetched order ID mismatch")
+                # Verify the data structure
+                if (data["name"] == test_product["name"] and
+                    data["category"] == test_product["category"] and
+                    data["price_ron"] == test_product["price_ron"] and
+                    data["sale_price_ron"] == test_product["sale_price_ron"] and
+                    "slug" in data and data["slug"] and
+                    "garment_type" in data):
+                    log_test("POST /api/admin/casual-products", True, 
+                           f"Product created successfully. ID: {created_product_id}, Slug: {data['slug']}, Garment Type: {data['garment_type']}")
+                else:
+                    log_test("POST /api/admin/casual-products", False, 
+                           "Product created but data doesn't match expected values")
+        else:
+            log_test("POST /api/admin/casual-products", False, 
+                   f"Failed with status {response.status_code}: {response.text}")
+            return
+            
+    except Exception as e:
+        log_test("POST /api/admin/casual-products", False, f"Exception occurred: {str(e)}")
+        return
+    
+    if not created_product_id:
+        print("❌ Cannot continue with remaining tests - product creation failed")
+        return
+    
+    try:
+        # Test 2: PUT /api/admin/casual-products/{id} - Update the created product
+        print(f"\n2️⃣ Testing: PUT /api/admin/casual-products/{created_product_id}")
         
-        return True
+        update_data = {
+            "price_ron": 179,
+            "sale_price_ron": None,  # Remove sale price
+            "in_stock": False
+        }
         
-    except json.JSONDecodeError:
-        log_error("Invalid JSON response from order creation")
-        return False
+        response = requests.put(f"{BACKEND_URL}/admin/casual-products/{created_product_id}", 
+                              json=update_data, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            # Verify partial updates work correctly
+            if (data["price_ron"] == 179 and 
+                data.get("sale_price_ron") is None and 
+                data["in_stock"] is False and
+                data["name"] == "Test Admin Product"):  # Original name should remain
+                log_test("PUT /api/admin/casual-products/{id}", True, 
+                       "Product updated successfully - partial updates work correctly")
+            else:
+                log_test("PUT /api/admin/casual-products/{id}", False, 
+                       f"Update failed - incorrect values: price_ron={data.get('price_ron')}, sale_price_ron={data.get('sale_price_ron')}, in_stock={data.get('in_stock')}")
+        else:
+            log_test("PUT /api/admin/casual-products/{id}", False, 
+                   f"Failed with status {response.status_code}: {response.text}")
+            
+    except Exception as e:
+        log_test("PUT /api/admin/casual-products/{id}", False, f"Exception occurred: {str(e)}")
+    
+    try:
+        # Test 3: DELETE /api/admin/casual-products/{id} - Delete the test product
+        print(f"\n3️⃣ Testing: DELETE /api/admin/casual-products/{created_product_id}")
+        
+        response = requests.delete(f"{BACKEND_URL}/admin/casual-products/{created_product_id}", timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "message" in data and "deleted successfully" in data["message"]:
+                log_test("DELETE /api/admin/casual-products/{id}", True, 
+                       "Product deleted successfully")
+                
+                # Verify product is actually deleted by trying to fetch it
+                try:
+                    verify_response = requests.get(f"{BACKEND_URL}/casual-products/{created_product_id}", timeout=5)
+                    if verify_response.status_code == 404:
+                        log_test("DELETE verification", True, "Product deletion confirmed - 404 when trying to fetch deleted product")
+                    else:
+                        log_test("DELETE verification", False, f"Product still exists after deletion: {verify_response.status_code}")
+                except:
+                    log_test("DELETE verification", True, "Product deletion confirmed - unable to fetch deleted product")
+            else:
+                log_test("DELETE /api/admin/casual-products/{id}", False, 
+                       f"Unexpected response format: {data}")
+        else:
+            log_test("DELETE /api/admin/casual-products/{id}", False, 
+                   f"Failed with status {response.status_code}: {response.text}")
+            
+    except Exception as e:
+        log_test("DELETE /api/admin/casual-products/{id}", False, f"Exception occurred: {str(e)}")
 
-def test_complete_casual_checkout_flow():
-    """Test the complete casual products checkout flow"""
-    print(f"\n{Colors.BOLD}{'='*60}{Colors.RESET}")
-    print(f"{Colors.BOLD}CASUAL PRODUCTS CHECKOUT FLOW TEST SUITE{Colors.RESET}")
-    print(f"{Colors.BOLD}{'='*60}{Colors.RESET}")
+def test_casual_image_upload():
+    """Test POST /api/upload/casual-image - Image upload endpoint"""
+    print("\n4️⃣ Testing: POST /api/upload/casual-image")
     
-    success_count = 0
-    total_tests = 4
+    try:
+        # Create a small test image as base64 (1x1 red pixel PNG)
+        test_image_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+        
+        upload_data = {
+            "image": f"data:image/png;base64,{test_image_base64}",
+            "product_slug": "test-admin-product",
+            "color_slug": "test-color"
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/upload/casual-image", json=upload_data, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "image_url" in data and 
+                "casual/test-admin-product/test-color" in data["image_url"]):
+                log_test("POST /api/upload/casual-image", True, 
+                       f"Image upload successful. URL: {data['image_url']}")
+            else:
+                log_test("POST /api/upload/casual-image", False, 
+                       f"Upload response incorrect format: {data}")
+        else:
+            # Note: This might fail without actual file system access, which is expected
+            log_test("POST /api/upload/casual-image", False, 
+                   f"Failed with status {response.status_code}: {response.text} (Note: May be expected due to file system limitations)")
+            
+    except Exception as e:
+        log_test("POST /api/upload/casual-image", False, 
+               f"Exception occurred: {str(e)} (Note: May be expected due to file system limitations)")
+
+def test_admin_settings():
+    """Test GET /api/admin/settings - Get all site settings"""
+    print("\n5️⃣ Testing: GET /api/admin/settings")
     
-    # 1. Health check
-    if test_health_check():
-        success_count += 1
+    try:
+        response = requests.get(f"{BACKEND_URL}/admin/settings", timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if isinstance(data, dict):
+                settings_count = len(data)
+                log_test("GET /api/admin/settings", True, 
+                       f"Settings retrieved successfully. Found {settings_count} settings: {list(data.keys())}")
+                
+                # Check if casual_visible setting exists
+                if "casual_visible" in data:
+                    log_test("Settings validation", True, 
+                           f"Required 'casual_visible' setting found with value: {data['casual_visible']}")
+                else:
+                    log_test("Settings validation", False, 
+                           "Required 'casual_visible' setting not found in settings")
+            else:
+                log_test("GET /api/admin/settings", False, 
+                       f"Expected object response, got: {type(data)}")
+        else:
+            log_test("GET /api/admin/settings", False, 
+                   f"Failed with status {response.status_code}: {response.text}")
+            
+    except Exception as e:
+        log_test("GET /api/admin/settings", False, f"Exception occurred: {str(e)}")
+
+def test_additional_admin_endpoints():
+    """Test additional endpoints for completeness"""
+    print("\n6️⃣ Testing: Additional Admin endpoints")
     
-    # 2. Test casual settings
-    if test_casual_settings():
-        success_count += 1
+    # Test getting casual products (admin view)
+    try:
+        print("  📋 Testing GET /api/casual-products?force=true")
+        response = requests.get(f"{BACKEND_URL}/casual-products?force=true", timeout=10)
+        
+        if response.status_code == 200:
+            products = response.json()
+            if isinstance(products, list):
+                log_test("GET /api/casual-products?force=true", True, 
+                       f"Admin casual products list retrieved. Found {len(products)} products")
+            else:
+                log_test("GET /api/casual-products?force=true", False, 
+                       f"Expected array response, got: {type(products)}")
+        else:
+            log_test("GET /api/casual-products?force=true", False, 
+                   f"Failed with status {response.status_code}: {response.text}")
+            
+    except Exception as e:
+        log_test("GET /api/casual-products?force=true", False, f"Exception occurred: {str(e)}")
+
+def run_all_tests():
+    """Run all admin CRUD tests"""
+    print("🚀 Starting Admin CRUD endpoints testing for casual products")
+    print(f"📡 Backend URL: {BACKEND_URL}")
+    print(f"🕐 Test started at: {datetime.now().isoformat()}")
     
-    # 3. Test casual products API
-    products_success, products = test_casual_products_api()
-    if products_success:
-        success_count += 1
+    test_admin_casual_products_crud()
+    test_casual_image_upload() 
+    test_admin_settings()
+    test_additional_admin_endpoints()
     
-    # 4. Test orders API with casual products
-    if products and test_orders_api_with_casual_products(products):
-        success_count += 1
+    print("\n" + "=" * 60)
+    print("📊 TEST SUMMARY")
+    print("=" * 60)
     
-    # Summary
-    print(f"\n{Colors.BOLD}=== TEST SUMMARY ==={Colors.RESET}")
-    if success_count == total_tests:
-        log_success(f"All {total_tests} tests passed! ✨")
-        print(f"\n{Colors.GREEN}🎉 CASUAL PRODUCTS CHECKOUT FLOW IS WORKING! 🎉{Colors.RESET}")
-        return True
-    else:
-        log_error(f"Only {success_count}/{total_tests} tests passed")
-        print(f"\n{Colors.RED}💔 SOME TESTS FAILED - NEEDS ATTENTION 💔{Colors.RESET}")
-        return False
+    total_tests = len(TEST_RESULTS)
+    passed_tests = len([t for t in TEST_RESULTS if t["success"]])
+    failed_tests = total_tests - passed_tests
+    
+    print(f"✅ Passed: {passed_tests}")
+    print(f"❌ Failed: {failed_tests}")
+    print(f"📈 Success Rate: {(passed_tests/total_tests*100):.1f}%")
+    
+    if failed_tests > 0:
+        print(f"\n🔍 FAILED TESTS:")
+        for test in TEST_RESULTS:
+            if not test["success"]:
+                print(f"  ❌ {test['test']}: {test['message']}")
+    
+    print(f"\n🏁 Testing completed at: {datetime.now().isoformat()}")
 
 if __name__ == "__main__":
-    success = test_complete_casual_checkout_flow()
-    sys.exit(0 if success else 1)
+    run_all_tests()

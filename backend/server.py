@@ -1526,3 +1526,199 @@ async def get_casual_product(product_id: str):
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     return serialize_doc(product)
+
+
+
+# ============== ADMIN CASUAL PRODUCTS ==============
+
+class CasualProductColor(BaseModel):
+    name: str
+    slug: str
+    image: str  # Base64 or URL
+
+class CreateCasualProductRequest(BaseModel):
+    name: str
+    slug: Optional[str] = None
+    category: str  # tricou, pantaloni-scurti, pantaloni-lungi, vesta, geaca, hanorac, papuci
+    garment_type: Optional[str] = None
+    price_ron: float
+    sale_price_ron: Optional[float] = None  # Preț de reducere
+    description: str = ""
+    sizes: List[str] = ["S", "M", "L", "XL", "XXL"]
+    colors: List[Dict] = []  # [{name, slug, image}]
+    in_stock: bool = True
+
+class UpdateCasualProductRequest(BaseModel):
+    name: Optional[str] = None
+    slug: Optional[str] = None
+    category: Optional[str] = None
+    garment_type: Optional[str] = None
+    price_ron: Optional[float] = None
+    sale_price_ron: Optional[float] = None
+    description: Optional[str] = None
+    sizes: Optional[List[str]] = None
+    colors: Optional[List[Dict]] = None
+    in_stock: Optional[bool] = None
+
+
+def generate_slug(name: str) -> str:
+    """Generate URL-friendly slug from name"""
+    import re
+    slug = name.lower()
+    slug = re.sub(r'[^a-z0-9\s-]', '', slug)
+    slug = re.sub(r'[\s_]+', '-', slug)
+    slug = re.sub(r'-+', '-', slug)
+    return slug.strip('-')
+
+
+@app.post("/api/admin/casual-products")
+async def create_casual_product(product: CreateCasualProductRequest):
+    """Create a new casual product"""
+    product_dict = product.model_dump()
+    
+    # Generate slug if not provided
+    if not product_dict.get("slug"):
+        product_dict["slug"] = generate_slug(product_dict["name"])
+    
+    # Set garment_type based on category if not provided
+    if not product_dict.get("garment_type"):
+        category_to_garment = {
+            "tricouri": "tricou",
+            "tricou": "tricou",
+            "pantaloni-scurti": "pantaloni-scurti",
+            "pantaloni-lungi": "pantaloni-lungi",
+            "vesta": "vesta",
+            "geaca": "geaca",
+            "hanorac": "hanorac",
+            "papuci": "papuci"
+        }
+        product_dict["garment_type"] = category_to_garment.get(product_dict["category"], product_dict["category"])
+    
+    product_dict["created_at"] = datetime.now(timezone(timedelta(hours=3))).isoformat()
+    product_dict["updated_at"] = product_dict["created_at"]
+    
+    result = await db.casual_products.insert_one(product_dict)
+    product_dict["id"] = str(result.inserted_id)
+    del product_dict["_id"]
+    
+    return product_dict
+
+
+@app.put("/api/admin/casual-products/{product_id}")
+async def update_casual_product(product_id: str, update: UpdateCasualProductRequest):
+    """Update an existing casual product"""
+    try:
+        existing = await db.casual_products.find_one({"_id": ObjectId(product_id)})
+    except:
+        raise HTTPException(status_code=400, detail="Invalid product ID")
+    
+    if not existing:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    update_dict = {k: v for k, v in update.model_dump().items() if v is not None}
+    
+    if update_dict:
+        # Update slug if name changed and slug not provided
+        if "name" in update_dict and "slug" not in update_dict:
+            update_dict["slug"] = generate_slug(update_dict["name"])
+        
+        update_dict["updated_at"] = datetime.now(timezone(timedelta(hours=3))).isoformat()
+        
+        await db.casual_products.update_one(
+            {"_id": ObjectId(product_id)},
+            {"$set": update_dict}
+        )
+    
+    updated = await db.casual_products.find_one({"_id": ObjectId(product_id)})
+    return serialize_doc(updated)
+
+
+@app.delete("/api/admin/casual-products/{product_id}")
+async def delete_casual_product(product_id: str):
+    """Delete a casual product"""
+    try:
+        result = await db.casual_products.delete_one({"_id": ObjectId(product_id)})
+    except:
+        raise HTTPException(status_code=400, detail="Invalid product ID")
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    return {"message": "Product deleted successfully", "id": product_id}
+
+
+# Image upload for casual products
+import base64
+import uuid
+
+UPLOAD_DIR = "/app/frontend/public/images/casual"
+
+@app.post("/api/upload/casual-image")
+async def upload_casual_image(request: Request):
+    """Upload an image for casual products"""
+    try:
+        data = await request.json()
+        image_data = data.get("image")  # Base64 encoded image
+        product_slug = data.get("product_slug", "temp")
+        color_slug = data.get("color_slug", "default")
+        
+        if not image_data:
+            raise HTTPException(status_code=400, detail="No image data provided")
+        
+        # Remove data URL prefix if present
+        if "base64," in image_data:
+            image_data = image_data.split("base64,")[1]
+        
+        # Decode base64
+        try:
+            image_bytes = base64.b64decode(image_data)
+        except:
+            raise HTTPException(status_code=400, detail="Invalid base64 image data")
+        
+        # Create directory for product if not exists
+        product_dir = os.path.join(UPLOAD_DIR, product_slug)
+        os.makedirs(product_dir, exist_ok=True)
+        
+        # Save image as JPG
+        filename = f"{color_slug}.jpg"
+        filepath = os.path.join(product_dir, filename)
+        
+        with open(filepath, "wb") as f:
+            f.write(image_bytes)
+        
+        # Return the URL path
+        image_url = f"/images/casual/{product_slug}/{color_slug}"
+        
+        return {
+            "success": True,
+            "image_url": image_url,
+            "full_path": f"{image_url}.jpg"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
+
+# Get all site settings for admin
+@app.get("/api/admin/settings")
+async def get_all_settings():
+    """Get all site settings"""
+    settings = await db.site_settings.find().to_list(length=100)
+    return {s["key"]: s["value"] for s in settings}
+
+
+@app.patch("/api/admin/settings/{key}")
+async def update_setting(key: str, request: Request):
+    """Update a specific site setting"""
+    data = await request.json()
+    value = data.get("value")
+    
+    await db.site_settings.update_one(
+        {"key": key},
+        {"$set": {"value": value}},
+        upsert=True
+    )
+    
+    return {"key": key, "value": value}

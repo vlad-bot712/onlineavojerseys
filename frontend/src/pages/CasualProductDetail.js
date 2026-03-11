@@ -51,11 +51,17 @@ export default function CasualProductDetail() {
       toast.error('Selectează o mărime!');
       return;
     }
+    // Use sale price if available
+    const finalPrice = product.sale_price_ron && product.sale_price_ron < product.price_ron 
+      ? product.sale_price_ron 
+      : product.price_ron;
+    
     // Build product object in the format CartContext expects
     const cartProduct = {
       id: product.id,
       name: product.name,
-      price_ron: product.price_ron,
+      price_ron: finalPrice,
+      original_price_ron: product.price_ron,
       images: [resolveImage(currentColor.image)],
       selectedVariantImage: resolveImage(currentColor.image),
       customization: { color: currentColor.name },
@@ -73,7 +79,12 @@ export default function CasualProductDetail() {
     'pantaloni-lungi': 'Pantaloni Lungi',
     'vesta': 'Vestă',
     'tricouri': 'Tricouri',
+    'geaca': 'Geacă',
+    'hanorac': 'Hanorac',
+    'papuci': 'Papuci',
   };
+
+  const hasDiscount = product.sale_price_ron && product.sale_price_ron < product.price_ron;
 
   return (
     <div data-testid="casual-product-detail" className="pt-24 pb-16 min-h-screen">
@@ -136,8 +147,24 @@ export default function CasualProductDetail() {
             <p className="text-neutral-500 text-sm mb-6">{product.description}</p>
 
             {/* Price */}
-            <div data-testid="detail-price" className="text-3xl font-bold mb-8">
-              {formatPrice(product.price_ron)}
+            <div data-testid="detail-price" className="mb-8">
+              {hasDiscount ? (
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl font-bold text-red-500">
+                    {formatPrice(product.sale_price_ron)}
+                  </span>
+                  <span className="text-xl text-neutral-400 line-through">
+                    {formatPrice(product.price_ron)}
+                  </span>
+                  <span className="bg-red-500 text-white px-2 py-1 text-sm font-bold">
+                    -{Math.round(100 - (product.sale_price_ron / product.price_ron * 100))}%
+                  </span>
+                </div>
+              ) : (
+                <span className="text-3xl font-bold">
+                  {formatPrice(product.price_ron)}
+                </span>
+              )}
             </div>
 
             {/* Divider */}

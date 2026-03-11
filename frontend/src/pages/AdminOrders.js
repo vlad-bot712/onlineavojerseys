@@ -152,6 +152,14 @@ export default function AdminOrders() {
           </div>
           {/* Action Buttons */}
           <div className="flex items-center gap-3 flex-wrap">
+            {/* Casual Products Admin */}
+            <Link
+              to="/admin/casual-products"
+              className="bg-black text-white px-5 py-3 font-bold flex items-center space-x-2 border-2 border-black hover:bg-[#CCFF00] hover:text-black transition-all"
+            >
+              <Package className="w-5 h-5" />
+              <span>PRODUSE CASUAL</span>
+            </Link>
             {/* Casual Toggle */}
             <button
               data-testid="casual-toggle"

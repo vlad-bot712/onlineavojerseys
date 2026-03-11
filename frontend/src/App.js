@@ -18,6 +18,7 @@ import Favorites from './pages/Favorites';
 import AdminOrders from './pages/AdminOrders';
 import AdminOrderDetail from './pages/AdminOrderDetail';
 import AdminTickets from './pages/AdminTickets';
+import AdminCasualProducts from './pages/AdminCasualProducts';
 import Contact from './pages/Contact';
 import PromoBundle from './pages/PromoBundle';
 import Casual from './pages/Casual';
@@ -85,6 +86,7 @@ function App() {
                   <Route path="/admin/orders" element={<AdminOrders />} />
                   <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
                   <Route path="/admin/tickets" element={<AdminTickets />} />
+                  <Route path="/admin/casual-products" element={<AdminCasualProducts />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/promotii" element={<PromoBundle />} />
                   <Route path="/casual" element={<Casual />} />

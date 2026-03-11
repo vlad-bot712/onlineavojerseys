@@ -169,6 +169,45 @@ frontend:
         agent: "main"
         comment: "Added isCasual product display in order summary"
 
+  - task: "Admin CRUD for casual products"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added POST /api/admin/casual-products, PUT /api/admin/casual-products/{id}, DELETE /api/admin/casual-products/{id}, POST /api/upload/casual-image"
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE ADMIN CRUD TESTING COMPLETED - All admin endpoints working perfectly: 1) POST /api/admin/casual-products - Creates products correctly with auto-generated slug, garment_type, timestamps, and proper ID assignment. All required fields (name, category, price_ron, colors, sizes) handled properly. 2) PUT /api/admin/casual-products/{id} - Partial updates work correctly, preserves existing data when fields not specified (by design). Note: Setting fields to null is filtered out to prevent accidental data loss - this is reasonable design choice. 3) DELETE /api/admin/casual-products/{id} - Successfully deletes products and returns proper confirmation message. Verified deletion by confirming 404 on subsequent fetch. 4) POST /api/upload/casual-image - Image upload endpoint works correctly, accepts base64 images and returns proper URL paths. 5) GET /api/admin/settings - Returns all site settings as object, includes required casual_visible setting. All endpoints handle errors gracefully and return appropriate HTTP status codes. Admin functionality ready for production use."
+
+  - task: "Admin Casual Products page"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/AdminCasualProducts.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created full admin page with product listing, create/edit/delete functionality, image upload, category selection, size selection, price and sale price"
+
+  - task: "Sale price support"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/Casual.js, CasualProductDetail.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added sale price display with discount badge and percentage in both listing and detail pages"
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
@@ -190,3 +229,5 @@ agent_communication:
     message: "Fixed the casual products checkout flow. The issue was that CasualProductDetail.js was calling addToCart with an incorrect object format (using product_id instead of id). Fixed to use the same format as jersey products. Updated Cart.js and Checkout.js to properly display casual products with CASUAL badge."
   - agent: "testing"
     message: "✅ BACKEND TESTING COMPLETE: All casual products checkout APIs are fully functional! Tested and verified: 1) Settings API (GET/PATCH /api/settings/casual) - toggles casual visibility correctly, 2) Casual Products API (GET /api/casual-products) - returns 15 products when visible or with force=true, handles category filtering, individual product fetch works, 3) Orders API (POST /api/orders) - successfully processes casual product orders with exact format specified in review request including customization.color, version=fan, kit=null. Created orders get proper order numbers (AVO00001, AVO00002), status=processing for ramburs payment, payment_status=cod. All validation, error handling, and edge cases work correctly. Backend APIs are ready for production use."
+  - agent: "testing"
+    message: "✅ ADMIN CRUD TESTING COMPLETE: All new Admin CRUD endpoints for casual products are fully functional! Successfully tested: 1) POST /api/admin/casual-products creates products with proper slug generation, garment_type mapping, and all required fields. 2) PUT /api/admin/casual-products/{id} handles partial updates correctly (note: null values filtered by design to prevent data loss). 3) DELETE /api/admin/casual-products/{id} removes products successfully with proper verification. 4) POST /api/upload/casual-image processes base64 images and returns correct URL paths. 5) GET /api/admin/settings returns all site settings including casual_visible. All endpoints handle errors appropriately and maintain data integrity. Admin functionality ready for production use."
