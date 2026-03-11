@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Plus, Edit2, Trash2, Save, X, Upload, Image as ImageIcon, 
-  Package, ChevronLeft, Check, AlertTriangle, Eye, EyeOff 
+  Package, ChevronLeft, Check, AlertTriangle, Eye, EyeOff, Tag
 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -27,6 +27,7 @@ const defaultProduct = {
   description: '',
   price_ron: 160,
   sale_price_ron: null,
+  has_sale: false,
   sizes: ['S', 'M', 'L', 'XL', 'XXL'],
   colors: [],
   in_stock: true,
@@ -42,10 +43,17 @@ function generateSlug(name) {
 }
 
 function ProductForm({ product, onSave, onCancel, isEdit }) {
-  const [form, setForm] = useState(product || defaultProduct);
-  const [newColor, setNewColor] = useState({ name: '', slug: '', image: '', imagePreview: '' });
+  const [form, setForm] = useState(() => {
+    const initial = product || defaultProduct;
+    return {
+      ...initial,
+      has_sale: initial.sale_price_ron ? true : false,
+    };
+  });
+  const [newColor, setNewColor] = useState({ name: '', slug: '', images: [], imagePreviews: [] });
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef(null);
+  const multiFileInputRef = useRef(null);
 
   const handleChange = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -60,33 +68,100 @@ function ProductForm({ product, onSave, onCancel, isEdit }) {
     }));
   };
 
-  const handleImageUpload = async (e, colorIndex = null) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  // Toggle sale price
+  const handleToggleSale = () => {
+    setForm(prev => ({
+      ...prev,
+      has_sale: !prev.has_sale,
+      sale_price_ron: !prev.has_sale ? prev.sale_price_ron : null,
+    }));
+  };
 
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const base64 = event.target.result;
-      
-      if (colorIndex !== null) {
-        // Update existing color
-        const updatedColors = [...form.colors];
-        updatedColors[colorIndex] = {
-          ...updatedColors[colorIndex],
-          image: base64,
-          imagePreview: base64,
+  // Handle multiple images upload for a color
+  const handleMultipleImageUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    const newImages = [];
+    const newPreviews = [];
+
+    for (const file of files) {
+      const reader = new FileReader();
+      await new Promise((resolve) => {
+        reader.onload = (event) => {
+          newImages.push(event.target.result);
+          newPreviews.push(event.target.result);
+          resolve();
         };
-        setForm(prev => ({ ...prev, colors: updatedColors }));
-      } else {
-        // New color image
-        setNewColor(prev => ({
-          ...prev,
-          image: base64,
-          imagePreview: base64,
-        }));
-      }
+        reader.readAsDataURL(file);
+      });
+    }
+
+    setNewColor(prev => ({
+      ...prev,
+      images: [...prev.images, ...newImages],
+      imagePreviews: [...prev.imagePreviews, ...newPreviews],
+    }));
+  };
+
+  // Add additional image to existing color
+  const handleAddImageToColor = async (colorIndex, e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    const newImages = [];
+    for (const file of files) {
+      const reader = new FileReader();
+      await new Promise((resolve) => {
+        reader.onload = (event) => {
+          newImages.push(event.target.result);
+          resolve();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    const updatedColors = [...form.colors];
+    const currentImages = updatedColors[colorIndex].images || [updatedColors[colorIndex].image];
+    const currentPreviews = updatedColors[colorIndex].imagePreviews || [updatedColors[colorIndex].imagePreview || updatedColors[colorIndex].image];
+    
+    updatedColors[colorIndex] = {
+      ...updatedColors[colorIndex],
+      images: [...currentImages, ...newImages],
+      imagePreviews: [...currentPreviews, ...newImages],
     };
-    reader.readAsDataURL(file);
+    setForm(prev => ({ ...prev, colors: updatedColors }));
+  };
+
+  // Remove specific image from color
+  const handleRemoveImageFromColor = (colorIndex, imageIndex) => {
+    const updatedColors = [...form.colors];
+    const currentImages = updatedColors[colorIndex].images || [updatedColors[colorIndex].image];
+    const currentPreviews = updatedColors[colorIndex].imagePreviews || [];
+    
+    if (currentImages.length <= 1) {
+      toast.error('Fiecare culoare trebuie să aibă cel puțin o imagine');
+      return;
+    }
+
+    updatedColors[colorIndex] = {
+      ...updatedColors[colorIndex],
+      images: currentImages.filter((_, i) => i !== imageIndex),
+      imagePreviews: currentPreviews.filter((_, i) => i !== imageIndex),
+      // Update main image if first one was removed
+      image: imageIndex === 0 ? currentImages[1] : currentImages[0],
+      imagePreview: imageIndex === 0 ? (currentPreviews[1] || currentImages[1]) : (currentPreviews[0] || currentImages[0]),
+    };
+    setForm(prev => ({ ...prev, colors: updatedColors }));
+  };
+
+  // Remove image from new color being added
+  const handleRemoveNewColorImage = (imageIndex) => {
+    setNewColor(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== imageIndex),
+      imagePreviews: prev.imagePreviews.filter((_, i) => i !== imageIndex),
+    }));
   };
 
   const handleAddColor = () => {
@@ -94,8 +169,8 @@ function ProductForm({ product, onSave, onCancel, isEdit }) {
       toast.error('Introdu numele culorii');
       return;
     }
-    if (!newColor.image) {
-      toast.error('Încarcă o imagine pentru culoare');
+    if (newColor.images.length === 0) {
+      toast.error('Încarcă cel puțin o imagine pentru culoare');
       return;
     }
 
@@ -105,11 +180,13 @@ function ProductForm({ product, onSave, onCancel, isEdit }) {
       colors: [...prev.colors, { 
         name: newColor.name, 
         slug: colorSlug, 
-        image: newColor.image,
-        imagePreview: newColor.imagePreview 
+        image: newColor.images[0], // Main image is the first one
+        images: newColor.images,
+        imagePreview: newColor.imagePreviews[0],
+        imagePreviews: newColor.imagePreviews,
       }]
     }));
-    setNewColor({ name: '', slug: '', image: '', imagePreview: '' });
+    setNewColor({ name: '', slug: '', images: [], imagePreviews: [] });
   };
 
   const handleRemoveColor = (index) => {
@@ -139,31 +216,37 @@ function ProductForm({ product, onSave, onCancel, isEdit }) {
       
       // Upload images and get URLs
       const uploadedColors = await Promise.all(
-        form.colors.map(async (color) => {
-          // If it's a base64 image, upload it
-          if (color.image && color.image.startsWith('data:')) {
-            try {
-              const uploadRes = await axios.post(`${API_URL}/api/upload/casual-image`, {
-                image: color.image,
-                product_slug: slug,
-                color_slug: color.slug || generateSlug(color.name),
-              });
-              return {
-                name: color.name,
-                slug: color.slug || generateSlug(color.name),
-                image: uploadRes.data.image_url,
-              };
-            } catch (err) {
-              console.error('Upload error:', err);
-              toast.error(`Eroare la încărcare imagine pentru ${color.name}`);
-              throw err;
-            }
-          }
-          // Already uploaded, return as is
+        form.colors.map(async (color, colorIdx) => {
+          const colorSlug = color.slug || generateSlug(color.name);
+          const colorImages = color.images || [color.image];
+          
+          // Upload all images for this color
+          const uploadedImages = await Promise.all(
+            colorImages.map(async (img, imgIdx) => {
+              if (img && img.startsWith('data:')) {
+                try {
+                  const uploadRes = await axios.post(`${API_URL}/api/upload/casual-image`, {
+                    image: img,
+                    product_slug: slug,
+                    color_slug: imgIdx === 0 ? colorSlug : `${colorSlug}-${imgIdx + 1}`,
+                  });
+                  return uploadRes.data.image_url;
+                } catch (err) {
+                  console.error('Upload error:', err);
+                  toast.error(`Eroare la încărcare imagine pentru ${color.name}`);
+                  throw err;
+                }
+              }
+              // Already uploaded, clean the URL
+              return img.replace('.jpg', '').replace('.png', '');
+            })
+          );
+
           return {
             name: color.name,
-            slug: color.slug,
-            image: color.image.replace('.jpg', '').replace('.png', ''),
+            slug: colorSlug,
+            image: uploadedImages[0], // Main image
+            images: uploadedImages, // All images
           };
         })
       );
@@ -174,7 +257,7 @@ function ProductForm({ product, onSave, onCancel, isEdit }) {
         category: form.category,
         description: form.description,
         price_ron: parseFloat(form.price_ron),
-        sale_price_ron: form.sale_price_ron ? parseFloat(form.sale_price_ron) : null,
+        sale_price_ron: form.has_sale && form.sale_price_ron ? parseFloat(form.sale_price_ron) : null,
         sizes: form.sizes,
         colors: uploadedColors,
         in_stock: form.in_stock,
@@ -245,27 +328,52 @@ function ProductForm({ product, onSave, onCancel, isEdit }) {
           />
         </div>
 
-        {/* Prices */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block font-bold mb-2">Preț (RON) *</label>
-            <input
-              type="number"
-              value={form.price_ron}
-              onChange={(e) => handleChange('price_ron', e.target.value)}
-              placeholder="160"
-              className="w-full border-2 border-neutral-200 px-4 py-3 focus:outline-none focus:border-black"
-            />
+        {/* Prices with Sale Toggle */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <label className="font-bold">Preț & Reducere</label>
+            <button
+              type="button"
+              onClick={handleToggleSale}
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-bold border-2 transition-all ${
+                form.has_sale
+                  ? 'border-red-500 bg-red-500 text-white'
+                  : 'border-neutral-200 hover:border-red-500 text-neutral-600'
+              }`}
+            >
+              <Tag className="w-4 h-4" />
+              {form.has_sale ? 'REDUCERE ACTIVĂ' : 'ADAUGĂ REDUCERE'}
+            </button>
           </div>
-          <div>
-            <label className="block font-bold mb-2">Preț Reducere (RON)</label>
-            <input
-              type="number"
-              value={form.sale_price_ron || ''}
-              onChange={(e) => handleChange('sale_price_ron', e.target.value || null)}
-              placeholder="Opțional"
-              className="w-full border-2 border-neutral-200 px-4 py-3 focus:outline-none focus:border-black"
-            />
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-neutral-600 mb-1">Preț Normal (RON) *</label>
+              <input
+                type="number"
+                value={form.price_ron}
+                onChange={(e) => handleChange('price_ron', e.target.value)}
+                placeholder="160"
+                className="w-full border-2 border-neutral-200 px-4 py-3 focus:outline-none focus:border-black"
+              />
+            </div>
+            {form.has_sale && (
+              <div>
+                <label className="block text-sm text-red-500 mb-1">Preț Reducere (RON) *</label>
+                <input
+                  type="number"
+                  value={form.sale_price_ron || ''}
+                  onChange={(e) => handleChange('sale_price_ron', e.target.value)}
+                  placeholder="Ex: 120"
+                  className="w-full border-2 border-red-200 px-4 py-3 focus:outline-none focus:border-red-500 bg-red-50"
+                />
+                {form.sale_price_ron && form.price_ron && (
+                  <p className="text-xs text-red-500 mt-1">
+                    Reducere: {Math.round(100 - (form.sale_price_ron / form.price_ron * 100))}%
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -290,42 +398,79 @@ function ProductForm({ product, onSave, onCancel, isEdit }) {
           </div>
         </div>
 
-        {/* Colors */}
+        {/* Colors with Multiple Images */}
         <div>
-          <label className="block font-bold mb-2">Culori & Imagini *</label>
+          <label className="block font-bold mb-2">Culori & Imagini * <span className="text-neutral-400 font-normal text-sm">(poți adăuga mai multe poze per culoare)</span></label>
           
           {/* Existing colors */}
           {form.colors.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-              {form.colors.map((color, idx) => (
-                <div key={idx} className="border-2 border-neutral-200 p-3 relative">
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveColor(idx)}
-                    className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                  <div className="aspect-square mb-2 bg-neutral-100 overflow-hidden">
-                    {(color.imagePreview || color.image) && (
-                      <img 
-                        src={color.imagePreview || (color.image.startsWith('/') ? color.image + '.jpg' : color.image)} 
-                        alt={color.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => { e.target.src = color.image + '.svg'; }}
-                      />
-                    )}
+            <div className="space-y-4 mb-4">
+              {form.colors.map((color, colorIdx) => {
+                const colorImages = color.images || [color.image];
+                const colorPreviews = color.imagePreviews || colorImages;
+                
+                return (
+                  <div key={colorIdx} className="border-2 border-neutral-200 p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-bold text-lg">{color.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveColor(colorIdx)}
+                        className="p-2 bg-red-500 text-white rounded hover:bg-red-600"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                    
+                    {/* Images grid */}
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {colorPreviews.map((img, imgIdx) => (
+                        <div key={imgIdx} className="relative w-20 h-20 border border-neutral-200 overflow-hidden group">
+                          <img 
+                            src={img.startsWith('/') ? img + '.jpg' : img} 
+                            alt={`${color.name} ${imgIdx + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => { if (img.startsWith('/')) e.target.src = img + '.svg'; }}
+                          />
+                          {imgIdx === 0 && (
+                            <span className="absolute top-0 left-0 bg-[#CCFF00] text-black text-[10px] font-bold px-1">MAIN</span>
+                          )}
+                          {colorImages.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImageFromColor(colorIdx, imgIdx)}
+                              className="absolute top-0 right-0 p-1 bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                      
+                      {/* Add more images button */}
+                      <label className="w-20 h-20 border-2 border-dashed border-neutral-300 flex items-center justify-center cursor-pointer hover:border-black transition-all">
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={(e) => handleAddImageToColor(colorIdx, e)}
+                          className="hidden"
+                        />
+                        <Plus className="w-6 h-6 text-neutral-400" />
+                      </label>
+                    </div>
+                    <p className="text-xs text-neutral-400">{colorImages.length} {colorImages.length === 1 ? 'imagine' : 'imagini'}</p>
                   </div>
-                  <p className="text-sm font-bold text-center">{color.name}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
           {/* Add new color */}
           <div className="border-2 border-dashed border-neutral-300 p-4">
             <p className="text-sm font-bold mb-3 text-neutral-600">Adaugă Culoare Nouă</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            
+            <div className="space-y-3">
               <input
                 type="text"
                 value={newColor.name}
@@ -334,49 +479,56 @@ function ProductForm({ product, onSave, onCancel, isEdit }) {
                   name: e.target.value,
                   slug: generateSlug(e.target.value)
                 }))}
-                placeholder="Nume culoare (ex: Negru)"
-                className="border-2 border-neutral-200 px-3 py-2 focus:outline-none focus:border-black"
+                placeholder="Nume culoare (ex: Negru, Alb, Roșu)"
+                className="w-full border-2 border-neutral-200 px-3 py-2 focus:outline-none focus:border-black"
               />
-              <div className="relative">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={(e) => handleImageUpload(e)}
-                  accept="image/*"
-                  className="hidden"
-                />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full flex items-center justify-center gap-2 border-2 border-neutral-200 px-3 py-2 hover:border-black transition-all"
-                >
-                  {newColor.imagePreview ? (
-                    <>
-                      <Check className="w-4 h-4 text-green-500" />
-                      <span className="text-sm">Imagine încărcată</span>
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-4 h-4" />
-                      <span className="text-sm">Încarcă Imagine</span>
-                    </>
-                  )}
-                </button>
+              
+              {/* Images for new color */}
+              <div className="flex flex-wrap gap-2">
+                {newColor.imagePreviews.map((preview, idx) => (
+                  <div key={idx} className="relative w-16 h-16 border border-neutral-200 overflow-hidden group">
+                    <img src={preview} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" />
+                    {idx === 0 && (
+                      <span className="absolute top-0 left-0 bg-[#CCFF00] text-black text-[10px] font-bold px-1">MAIN</span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveNewColorImage(idx)}
+                      className="absolute top-0 right-0 p-0.5 bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+                
+                <label className="w-16 h-16 border-2 border-dashed border-neutral-300 flex flex-col items-center justify-center cursor-pointer hover:border-black transition-all">
+                  <input
+                    type="file"
+                    ref={multiFileInputRef}
+                    multiple
+                    accept="image/*"
+                    onChange={handleMultipleImageUpload}
+                    className="hidden"
+                  />
+                  <Upload className="w-5 h-5 text-neutral-400" />
+                  <span className="text-[10px] text-neutral-400">Adaugă</span>
+                </label>
               </div>
+              
+              {newColor.images.length > 0 && (
+                <p className="text-xs text-green-600">{newColor.images.length} {newColor.images.length === 1 ? 'imagine selectată' : 'imagini selectate'}</p>
+              )}
+              
               <button
                 type="button"
                 onClick={handleAddColor}
-                className="flex items-center justify-center gap-2 bg-[#CCFF00] text-black px-4 py-2 font-bold hover:bg-black hover:text-[#CCFF00] transition-all"
+                disabled={!newColor.name || newColor.images.length === 0}
+                className="w-full flex items-center justify-center gap-2 bg-[#CCFF00] text-black px-4 py-3 font-bold hover:bg-black hover:text-[#CCFF00] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Plus className="w-4 h-4" />
-                Adaugă
+                Adaugă Culoarea
               </button>
             </div>
-            {newColor.imagePreview && (
-              <div className="mt-3 w-20 h-20 border border-neutral-200 overflow-hidden">
-                <img src={newColor.imagePreview} alt="Preview" className="w-full h-full object-cover" />
-              </div>
-            )}
           </div>
         </div>
 
@@ -582,67 +734,78 @@ export default function AdminCasualProducts() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {products.map(product => (
-              <div key={product.id} className="bg-white border-2 border-neutral-200 overflow-hidden group">
-                <div className="aspect-square bg-neutral-100 relative overflow-hidden">
-                  {product.colors && product.colors[0] && (
-                    <img
-                      src={product.colors[0].image + '.jpg'}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => { e.target.src = product.colors[0].image + '.svg'; }}
-                    />
-                  )}
-                  {/* Price badges */}
-                  <div className="absolute top-2 right-2 flex flex-col gap-1">
-                    {product.sale_price_ron ? (
-                      <>
-                        <span className="bg-red-500 text-white text-xs font-bold px-2 py-1">
-                          {product.sale_price_ron} RON
-                        </span>
-                        <span className="bg-neutral-500 text-white text-xs px-2 py-1 line-through">
+            {products.map(product => {
+              const imageCount = product.colors?.reduce((sum, c) => sum + (c.images?.length || 1), 0) || product.colors?.length || 0;
+              
+              return (
+                <div key={product.id} className="bg-white border-2 border-neutral-200 overflow-hidden group">
+                  <div className="aspect-square bg-neutral-100 relative overflow-hidden">
+                    {product.colors && product.colors[0] && (
+                      <img
+                        src={product.colors[0].image + '.jpg'}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.target.src = product.colors[0].image + '.svg'; }}
+                      />
+                    )}
+                    {/* Price badges */}
+                    <div className="absolute top-2 right-2 flex flex-col gap-1">
+                      {product.sale_price_ron ? (
+                        <>
+                          <span className="bg-red-500 text-white text-xs font-bold px-2 py-1">
+                            {product.sale_price_ron} RON
+                          </span>
+                          <span className="bg-neutral-500 text-white text-xs px-2 py-1 line-through">
+                            {product.price_ron} RON
+                          </span>
+                        </>
+                      ) : (
+                        <span className="bg-black text-white text-xs font-bold px-2 py-1">
                           {product.price_ron} RON
                         </span>
-                      </>
-                    ) : (
-                      <span className="bg-black text-white text-xs font-bold px-2 py-1">
-                        {product.price_ron} RON
-                      </span>
-                    )}
-                  </div>
-                  {/* Stock badge */}
-                  {!product.in_stock && (
-                    <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1">
-                      STOC EPUIZAT
+                      )}
                     </div>
-                  )}
-                  {/* Actions overlay */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-3">
-                    <button
-                      onClick={() => setEditProduct(product)}
-                      className="p-3 bg-white text-black rounded-full hover:bg-[#CCFF00] transition-all"
-                    >
-                      <Edit2 className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => setDeleteConfirm(product)}
-                      className="p-3 bg-white text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+                    {/* Stock badge */}
+                    {!product.in_stock && (
+                      <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1">
+                        STOC EPUIZAT
+                      </div>
+                    )}
+                    {/* Image count badge */}
+                    {imageCount > 1 && (
+                      <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 flex items-center gap-1">
+                        <ImageIcon className="w-3 h-3" />
+                        {imageCount}
+                      </div>
+                    )}
+                    {/* Actions overlay */}
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-3">
+                      <button
+                        onClick={() => setEditProduct(product)}
+                        className="p-3 bg-white text-black rounded-full hover:bg-[#CCFF00] transition-all"
+                      >
+                        <Edit2 className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirm(product)}
+                        className="p-3 bg-white text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-xs text-[#CCFF00] bg-black inline-block px-2 py-0.5 mb-2">
+                      {getCategoryLabel(product.category)}
+                    </p>
+                    <h3 className="font-bold text-lg mb-1 line-clamp-1">{product.name}</h3>
+                    <p className="text-sm text-neutral-500">
+                      {product.colors?.length || 0} culori · {product.sizes?.length || 0} mărimi · {imageCount} poze
+                    </p>
                   </div>
                 </div>
-                <div className="p-4">
-                  <p className="text-xs text-[#CCFF00] bg-black inline-block px-2 py-0.5 mb-2">
-                    {getCategoryLabel(product.category)}
-                  </p>
-                  <h3 className="font-bold text-lg mb-1 line-clamp-1">{product.name}</h3>
-                  <p className="text-sm text-neutral-500">
-                    {product.colors?.length || 0} culori · {product.sizes?.length || 0} mărimi
-                  </p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

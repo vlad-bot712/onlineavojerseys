@@ -22,6 +22,7 @@ export default function CasualProductDetail() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedColor, setSelectedColor] = useState(0);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState('');
   const [showSizeHelper, setShowSizeHelper] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -32,6 +33,12 @@ export default function CasualProductDetail() {
       .then(res => { setProduct(res.data); setLoading(false); })
       .catch(() => { setLoading(false); navigate('/casual'); });
   }, [id, navigate]);
+
+  // Reset image index when color changes
+  useEffect(() => {
+    setSelectedImageIndex(0);
+    setImgError(false);
+  }, [selectedColor]);
 
   if (loading) {
     return (
@@ -44,7 +51,9 @@ export default function CasualProductDetail() {
   if (!product) return null;
 
   const currentColor = product.colors[selectedColor];
-  const imgSrc = imgError ? currentColor.image + '.svg' : resolveImage(currentColor.image);
+  const colorImages = currentColor.images || [currentColor.image];
+  const currentImage = colorImages[selectedImageIndex] || colorImages[0];
+  const imgSrc = imgError ? currentImage + '.svg' : resolveImage(currentImage);
 
   const handleAddToCart = () => {
     if (!selectedSize) {
@@ -100,7 +109,7 @@ export default function CasualProductDetail() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-          {/* Left - Image */}
+          {/* Left - Image Gallery */}
           <div>
             <div className="aspect-square bg-neutral-50 overflow-hidden relative">
               <img
@@ -110,26 +119,63 @@ export default function CasualProductDetail() {
                 onError={() => setImgError(true)}
               />
             </div>
-            {/* Color thumbnails */}
-            {product.colors.length > 1 && (
-              <div className="flex gap-2 mt-3">
-                {product.colors.map((c, i) => {
-                  const thumbSrc = c.image + '.jpg';
-                  return (
-                    <button
-                      key={c.slug}
-                      data-testid={`detail-thumb-${c.slug}`}
-                      onClick={() => { setSelectedColor(i); setImgError(false); }}
-                      className={`w-16 h-16 overflow-hidden border-2 transition-all ${
-                        i === selectedColor ? 'border-black' : 'border-neutral-200 hover:border-neutral-400'
-                      }`}
-                    >
-                      <img src={thumbSrc} alt={c.name} className="w-full h-full object-cover" onError={(e) => { e.target.src = c.image + '.svg'; }} />
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+            
+            {/* Gallery thumbnails - all images for current color */}
+            {(() => {
+              const hasMultipleImages = colorImages.length > 1 || product.colors.length > 1;
+              
+              if (!hasMultipleImages) return null;
+              
+              return (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {/* Show all images for current color */}
+                  {colorImages.map((img, imgIdx) => {
+                    const thumbSrc = (img.startsWith('/') ? img : img) + '.jpg';
+                    const isActive = imgIdx === selectedImageIndex;
+                    return (
+                      <button
+                        key={`${currentColor.slug}-${imgIdx}`}
+                        onClick={() => {
+                          setSelectedImageIndex(imgIdx);
+                          setImgError(false);
+                        }}
+                        className={`w-16 h-16 overflow-hidden border-2 transition-all ${
+                          isActive ? 'border-black' : 'border-neutral-200 hover:border-neutral-400'
+                        }`}
+                      >
+                        <img 
+                          src={thumbSrc} 
+                          alt={`${currentColor.name} ${imgIdx + 1}`} 
+                          className="w-full h-full object-cover" 
+                          onError={(e) => { e.target.src = img + '.svg'; }} 
+                        />
+                      </button>
+                    );
+                  })}
+                  
+                  {/* Color separator if multiple colors */}
+                  {product.colors.length > 1 && colorImages.length > 1 && (
+                    <div className="w-px h-16 bg-neutral-200 mx-1" />
+                  )}
+                  
+                  {/* Other colors */}
+                  {product.colors.length > 1 && product.colors.map((c, i) => {
+                    if (i === selectedColor) return null;
+                    const thumbSrc = c.image + '.jpg';
+                    return (
+                      <button
+                        key={c.slug}
+                        data-testid={`detail-thumb-${c.slug}`}
+                        onClick={() => { setSelectedColor(i); setImgError(false); }}
+                        className="w-16 h-16 overflow-hidden border-2 border-neutral-200 hover:border-neutral-400 transition-all opacity-60 hover:opacity-100"
+                      >
+                        <img src={thumbSrc} alt={c.name} className="w-full h-full object-cover" onError={(e) => { e.target.src = c.image + '.svg'; }} />
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
 
           {/* Right - Details */}
