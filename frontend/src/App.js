@@ -21,6 +21,7 @@ import AdminTickets from './pages/AdminTickets';
 import Contact from './pages/Contact';
 import PromoBundle from './pages/PromoBundle';
 import Casual from './pages/Casual';
+import CasualProductDetail from './pages/CasualProductDetail';
 import './App.css';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -87,6 +88,7 @@ function App() {
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/promotii" element={<PromoBundle />} />
                   <Route path="/casual" element={<Casual />} />
+                  <Route path="/casual/:id" element={<CasualProductDetail />} />
                 </Routes>
               </main>
               <Footer />

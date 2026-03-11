@@ -1317,10 +1317,10 @@ CASUAL_PRODUCTS_DATA = [
     {
         "name": "Nike Sport Pants",
         "slug": "nike-sport-pants",
-        "category": "pantaloni-lungi",
-        "garment_type": "pantaloni-lungi",
+        "category": "pantaloni-scurti",
+        "garment_type": "pantaloni-scurti",
         "price_ron": 150,
-        "description": "Pantaloni sport Nike cu design athletic. Material ușor și confortabil, potriviți atât pentru sală cât și pentru outfit-uri streetwear.",
+        "description": "Pantaloni scurți sport Nike cu design athletic. Material ușor și confortabil, potriviți atât pentru sală cât și pentru outfit-uri streetwear.",
         "colors": [
             {"name": "Negru", "slug": "negru", "image": "/images/casual/nike-sport-pants/negru"},
             {"name": "Verde", "slug": "verde", "image": "/images/casual/nike-sport-pants/verde"},
@@ -1328,7 +1328,7 @@ CASUAL_PRODUCTS_DATA = [
             {"name": "Light Blue", "slug": "light-blue", "image": "/images/casual/nike-sport-pants/light-blue"},
             {"name": "Dark Blue", "slug": "dark-blue", "image": "/images/casual/nike-sport-pants/dark-blue"}
         ],
-        "sizes": ["S", "M", "L", "XL", "2XL"]
+        "sizes": ["M", "L", "XL", "2XL", "3XL"]
     },
     {
         "name": "Nike Sport Vest",
