@@ -1526,3 +1526,40 @@ async def get_casual_product(product_id: str):
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     return serialize_doc(product)
+
+
+@app.post("/api/casual-products")
+async def create_casual_product(product: dict = Body(...)):
+    required = ["name", "slug", "category", "garment_type", "price_ron", "description", "colors", "sizes"]
+    for f in required:
+        if f not in product:
+            raise HTTPException(status_code=400, detail=f"Missing field: {f}")
+    result = await db.casual_products.insert_one(product)
+    return {"status": "success", "id": str(result.inserted_id)}
+
+
+@app.put("/api/casual-products/{product_id}")
+async def update_casual_product(product_id: str, data: dict = Body(...)):
+    data.pop("id", None)
+    data.pop("_id", None)
+    try:
+        result = await db.casual_products.update_one(
+            {"_id": ObjectId(product_id)},
+            {"$set": data}
+        )
+    except:
+        raise HTTPException(status_code=400, detail="Invalid product ID")
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return {"status": "success"}
+
+
+@app.delete("/api/casual-products/{product_id}")
+async def delete_casual_product(product_id: str):
+    try:
+        result = await db.casual_products.delete_one({"_id": ObjectId(product_id)})
+    except:
+        raise HTTPException(status_code=400, detail="Invalid product ID")
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return {"status": "success"}
