@@ -2,7 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Plus, Edit2, Trash2, Save, X, Upload, Image as ImageIcon, 
-  Package, ChevronLeft, Check, AlertTriangle, Eye, EyeOff, Tag
+  Package, ChevronLeft, Check, AlertTriangle, Eye, EyeOff, Tag,
+  GripVertical, ArrowUp, ArrowDown, Move
 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -589,6 +590,9 @@ export default function AdminCasualProducts() {
   const [editProduct, setEditProduct] = useState(null);
   const [casualVisible, setCasualVisible] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [reorderMode, setReorderMode] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [savingOrder, setSavingOrder] = useState(false);
 
   const loadProducts = async () => {
     try {
@@ -609,6 +613,47 @@ export default function AdminCasualProducts() {
   useEffect(() => {
     loadProducts();
   }, []);
+
+  // Reorder functions
+  const moveProduct = (fromIndex, toIndex) => {
+    const newProducts = [...products];
+    const [movedProduct] = newProducts.splice(fromIndex, 1);
+    newProducts.splice(toIndex, 0, movedProduct);
+    setProducts(newProducts);
+  };
+
+  const handleDragStart = (e, index) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+    moveProduct(draggedIndex, index);
+    setDraggedIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+  };
+
+  const saveOrder = async () => {
+    setSavingOrder(true);
+    try {
+      const productIds = products.map(p => p.id);
+      await axios.post(`${API_URL}/api/admin/casual-products/reorder`, {
+        product_ids: productIds
+      });
+      toast.success('Ordinea a fost salvată!');
+      setReorderMode(false);
+    } catch (err) {
+      console.error(err);
+      toast.error('Eroare la salvare ordine');
+    } finally {
+      setSavingOrder(false);
+    }
+  };
 
   const handleToggleCasual = async () => {
     try {
@@ -683,14 +728,60 @@ export default function AdminCasualProducts() {
             </h1>
             <p className="text-neutral-500">{products.length} produse</p>
           </div>
-          <button
-            onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 bg-[#CCFF00] text-black px-6 py-3 font-bold hover:bg-black hover:text-[#CCFF00] transition-all"
-          >
-            <Plus className="w-5 h-5" />
-            PRODUS NOU
-          </button>
+          
+          {/* Reorder Mode Toggle */}
+          {reorderMode ? (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => { setReorderMode(false); loadProducts(); }}
+                className="flex items-center gap-2 border-2 border-neutral-300 px-4 py-3 font-bold hover:border-black transition-all"
+              >
+                <X className="w-5 h-5" />
+                ANULEAZĂ
+              </button>
+              <button
+                onClick={saveOrder}
+                disabled={savingOrder}
+                className="flex items-center gap-2 bg-green-500 text-white px-6 py-3 font-bold hover:bg-green-600 transition-all disabled:opacity-50"
+              >
+                {savingOrder ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Save className="w-5 h-5" />
+                )}
+                SALVEAZĂ ORDINEA
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setReorderMode(true)}
+                className="flex items-center gap-2 border-2 border-neutral-300 px-4 py-3 font-bold hover:border-black transition-all"
+              >
+                <Move className="w-5 h-5" />
+                ORDONEAZĂ
+              </button>
+              <button
+                onClick={() => setShowForm(true)}
+                className="flex items-center gap-2 bg-[#CCFF00] text-black px-6 py-3 font-bold hover:bg-black hover:text-[#CCFF00] transition-all"
+              >
+                <Plus className="w-5 h-5" />
+                PRODUS NOU
+              </button>
+            </div>
+          )}
         </div>
+
+        {/* Reorder Instructions */}
+        {reorderMode && (
+          <div className="bg-blue-50 border-2 border-blue-200 p-4 mb-6 flex items-center gap-3">
+            <GripVertical className="w-6 h-6 text-blue-500" />
+            <div>
+              <p className="font-bold text-blue-700">Mod Ordonare Activ</p>
+              <p className="text-sm text-blue-600">Trage produsele pentru a le reordona sau folosește săgețile. Apasă "SALVEAZĂ ORDINEA" când ai terminat.</p>
+            </div>
+          </div>
+        )}
 
         {/* Casual Visibility Toggle */}
         <div className="bg-white border-2 border-neutral-200 p-4 mb-6 flex items-center justify-between">
@@ -735,11 +826,48 @@ export default function AdminCasualProducts() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {products.map(product => {
+            {products.map((product, index) => {
               const imageCount = product.colors?.reduce((sum, c) => sum + (c.images?.length || 1), 0) || product.colors?.length || 0;
               
               return (
-                <div key={product.id} className="bg-white border-2 border-neutral-200 overflow-hidden group">
+                <div 
+                  key={product.id} 
+                  className={`bg-white border-2 overflow-hidden group ${
+                    reorderMode 
+                      ? 'border-blue-300 cursor-move' 
+                      : 'border-neutral-200'
+                  } ${draggedIndex === index ? 'opacity-50 scale-95' : ''}`}
+                  draggable={reorderMode}
+                  onDragStart={(e) => reorderMode && handleDragStart(e, index)}
+                  onDragOver={(e) => reorderMode && handleDragOver(e, index)}
+                  onDragEnd={handleDragEnd}
+                >
+                  {/* Reorder controls */}
+                  {reorderMode && (
+                    <div className="bg-blue-100 p-2 flex items-center justify-between border-b border-blue-200">
+                      <div className="flex items-center gap-2">
+                        <GripVertical className="w-5 h-5 text-blue-500" />
+                        <span className="text-sm font-bold text-blue-700">#{index + 1}</span>
+                      </div>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => index > 0 && moveProduct(index, index - 1)}
+                          disabled={index === 0}
+                          className="p-1 bg-white rounded hover:bg-blue-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          <ArrowUp className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => index < products.length - 1 && moveProduct(index, index + 1)}
+                          disabled={index === products.length - 1}
+                          className="p-1 bg-white rounded hover:bg-blue-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          <ArrowDown className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="aspect-square bg-neutral-100 relative overflow-hidden">
                     {product.colors && product.colors[0] && (
                       <img
@@ -779,21 +907,23 @@ export default function AdminCasualProducts() {
                         {imageCount}
                       </div>
                     )}
-                    {/* Actions overlay */}
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-3">
-                      <button
-                        onClick={() => setEditProduct(product)}
-                        className="p-3 bg-white text-black rounded-full hover:bg-[#CCFF00] transition-all"
-                      >
-                        <Edit2 className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => setDeleteConfirm(product)}
-                        className="p-3 bg-white text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
+                    {/* Actions overlay - only show when not in reorder mode */}
+                    {!reorderMode && (
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-3">
+                        <button
+                          onClick={() => setEditProduct(product)}
+                          className="p-3 bg-white text-black rounded-full hover:bg-[#CCFF00] transition-all"
+                        >
+                          <Edit2 className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirm(product)}
+                          className="p-3 bg-white text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <div className="p-4">
                     <p className="text-xs text-[#CCFF00] bg-black inline-block px-2 py-0.5 mb-2">

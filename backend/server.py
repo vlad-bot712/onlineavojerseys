@@ -1512,9 +1512,32 @@ async def get_casual_products(category: Optional[str] = None, force: Optional[bo
     if category:
         query["category"] = category
 
-    cursor = db.casual_products.find(query)
+    # Sort by sort_order (ascending), then by created_at
+    cursor = db.casual_products.find(query).sort([("sort_order", 1), ("created_at", -1)])
     products = await cursor.to_list(length=100)
     return [serialize_doc(p) for p in products]
+
+
+@app.post("/api/admin/casual-products/reorder")
+async def reorder_casual_products(request: Request):
+    """Update the order of casual products"""
+    data = await request.json()
+    product_ids = data.get("product_ids", [])  # List of product IDs in desired order
+    
+    if not product_ids:
+        raise HTTPException(status_code=400, detail="No product IDs provided")
+    
+    # Update sort_order for each product
+    for index, product_id in enumerate(product_ids):
+        try:
+            await db.casual_products.update_one(
+                {"_id": ObjectId(product_id)},
+                {"$set": {"sort_order": index}}
+            )
+        except Exception as e:
+            print(f"Error updating order for {product_id}: {e}")
+    
+    return {"message": "Order updated successfully", "count": len(product_ids)}
 
 
 @app.get("/api/casual-products/{product_id}")
