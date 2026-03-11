@@ -13,13 +13,11 @@ clubs = [
     {"team": "Liverpool", "slug": "liverpool", "league": "Premier League", "country": "Anglia", "plays_ucl": True},
     {"team": "Chelsea", "slug": "chelsea", "league": "Premier League", "country": "Anglia", "plays_ucl": True},
     {"team": "Arsenal", "slug": "arsenal", "league": "Premier League", "country": "Anglia", "plays_ucl": True},
-    {"team": "Tottenham", "slug": "tottenham", "league": "Premier League", "country": "Anglia", "plays_ucl": False},
     {"team": "Bayern Munich", "slug": "bayern-munich", "league": "Bundesliga", "country": "Germania", "plays_ucl": True},
     {"team": "Borussia Dortmund", "slug": "borussia-dortmund", "league": "Bundesliga", "country": "Germania", "plays_ucl": True},
     {"team": "Juventus", "slug": "juventus", "league": "Serie A", "country": "Italia", "plays_ucl": True},
     {"team": "AC Milan", "slug": "ac-milan", "league": "Serie A", "country": "Italia", "plays_ucl": True},
     {"team": "Inter Milan", "slug": "inter-milan", "league": "Serie A", "country": "Italia", "plays_ucl": True},
-    {"team": "Napoli", "slug": "napoli", "league": "Serie A", "country": "Italia", "plays_ucl": True},
     {"team": "PSG", "slug": "psg", "league": "Ligue 1", "country": "Franța", "plays_ucl": True},
 ]
 
@@ -38,7 +36,7 @@ nationals = [
 ]
 
 years = [2024, 2025, 2026]
-kit_names = {"first": "Acasă", "second": "Deplasare", "third": "Al treilea"}
+kit_names = {"first": "First Kit", "second": "Second Kit", "third": "Third Kit"}
 
 def add_club_products():
     for club in clubs:
