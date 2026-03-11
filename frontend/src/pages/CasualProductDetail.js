@@ -91,6 +91,7 @@ export default function CasualProductDetail() {
     'geaca': 'Geacă',
     'hanorac': 'Hanorac',
     'papuci': 'Papuci',
+    'papuci-fotbal': 'Papuci de Fotbal',
   };
 
   const hasDiscount = product.sale_price_ron && product.sale_price_ron < product.price_ron;

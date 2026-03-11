@@ -17,6 +17,7 @@ const CATEGORIES = [
   { id: 'geaca', name: 'Geacă', icon: '🧥' },
   { id: 'hanorac', name: 'Hanorac', icon: '🧤' },
   { id: 'papuci', name: 'Papuci', icon: '👟' },
+  { id: 'papuci-fotbal', name: 'Papuci de Fotbal', icon: '⚽' },
 ];
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45'];
