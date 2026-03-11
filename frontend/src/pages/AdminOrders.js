@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, Package, Clock, Truck, CheckCircle, XCircle, Calendar, User, Phone, Mail, MapPin, CreditCard, Trash2, Activity } from 'lucide-react';
+import { Eye, Package, Clock, Truck, CheckCircle, XCircle, Calendar, User, Phone, Mail, MapPin, CreditCard, Trash2, Activity, ToggleLeft, ToggleRight } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import AnalyticsModal from '../components/AnalyticsModal';
@@ -12,6 +12,7 @@ export default function AdminOrders() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [casualVisible, setCasualVisible] = useState(false);
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
@@ -23,6 +24,22 @@ export default function AdminOrders() {
   useEffect(() => {
     loadOrders();
   }, [filter]);
+
+  useEffect(() => {
+    axios.get(`${API_URL}/api/settings/casual`)
+      .then(res => setCasualVisible(res.data.casual_visible))
+      .catch(() => {});
+  }, []);
+
+  const toggleCasual = async () => {
+    try {
+      const res = await axios.patch(`${API_URL}/api/settings/casual`);
+      setCasualVisible(res.data.casual_visible);
+      toast.success(res.data.casual_visible ? 'Casual ON — vizibil pentru toți' : 'Casual OFF — ascuns');
+    } catch {
+      toast.error('Eroare la schimbarea setării');
+    }
+  };
 
   const loadOrders = async () => {
     setLoading(true);
@@ -133,14 +150,30 @@ export default function AdminOrders() {
             <h1 className="text-4xl sm:text-5xl font-bold mb-2">COMENZI ADMIN</h1>
             <p className="text-neutral-600">Gestionează și monitorizează toate comenzile</p>
           </div>
-          {/* Analytics Button */}
-          <button
-            onClick={() => setShowAnalytics(true)}
-            className="bg-[#CCFF00] text-black px-6 py-3 font-bold flex items-center space-x-2 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
-          >
-            <Activity className="w-5 h-5" />
-            <span>TRAFIC SITE</span>
-          </button>
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Casual Toggle */}
+            <button
+              data-testid="casual-toggle"
+              onClick={toggleCasual}
+              className={`px-5 py-3 font-bold flex items-center space-x-2 border-2 transition-all ${
+                casualVisible
+                  ? 'bg-[#CCFF00] text-black border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]'
+                  : 'bg-neutral-200 text-neutral-600 border-neutral-300 hover:border-black'
+              }`}
+            >
+              {casualVisible ? <ToggleRight className="w-5 h-5" /> : <ToggleLeft className="w-5 h-5" />}
+              <span>CASUAL {casualVisible ? 'ON' : 'OFF'}</span>
+            </button>
+            {/* Analytics Button */}
+            <button
+              onClick={() => setShowAnalytics(true)}
+              className="bg-[#CCFF00] text-black px-6 py-3 font-bold flex items-center space-x-2 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+            >
+              <Activity className="w-5 h-5" />
+              <span>TRAFIC SITE</span>
+            </button>
+          </div>
         </div>
 
         {/* Stats Cards */}

@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Euro, User, Heart, Package, HelpCircle, Menu, X, Home, ShoppingBag, Mail } from 'lucide-react';
+import { ShoppingCart, Euro, User, Heart, Package, HelpCircle, Menu, X, Home, ShoppingBag, Mail, Shirt } from 'lucide-react';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useCart } from '../contexts/CartContext';
 import { useFavorites } from '../contexts/FavoritesContext';
 import NewsletterPopup from './NewsletterPopup';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function Navbar() {
   const { currency, toggleCurrency } = useCurrency();
@@ -14,6 +16,7 @@ export default function Navbar() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNewsletter, setShowNewsletter] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [casualVisible, setCasualVisible] = useState(false);
   const profileRef = useRef(null);
   const location = useLocation();
 
@@ -27,10 +30,16 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Close mobile menu when route changes
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/settings/casual`)
+      .then(r => r.json())
+      .then(d => setCasualVisible(d.casual_visible))
+      .catch(() => {});
+  }, [location.pathname]);
 
   const isActive = (path) => location.pathname === path;
 
@@ -57,13 +66,18 @@ export default function Navbar() {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden md:flex items-center gap-8">
               <Link to="/" data-testid="nav-home" className={`text-sm font-medium transition-colors ${isActive('/') ? 'text-[#CCFF00]' : 'hover:text-[#CCFF00]'}`}>
                 ACASĂ
               </Link>
               <Link to="/products" data-testid="nav-products" className={`text-sm font-medium transition-colors ${isActive('/products') ? 'text-[#CCFF00]' : 'hover:text-[#CCFF00]'}`}>
                 PRODUSE
               </Link>
+              {casualVisible && (
+                <Link to="/casual" data-testid="nav-casual" className={`text-sm font-medium transition-colors ${isActive('/casual') ? 'text-[#CCFF00]' : 'hover:text-[#CCFF00]'}`}>
+                  CASUAL
+                </Link>
+              )}
               <Link to="/contact" data-testid="nav-contact" className={`text-sm font-medium transition-colors ${isActive('/contact') ? 'text-[#CCFF00]' : 'hover:text-[#CCFF00]'}`}>
                 CONTACT
               </Link>
@@ -205,6 +219,16 @@ export default function Navbar() {
               <ShoppingBag className="w-5 h-5" />
               <span>PRODUSE</span>
             </Link>
+            {casualVisible && (
+              <Link 
+                to="/casual" 
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center space-x-4 px-6 py-4 text-base font-bold transition-colors ${isActive('/casual') ? 'bg-[#CCFF00] text-black' : 'hover:bg-neutral-100'}`}
+              >
+                <Shirt className="w-5 h-5" />
+                <span>CASUAL</span>
+              </Link>
+            )}
             <Link 
               to="/contact" 
               onClick={() => setMobileMenuOpen(false)}

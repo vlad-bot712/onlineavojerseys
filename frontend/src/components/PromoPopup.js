@@ -9,7 +9,7 @@ export default function PromoPopup() {
 
   useEffect(() => {
     // Don't show on admin or promo pages
-    if (location.pathname.startsWith('/admin') || location.pathname === '/promotii') return;
+    if (location.pathname.startsWith('/admin') || location.pathname === '/promotii' || location.pathname === '/casual') return;
     const shown = sessionStorage.getItem('promo_popup_shown');
     if (!shown) {
       const timer = setTimeout(() => {

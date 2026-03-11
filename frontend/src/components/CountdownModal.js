@@ -11,8 +11,8 @@ export default function CountdownModal({ isOpen, onClose }) {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
-  // Target date: April 1, 2026
-  const targetDate = new Date('2026-04-01T00:00:00').getTime();
+  // Target date: March 15, 2026
+  const targetDate = new Date('2026-03-15T00:00:00').getTime();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -116,7 +116,7 @@ export default function CountdownModal({ isOpen, onClose }) {
 
           {/* Launch Date */}
           <p className="text-neutral-500 text-sm mb-6">
-             Lansare: <span className="text-white font-bold">01 / 04 / 2026</span>
+             Lansare: <span className="text-white font-bold">15 / 03 / 2026</span>
           </p>
 
           {/* Email Subscribe */}

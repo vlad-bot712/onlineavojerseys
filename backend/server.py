@@ -1253,3 +1253,276 @@ async def get_tickets_stats():
         "urgent": urgent,
         "high_priority": high
     }
+
+
+
+# ═══════════════════════════════════════════════
+# CASUAL PRODUCTS & SETTINGS
+# ═══════════════════════════════════════════════
+
+CASUAL_PRODUCTS_DATA = [
+    {
+        "name": "Nike Running Division Shorts",
+        "slug": "nike-running-division-shorts",
+        "category": "pantaloni-scurti",
+        "garment_type": "pantaloni-scurti",
+        "price_ron": 150,
+        "description": "Pantaloni scurți Nike Running Division, confecționați din material ușor și respirabil. Design sport modern, ideali pentru alergare și activități casual.",
+        "colors": [
+            {"name": "Bej", "slug": "bej", "image": "/images/casual/nike-running-division-shorts/bej"},
+            {"name": "Negru", "slug": "negru", "image": "/images/casual/nike-running-division-shorts/negru"}
+        ],
+        "sizes": ["M", "L", "XL", "2XL", "3XL"]
+    },
+    {
+        "name": "Adidas Shorts",
+        "slug": "adidas-shorts",
+        "category": "pantaloni-scurti",
+        "garment_type": "pantaloni-scurti",
+        "price_ron": 150,
+        "description": "Pantaloni scurți Adidas cu design clasic sport. Material confortabil, potriviți pentru antrenament și purtare zilnică.",
+        "colors": [
+            {"name": "Alb / Negru", "slug": "alb-negru", "image": "/images/casual/adidas-shorts/alb-negru"},
+            {"name": "Gri / Alb", "slug": "gri-alb", "image": "/images/casual/adidas-shorts/gri-alb"},
+            {"name": "Negru / Alb", "slug": "negru-alb", "image": "/images/casual/adidas-shorts/negru-alb"}
+        ],
+        "sizes": ["M", "L", "XL", "2XL", "3XL"]
+    },
+    {
+        "name": "Nike Shorts",
+        "slug": "nike-shorts",
+        "category": "pantaloni-scurti",
+        "garment_type": "pantaloni-scurti",
+        "price_ron": 150,
+        "description": "Pantaloni scurți Nike cu tehnologie Dri-FIT. Ușori, respirabili și confortabili, perfecți pentru sport și casual.",
+        "colors": [
+            {"name": "Bej", "slug": "bej", "image": "/images/casual/nike-shorts/bej"},
+            {"name": "Gri", "slug": "gri", "image": "/images/casual/nike-shorts/gri"},
+            {"name": "Negru", "slug": "negru", "image": "/images/casual/nike-shorts/negru"}
+        ],
+        "sizes": ["M", "L", "XL", "2XL", "3XL"]
+    },
+    {
+        "name": "Nike Training Pants",
+        "slug": "nike-training-pants",
+        "category": "pantaloni-lungi",
+        "garment_type": "pantaloni-lungi",
+        "price_ron": 150,
+        "description": "Pantaloni lungi Nike Training din material elastic și respirabil. Croială modernă, ideali pentru antrenament și outfit casual.",
+        "colors": [
+            {"name": "Negru", "slug": "negru", "image": "/images/casual/nike-training-pants/negru"}
+        ],
+        "sizes": ["S", "M", "L", "XL", "2XL"]
+    },
+    {
+        "name": "Nike Sport Pants",
+        "slug": "nike-sport-pants",
+        "category": "pantaloni-lungi",
+        "garment_type": "pantaloni-lungi",
+        "price_ron": 150,
+        "description": "Pantaloni sport Nike cu design athletic. Material ușor și confortabil, potriviți atât pentru sală cât și pentru outfit-uri streetwear.",
+        "colors": [
+            {"name": "Negru", "slug": "negru", "image": "/images/casual/nike-sport-pants/negru"},
+            {"name": "Verde", "slug": "verde", "image": "/images/casual/nike-sport-pants/verde"},
+            {"name": "Gri", "slug": "gri", "image": "/images/casual/nike-sport-pants/gri"},
+            {"name": "Light Blue", "slug": "light-blue", "image": "/images/casual/nike-sport-pants/light-blue"},
+            {"name": "Dark Blue", "slug": "dark-blue", "image": "/images/casual/nike-sport-pants/dark-blue"}
+        ],
+        "sizes": ["S", "M", "L", "XL", "2XL"]
+    },
+    {
+        "name": "Nike Sport Vest",
+        "slug": "nike-sport-vest",
+        "category": "vesta",
+        "garment_type": "vesta",
+        "price_ron": 180,
+        "description": "Vestă Nike Sport cu izolație termică. Design modern și minimalist, perfectă pentru layering în sezonul rece.",
+        "colors": [
+            {"name": "Negru", "slug": "negru", "image": "/images/casual/nike-sport-vest/negru"},
+            {"name": "Gri", "slug": "gri", "image": "/images/casual/nike-sport-vest/gri"}
+        ],
+        "sizes": ["S", "M", "L", "XL", "2XL"]
+    },
+    {
+        "name": "Jordan T-Shirt Kit",
+        "slug": "jordan-tshirt-kit",
+        "category": "tricouri",
+        "garment_type": "tricou",
+        "price_ron": 160,
+        "description": "Tricou Jordan din bumbac premium, cu logo iconic Jumpman. Design sport-casual, confortabil și ușor de asortat.",
+        "colors": [
+            {"name": "Alb", "slug": "alb", "image": "/images/casual/jordan-tshirt-kit/alb"},
+            {"name": "Negru", "slug": "negru", "image": "/images/casual/jordan-tshirt-kit/negru"}
+        ],
+        "sizes": ["S", "M", "L", "XL", "2XL"]
+    },
+    {
+        "name": "Adidas T-Shirt",
+        "slug": "adidas-tshirt",
+        "category": "tricouri",
+        "garment_type": "tricou",
+        "price_ron": 160,
+        "description": "Tricou Adidas clasic cu cele 3 dungi iconice. Material respirabil și confortabil, perfect pentru sport și casual.",
+        "colors": [
+            {"name": "Alb", "slug": "alb", "image": "/images/casual/adidas-tshirt/alb"},
+            {"name": "Negru", "slug": "negru", "image": "/images/casual/adidas-tshirt/negru"}
+        ],
+        "sizes": ["S", "M", "L", "XL", "2XL"]
+    },
+    {
+        "name": "Jordan T-Shirt Kit 2",
+        "slug": "jordan-tshirt-kit-2",
+        "category": "tricouri",
+        "garment_type": "tricou",
+        "price_ron": 160,
+        "description": "A doua variantă a tricoului Jordan, cu design minimalist și materiale premium. Confort maxim pentru stil urban.",
+        "colors": [
+            {"name": "Alb", "slug": "alb", "image": "/images/casual/jordan-tshirt-kit-2/alb"},
+            {"name": "Negru", "slug": "negru", "image": "/images/casual/jordan-tshirt-kit-2/negru"}
+        ],
+        "sizes": ["S", "M", "L", "XL", "2XL"]
+    },
+    {
+        "name": "Jordan T-Shirt Kit 3",
+        "slug": "jordan-tshirt-kit-3",
+        "category": "tricouri",
+        "garment_type": "tricou",
+        "price_ron": 160,
+        "description": "Tricou Jordan Kit 3 cu imprimeu grafic modern. Material moale și respirabil, perfect pentru zilele active.",
+        "colors": [
+            {"name": "Alb", "slug": "alb", "image": "/images/casual/jordan-tshirt-kit-3/alb"},
+            {"name": "Negru", "slug": "negru", "image": "/images/casual/jordan-tshirt-kit-3/negru"}
+        ],
+        "sizes": ["S", "M", "L", "XL", "2XL"]
+    },
+    {
+        "name": "Jordan Logo Tee",
+        "slug": "jordan-logo-tee",
+        "category": "tricouri",
+        "garment_type": "tricou",
+        "price_ron": 160,
+        "description": "Tricou Jordan cu logo mare central. Design statement, din bumbac premium cu croială relaxată.",
+        "colors": [
+            {"name": "Negru cu logo alb", "slug": "negru", "image": "/images/casual/jordan-logo-tee/negru"}
+        ],
+        "sizes": ["S", "M", "L", "XL", "2XL"]
+    },
+    {
+        "name": "Nike Tee",
+        "slug": "nike-tee",
+        "category": "tricouri",
+        "garment_type": "tricou",
+        "price_ron": 160,
+        "description": "Tricou Nike essential cu Swoosh. Material Dri-FIT ușor, ideal atât pentru antrenament cât și pentru zi cu zi.",
+        "colors": [
+            {"name": "Alb cu logo negru", "slug": "alb", "image": "/images/casual/nike-tee/alb"},
+            {"name": "Negru cu logo alb", "slug": "negru", "image": "/images/casual/nike-tee/negru"}
+        ],
+        "sizes": ["S", "M", "L", "XL", "2XL"]
+    },
+    {
+        "name": "Nike x Stussy Tee #1",
+        "slug": "nike-stussy-tee-1",
+        "category": "tricouri",
+        "garment_type": "tricou",
+        "price_ron": 160,
+        "description": "Colaborare exclusivă Nike x Stüssy. Design streetwear premium, material heavyweight cu fit oversized.",
+        "colors": [
+            {"name": "Alb", "slug": "alb", "image": "/images/casual/nike-stussy-tee-1/alb"},
+            {"name": "Negru", "slug": "negru", "image": "/images/casual/nike-stussy-tee-1/negru"}
+        ],
+        "sizes": ["S", "M", "L", "XL", "2XL"]
+    },
+    {
+        "name": "Jordan Air Tee",
+        "slug": "jordan-air-tee",
+        "category": "tricouri",
+        "garment_type": "tricou",
+        "price_ron": 160,
+        "description": "Tricou Jordan Air cu design retro-modern. Bumbac moale 100%, croială confortabilă pentru un look clasic.",
+        "colors": [
+            {"name": "Alb", "slug": "alb", "image": "/images/casual/jordan-air-tee/alb"},
+            {"name": "Negru", "slug": "negru", "image": "/images/casual/jordan-air-tee/negru"}
+        ],
+        "sizes": ["S", "M", "L", "XL", "2XL"]
+    },
+    {
+        "name": "Nike x Stussy Tee #2",
+        "slug": "nike-stussy-tee-2",
+        "category": "tricouri",
+        "garment_type": "tricou",
+        "price_ron": 160,
+        "description": "A doua variantă Nike x Stüssy cu grafică unică. Piesă statement pentru colecția ta streetwear.",
+        "colors": [
+            {"name": "Alb", "slug": "alb", "image": "/images/casual/nike-stussy-tee-2/alb"},
+            {"name": "Negru", "slug": "negru", "image": "/images/casual/nike-stussy-tee-2/negru"}
+        ],
+        "sizes": ["S", "M", "L", "XL", "2XL"]
+    },
+]
+
+
+@app.on_event("startup")
+async def seed_casual_products():
+    """Seed casual products and settings"""
+    # Ensure settings document exists
+    settings = await db.site_settings.find_one({"key": "casual_visible"})
+    if not settings:
+        await db.site_settings.insert_one({"key": "casual_visible", "value": False})
+        print("Created casual_visible setting (default: False)")
+
+    # Seed casual products
+    existing = await db.casual_products.count_documents({})
+    if existing != len(CASUAL_PRODUCTS_DATA):
+        await db.casual_products.delete_many({})
+        for p in CASUAL_PRODUCTS_DATA:
+            await db.casual_products.insert_one(dict(p))
+        print(f"Seeded {len(CASUAL_PRODUCTS_DATA)} casual products")
+    else:
+        print(f"Casual products OK: {existing}")
+
+
+@app.get("/api/settings/casual")
+async def get_casual_setting():
+    setting = await db.site_settings.find_one({"key": "casual_visible"}, {"_id": 0})
+    return {"casual_visible": setting["value"] if setting else False}
+
+
+@app.patch("/api/settings/casual")
+async def toggle_casual_setting():
+    setting = await db.site_settings.find_one({"key": "casual_visible"})
+    new_value = not (setting["value"] if setting else False)
+    await db.site_settings.update_one(
+        {"key": "casual_visible"},
+        {"$set": {"value": new_value}},
+        upsert=True
+    )
+    return {"casual_visible": new_value}
+
+
+@app.get("/api/casual-products")
+async def get_casual_products(category: Optional[str] = None, force: Optional[bool] = False):
+    # Check visibility (unless force=True for admin)
+    if not force:
+        setting = await db.site_settings.find_one({"key": "casual_visible"})
+        if not setting or not setting.get("value", False):
+            return []
+
+    query = {}
+    if category:
+        query["category"] = category
+
+    cursor = db.casual_products.find(query)
+    products = await cursor.to_list(length=100)
+    return [serialize_doc(p) for p in products]
+
+
+@app.get("/api/casual-products/{product_id}")
+async def get_casual_product(product_id: str):
+    try:
+        product = await db.casual_products.find_one({"_id": ObjectId(product_id)})
+    except:
+        product = None
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return serialize_doc(product)
