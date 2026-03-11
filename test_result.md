@@ -101,3 +101,92 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Fix casual products checkout - users cannot complete orders for casual products"
+
+backend:
+  - task: "Casual products API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Casual products API exists and returns products correctly"
+
+  - task: "Orders API for casual products"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Orders API exists, needs testing with casual products"
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE BACKEND TESTING COMPLETED - All casual products checkout APIs working perfectly: 1) GET /api/settings/casual returns casual_visible setting correctly, 2) GET /api/casual-products returns 15 products with proper structure (force=true bypasses visibility), 3) GET /api/casual-products/{id} fetches individual products correctly, 4) POST /api/orders successfully creates orders with casual product items in exact format specified (product_id, customization.color, version=fan, kit=null). Orders are created with correct order numbers, status=processing for ramburs payment, payment_status=cod. Order validation and item verification all passed. Error handling works correctly (404 for invalid IDs, 422 for invalid order data)."
+
+frontend:
+  - task: "Casual product detail page add to cart"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/CasualProductDetail.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Fixed addToCart function to use correct product format (id, price_ron, images, selectedVariantImage)"
+
+  - task: "Cart page display casual products"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/Cart.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added isCasual product display logic with CASUAL badge and color info"
+
+  - task: "Checkout page casual products"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/Checkout.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added isCasual product display in order summary"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Casual product detail page add to cart"
+    - "Cart page display casual products"
+    - "Checkout page casual products"
+    - "Orders API for casual products"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Fixed the casual products checkout flow. The issue was that CasualProductDetail.js was calling addToCart with an incorrect object format (using product_id instead of id). Fixed to use the same format as jersey products. Updated Cart.js and Checkout.js to properly display casual products with CASUAL badge."
+  - agent: "testing"
+    message: "✅ BACKEND TESTING COMPLETE: All casual products checkout APIs are fully functional! Tested and verified: 1) Settings API (GET/PATCH /api/settings/casual) - toggles casual visibility correctly, 2) Casual Products API (GET /api/casual-products) - returns 15 products when visible or with force=true, handles category filtering, individual product fetch works, 3) Orders API (POST /api/orders) - successfully processes casual product orders with exact format specified in review request including customization.color, version=fan, kit=null. Created orders get proper order numbers (AVO00001, AVO00002), status=processing for ramburs payment, payment_status=cod. All validation, error handling, and edge cases work correctly. Backend APIs are ready for production use."

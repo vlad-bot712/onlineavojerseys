@@ -666,6 +666,17 @@ export default function Checkout() {
                             <span className="text-xs font-bold">0 RON</span>
                           </div>
                         </div>
+                      ) : item.product.isCasual ? (
+                        <div className="flex justify-between">
+                          <span className="text-neutral-600">
+                            <span className="bg-[#CCFF00] text-black text-xs font-bold px-1">CASUAL</span>{' '}
+                            {item.product.name} ({item.size}) x{item.quantity}
+                            {item.product.customization?.color && (
+                              <span className="ml-1 text-xs text-neutral-500">({item.product.customization.color})</span>
+                            )}
+                          </span>
+                          <span className="font-bold">{formatPrice(item.product.price_ron * item.quantity)}</span>
+                        </div>
                       ) : (
                         <div className="flex justify-between">
                           <span className="text-neutral-600">

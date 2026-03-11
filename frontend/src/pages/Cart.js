@@ -111,6 +111,16 @@ export default function Cart() {
                             </div>
                           )}
                         </>
+                      ) : item.product.isCasual ? (
+                        <>
+                          <h3 className="font-bold text-lg">{item.product.name}</h3>
+                          <p className="text-sm text-neutral-500">
+                            <span className="bg-[#CCFF00] text-black text-xs font-bold px-1 py-0.5 mr-1">CASUAL</span>
+                            {item.product.customization?.color && `Culoare: ${item.product.customization.color}`}
+                          </p>
+                          <p className="text-sm text-neutral-500">Mărime: {item.size}</p>
+                          <p className="font-bold mt-2">{formatPrice(item.product.price_ron)}</p>
+                        </>
                       ) : (
                         <>
                           <h3 className="font-bold text-lg">{item.product.name}</h3>

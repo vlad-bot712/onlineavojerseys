@@ -51,15 +51,18 @@ export default function CasualProductDetail() {
       toast.error('Selectează o mărime!');
       return;
     }
-    addToCart({
-      product_id: product.id,
-      product_name: product.name,
-      product_image: resolveImage(currentColor.image),
-      size: selectedSize,
-      quantity: 1,
+    // Build product object in the format CartContext expects
+    const cartProduct = {
+      id: product.id,
+      name: product.name,
       price_ron: product.price_ron,
+      images: [resolveImage(currentColor.image)],
+      selectedVariantImage: resolveImage(currentColor.image),
       customization: { color: currentColor.name },
-    });
+      isCasual: true, // Mark as casual product
+      category: product.category,
+    };
+    addToCart(cartProduct, selectedSize);
     setAdded(true);
     toast.success('Adăugat în coș!');
     setTimeout(() => setAdded(false), 2000);
